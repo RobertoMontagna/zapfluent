@@ -21,10 +21,6 @@ func (f typedFieldNoop[T]) Format(_ func(T) string) TypedField[string] {
 	return typedFieldNoop[string]{}
 }
 
-func (f typedFieldNoop[T]) AsPII() TypedField[T] {
-	return f
-}
-
 func (f typedFieldNoop[T]) encode(_ zapcore.ObjectEncoder) error {
 	return nil
 }

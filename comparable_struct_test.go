@@ -13,7 +13,7 @@ type comparableStructTestStruct struct {
 
 func (s comparableStructTestStruct) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 	return zapfluent.NewFluent(enc).
-		Add(zapfluent.ComparableStruct(s.Field1).NonZero().AsPII().Name("field1")).
+		Add(zapfluent.ComparableStruct(s.Field1).NonZero().Name("field1")).
 		Add(zapfluent.String(s.Field2).NonZero().Name("field2")).
 		Done()
 }
@@ -23,7 +23,7 @@ func ExampleComparableStruct_notEmpty() {
 		"test",
 		zap.Object("test_struct", comparableStructTestStruct{Field1: intTestStruct{42}}),
 	)
-	// Output: {"level":"info","msg":"test","test_struct":{"field1 <<pii>>":{"field1":42}}}
+	// Output: {"level":"info","msg":"test","test_struct":{"field1":{"field1":42}}}
 }
 
 func ExampleComparableStruct_empty() {

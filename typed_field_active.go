@@ -14,7 +14,6 @@ type TypedFieldActive[T any] struct {
 	functions TypeFieldFunctions[T]
 	value     T
 	name      string
-	isPii     bool
 }
 
 func NewTypedField[T any](
@@ -47,15 +46,6 @@ func (f TypedFieldActive[T]) Format(formatter func(T) string) TypedField[string]
 	return String(formatter(f.value))
 }
 
-func (f TypedFieldActive[T]) AsPII() TypedField[T] {
-	f.isPii = true
-	return f
-}
-
 func (f TypedFieldActive[T]) encode(encoder zapcore.ObjectEncoder) error {
-	name := f.name
-	if f.isPii {
-		name += " <<pii>>"
-	}
-	return f.functions.EncodeFunc(encoder, name, f.value)
+	return f.functions.EncodeFunc(encoder, f.name, f.value)
 }

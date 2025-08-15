@@ -7,5 +7,4 @@ type TypedField[T any] interface {
 	Filter(condition func(T) bool) TypedField[T]
 	NonZero() TypedField[T]
 	Format(formatter func(T) string) TypedField[string]
-	AsPII() TypedField[T]
 }
