@@ -11,7 +11,6 @@ func stringTypeFns() TypeFieldFunctions[string] {
 		IsNonZero: func(s string) bool {
 			return s != ""
 		},
-		FieldNoop: typedFieldNoop[string]{},
 	}
 }
 

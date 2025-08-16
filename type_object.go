@@ -10,7 +10,6 @@ func objectTypeFns[T zapcore.ObjectMarshaler](isNonZero func(T) bool) TypeFieldF
 			return encoder.AddObject(name, value)
 		},
 		IsNonZero: isNonZero,
-		FieldNoop: typedFieldNoop[T]{},
 	}
 }
 

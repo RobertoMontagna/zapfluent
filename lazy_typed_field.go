@@ -7,7 +7,6 @@ type EncodeFunc[T any] func(zapcore.ObjectEncoder, string, T) error
 type TypeFieldFunctions[T any] struct {
 	EncodeFunc EncodeFunc[T]
 	IsNonZero  func(T) bool
-	FieldNoop  TypedField[T]
 }
 
 type LazyValue[T any] func() (T, bool)

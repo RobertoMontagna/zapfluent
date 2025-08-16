@@ -11,7 +11,6 @@ func intTypeFns() TypeFieldFunctions[int] {
 		IsNonZero: func(i int) bool {
 			return i != 0
 		},
-		FieldNoop: typedFieldNoop[int]{},
 	}
 }
 

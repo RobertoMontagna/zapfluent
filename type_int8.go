@@ -11,7 +11,6 @@ func int8TypeFns() TypeFieldFunctions[int8] {
 		IsNonZero: func(i int8) bool {
 			return i != 0
 		},
-		FieldNoop: typedFieldNoop[int8]{},
 	}
 }
 
