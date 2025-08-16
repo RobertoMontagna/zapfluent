@@ -9,11 +9,9 @@ type TypeFieldFunctions[T any] struct {
 	IsNonZero  func(T) bool
 }
 
-type LazyValue[T any] func() (T, bool)
-
 type LazyTypedField[T any] struct {
 	functions TypeFieldFunctions[T]
-	value     LazyValue[T]
+	optional  LazyOptional[T]
 	name      string
 }
 
@@ -25,14 +23,12 @@ func NewTypedField[T any](
 	return &LazyTypedField[T]{
 		functions: functions,
 		name:      name,
-		value: func() (T, bool) {
-			return value, true
-		},
+		optional:  NewLazyOptional(value),
 	}
 }
 
 func (f *LazyTypedField[T]) Encode(encoder zapcore.ObjectEncoder) error {
-	val, ok := f.value()
+	val, ok := f.optional.Get()
 	if !ok {
 		return nil
 	}
@@ -43,17 +39,7 @@ func (f *LazyTypedField[T]) Filter(condition func(T) bool) TypedField[T] {
 	return &LazyTypedField[T]{
 		functions: f.functions,
 		name:      f.name,
-		value: func() (T, bool) {
-			val, ok := f.value()
-			if !ok {
-				return val, false
-			}
-			if condition(val) {
-				return val, true
-			}
-			var zero T
-			return zero, false
-		},
+		optional:  f.optional.Filter(condition),
 	}
 }
 
@@ -65,13 +51,6 @@ func (f *LazyTypedField[T]) Format(formatter func(T) string) TypedField[string] 
 	return &LazyTypedField[string]{
 		name:      f.name,
 		functions: stringTypeFns(),
-		value: func() (string, bool) {
-			val, ok := f.value()
-			if !ok {
-				var zero string
-				return zero, false
-			}
-			return formatter(val), true
-		},
+		optional:  f.optional.MapToString(formatter),
 	}
 }
