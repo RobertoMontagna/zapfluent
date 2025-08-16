@@ -28,9 +28,10 @@ func comparableStructIsNonZero[T comparableStruct]() func(value T) bool {
 	}
 }
 
-func ComparableStruct[T comparableStruct](value T) TypedField[T] {
+func ComparableStruct[T comparableStruct](name string, value T) TypedField[T] {
 	return NewTypedField(
 		comparableStructFunctions[T](),
+		name,
 		value,
 	)
 }

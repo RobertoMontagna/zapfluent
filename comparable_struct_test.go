@@ -13,8 +13,8 @@ type comparableStructTestStruct struct {
 
 func (s comparableStructTestStruct) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 	return zapfluent.NewFluent(enc).
-		Add(zapfluent.ComparableStruct(s.Field1).NonZero().Name("field1")).
-		Add(zapfluent.String(s.Field2).NonZero().Name("field2")).
+		Add(zapfluent.ComparableStruct("field1", s.Field1).NonZero()).
+		Add(zapfluent.String("field2", s.Field2).NonZero()).
 		Done()
 }
 
