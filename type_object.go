@@ -4,15 +4,19 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
+func objectTypeFns[T zapcore.ObjectMarshaler](isNonZero func(T) bool) TypeFieldFunctions[T] {
+	return TypeFieldFunctions[T]{
+		EncodeFunc: func(encoder zapcore.ObjectEncoder, name string, value T) error {
+			return encoder.AddObject(name, value)
+		},
+		IsNonZero: isNonZero,
+		FieldNoop: typedFieldNoop[T]{},
+	}
+}
+
 func Object[T zapcore.ObjectMarshaler](name string, value T, isNonZero func(T) bool) TypedField[T] {
 	return NewTypedField(
-		TypeFieldFunctions[T]{
-			EncodeFunc: func(encoder zapcore.ObjectEncoder, name string, value T) error {
-				return encoder.AddObject(name, value)
-			},
-			IsNonZero: isNonZero,
-			FieldNoop: typedFieldNoop[T]{},
-		},
+		objectTypeFns(isNonZero),
 		name,
 		value,
 	)
