@@ -15,9 +15,9 @@ func NewFluent(
 	return fluent
 }
 
-func (z *Fluent) Add(encoder zapcore.ObjectMarshalerFunc) *Fluent {
+func (z *Fluent) Add(field Field) *Fluent {
 	// TODO manage the error
-	encoder(z.enc)
+	field.Encode(z.enc)
 	return z
 }
 

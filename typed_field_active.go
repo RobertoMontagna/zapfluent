@@ -18,17 +18,14 @@ type TypedFieldActive[T any] struct {
 
 func NewTypedField[T any](
 	functions TypeFieldFunctions[T],
+	name string,
 	value T,
 ) TypedField[T] {
 	return TypedFieldActive[T]{
 		functions: functions,
+		name:      name,
 		value:     value,
 	}
-}
-
-func (f TypedFieldActive[T]) Name(name string) zapcore.ObjectMarshalerFunc {
-	f.name = name
-	return f.encode
 }
 
 func (f TypedFieldActive[T]) Filter(condition func(T) bool) TypedField[T] {
@@ -43,9 +40,9 @@ func (f TypedFieldActive[T]) NonZero() TypedField[T] {
 }
 
 func (f TypedFieldActive[T]) Format(formatter func(T) string) TypedField[string] {
-	return String(formatter(f.value))
+	return String(f.name, formatter(f.value))
 }
 
-func (f TypedFieldActive[T]) encode(encoder zapcore.ObjectEncoder) error {
+func (f TypedFieldActive[T]) Encode(encoder zapcore.ObjectEncoder) error {
 	return f.functions.EncodeFunc(encoder, f.name, f.value)
 }

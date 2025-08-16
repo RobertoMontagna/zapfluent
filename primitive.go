@@ -52,10 +52,11 @@ func primitiveIsNonZero[T primitiveType]() func(value T) bool {
 
 func Primitive[T primitiveType](
 	options ...PrimitiveFunctionsOption[T],
-) func(value T) TypedField[T] {
-	return func(value T) TypedField[T] {
+) func(name string, value T) TypedField[T] {
+	return func(name string, value T) TypedField[T] {
 		return NewTypedField(
 			primitiveFunctions[T](options...),
+			name,
 			value,
 		)
 	}
