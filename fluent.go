@@ -1,9 +1,13 @@
 package zapfluent
 
-import "go.uber.org/zap/zapcore"
+import (
+	"go.uber.org/multierr"
+	"go.uber.org/zap/zapcore"
+)
 
 type Fluent struct {
 	enc zapcore.ObjectEncoder
+	err error
 }
 
 func NewFluent(
@@ -16,11 +20,12 @@ func NewFluent(
 }
 
 func (z *Fluent) Add(field Field) *Fluent {
-	// TODO manage the error
-	field.Encode(z.enc)
+	if err := field.Encode(z.enc); err != nil {
+		z.err = multierr.Append(z.err, err)
+	}
 	return z
 }
 
 func (z *Fluent) Done() error {
-	return nil
+	return z.err
 }
