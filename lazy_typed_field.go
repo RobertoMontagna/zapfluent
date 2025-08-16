@@ -1,6 +1,9 @@
 package zapfluent
 
-import "go.uber.org/zap/zapcore"
+import (
+	"go.robertomontagna.dev/zapfluent/lazy"
+	"go.uber.org/zap/zapcore"
+)
 
 type EncodeFunc[T any] func(zapcore.ObjectEncoder, string, T) error
 
@@ -11,7 +14,7 @@ type TypeFieldFunctions[T any] struct {
 
 type LazyTypedField[T any] struct {
 	functions TypeFieldFunctions[T]
-	optional  LazyOptional[T]
+	optional  lazy.LazyOptional[T]
 	name      string
 }
 
@@ -23,7 +26,7 @@ func NewTypedField[T any](
 	return &LazyTypedField[T]{
 		functions: functions,
 		name:      name,
-		optional:  NewLazyOptional(value),
+		optional:  lazy.Some(value),
 	}
 }
 
@@ -51,6 +54,6 @@ func (f *LazyTypedField[T]) Format(formatter func(T) string) TypedField[string] 
 	return &LazyTypedField[string]{
 		name:      f.name,
 		functions: stringTypeFns(),
-		optional:  f.optional.MapToString(formatter),
+		optional:  lazy.Map(f.optional, formatter),
 	}
 }
