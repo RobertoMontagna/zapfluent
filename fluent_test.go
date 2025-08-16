@@ -19,10 +19,10 @@ func (f errorField) Encode(enc zapcore.ObjectEncoder) error {
 
 func TestFluent_errorHandling(t *testing.T) {
 	expectedErr := errors.New("test error")
-
+	field := errorField{err: expectedErr}
 	fluent := zapfluent.NewFluent(nil)
-	fluent.Add(errorField{err: expectedErr})
-	err := fluent.Done()
+
+	err := fluent.Add(field).Done()
 
 	assert.Equal(t, expectedErr, err)
 }
