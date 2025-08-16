@@ -57,3 +57,30 @@ func TestLazyOptional_Map(t *testing.T) {
 	_, ok2 := mappedOpt2.Get()
 	assert.False(t, ok2)
 }
+
+func TestLazyOptional_FlatMap(t *testing.T) {
+	// Test case 1: FlatMap on Some that returns Some
+	opt1 := lazy.Some(42)
+	fmOpt1 := lazy.FlatMap(opt1, func(i int) lazy.LazyOptional[string] {
+		return lazy.Some(strconv.Itoa(i))
+	})
+	val1, ok1 := fmOpt1.Get()
+	assert.True(t, ok1)
+	assert.Equal(t, "42", val1)
+
+	// Test case 2: FlatMap on Some that returns Empty
+	opt2 := lazy.Some(42)
+	fmOpt2 := lazy.FlatMap(opt2, func(i int) lazy.LazyOptional[string] {
+		return lazy.Empty[string]()
+	})
+	_, ok2 := fmOpt2.Get()
+	assert.False(t, ok2)
+
+	// Test case 3: FlatMap on Empty
+	opt3 := lazy.Empty[int]()
+	fmOpt3 := lazy.FlatMap(opt3, func(i int) lazy.LazyOptional[string] {
+		return lazy.Some(strconv.Itoa(i))
+	})
+	_, ok3 := fmOpt3.Get()
+	assert.False(t, ok3)
+}

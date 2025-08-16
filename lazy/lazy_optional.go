@@ -24,18 +24,10 @@ func (o LazyOptional[T]) Get() (T, bool) {
 }
 
 func (o LazyOptional[T]) Filter(condition func(T) bool) LazyOptional[T] {
-	return LazyOptional[T]{
-		producer: func() (T, bool) {
-			val, ok := o.producer()
-			if !ok {
-				var zero T
-				return zero, false
-			}
-			if condition(val) {
-				return val, true
-			}
-			var zero T
-			return zero, false
-		},
-	}
+	return FlatMap(o, func(v T) LazyOptional[T] {
+		if condition(v) {
+			return Some(v)
+		}
+		return Empty[T]()
+	})
 }
