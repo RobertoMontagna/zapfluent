@@ -14,8 +14,8 @@ type intTestStruct struct {
 }
 
 func (s intTestStruct) MarshalLogObject(enc zapcore.ObjectEncoder) error {
-	return zapfluent.AsFluent(enc).
-		Add(zapfluent.Int(s.Field1).NonZero().Name("field1")).
+	return zapfluent.NewFluent(enc).
+		Add(zapfluent.Int("field1", s.Field1).NonZero()).
 		Done()
 }
 
@@ -44,17 +44,14 @@ func fpCurrying2to1[P1, P2, R1 any](f func(P1, P2) R1) func(P1) func(P2) R1 {
 }
 
 func ExampleInt_alternative() {
-	alternative := func(s intTestStruct) zapcore.ObjectMarshalerFunc {
-		return zapfluent.
-			Int(s.Field1).
-			NonZero().
-			Format(fpCurrying2to1(strings.Repeat)(".")).
-			Name("field1")
-	}
+	field := zapfluent.
+		Int("field1", 5).
+		NonZero().
+		Format(fpCurrying2to1(strings.Repeat)("."))
 
 	stdOutLogger().Infow(
 		"test",
-		zap.Object("test_struct", alternative(intTestStruct{5})),
+		zap.Object("test_struct", zapcore.ObjectMarshalerFunc(field.Encode)),
 	)
 	// Output: {"level":"info","msg":"test","test_struct":{"field1":"....."}}
 }
