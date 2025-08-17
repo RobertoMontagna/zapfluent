@@ -8,8 +8,12 @@ import (
 )
 
 func TestNewConstantProducer(t *testing.T) {
-	producer := lazy.NewConstantProducer("hello", 42)
+	expectedV1 := "hello"
+	expectedV2 := 42
+
+	producer := lazy.NewConstantProducer(expectedV1, expectedV2)
 	v1, v2 := producer()
-	assert.Equal(t, "hello", v1)
-	assert.Equal(t, 42, v2)
+
+	assert.Equal(t, expectedV1, v1)
+	assert.Equal(t, expectedV2, v2)
 }
