@@ -5,8 +5,9 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"go.robertomontagna.dev/zapfluent"
 	"go.uber.org/zap/zapcore"
+
+	"go.robertomontagna.dev/zapfluent"
 )
 
 type errorField struct {

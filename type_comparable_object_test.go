@@ -1,9 +1,10 @@
 package zapfluent_test
 
 import (
-	"go.robertomontagna.dev/zapfluent"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+
+	"go.robertomontagna.dev/zapfluent"
 )
 
 type comparableObjectTestStruct struct {
