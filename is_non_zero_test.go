@@ -7,26 +7,26 @@ import (
 	"go.robertomontagna.dev/zapfluent"
 )
 
-func TestIsNotNil(t *testing.T) {
-	var p *int
-	var i interface{}
-	var s []int
-	var m map[int]int
-	var c chan int
-	var f func()
+func TestIsNotNil_WithUntypedNil(t *testing.T) {
+	var input any = nil
 
+	actual := zapfluent.IsNotNil(input)
+
+	assert.False(t, actual)
+}
+
+func TestIsNotNil_WithTypedValues(t *testing.T) {
 	testCases := []struct {
 		name     string
 		input    any
 		expected bool
 	}{
-		{"untyped nil", nil, false},
-		{"nil pointer", p, false},
-		{"nil interface", i, false},
-		{"nil slice", s, false},
-		{"nil map", m, false},
-		{"nil channel", c, false},
-		{"nil func", f, false},
+		{"nil pointer", (*int)(nil), false},
+		{"nil interface", (interface{})(nil), false},
+		{"nil slice", ([]int)(nil), false},
+		{"nil map", (map[int]int)(nil), false},
+		{"nil channel", (chan int)(nil), false},
+		{"nil func", (func())(nil), false},
 		{"non-nil int", 1, true},
 		{"non-nil string", "hello", true},
 		{"non-nil struct", struct{}{}, true},
@@ -40,11 +40,9 @@ func TestIsNotNil(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			if tc.input == nil {
-				assert.Equal(t, tc.expected, zapfluent.IsNotNil[any](nil))
-			} else {
-				assert.Equal(t, tc.expected, zapfluent.IsNotNil(tc.input))
-			}
+			actual := zapfluent.IsNotNil(tc.input)
+
+			assert.Equal(t, tc.expected, actual)
 		})
 	}
 }
