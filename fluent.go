@@ -20,6 +20,9 @@ func NewFluent(
 }
 
 func (z *Fluent) Add(field Field) *Fluent {
+	if z.err != nil {
+		return z
+	}
 	if err := field.Encode(z.enc); err != nil {
 		z.err = multierr.Append(z.err, err)
 	}

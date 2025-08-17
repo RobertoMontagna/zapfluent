@@ -7,40 +7,42 @@ import (
 	"go.robertomontagna.dev/zapfluent"
 )
 
-func TestIsNotNil(t *testing.T) {
-	t.Run("with nil values", func(t *testing.T) {
-		var p *int
-		var i interface{}
-		var s []int
-		var m map[int]int
-		var c chan int
-		var f func()
+func TestIsNotNil_WithUntypedNil(t *testing.T) {
+	var input any = nil
 
-		assert.False(t, zapfluent.IsNotNil[any](nil))
-		assert.False(t, zapfluent.IsNotNil(p))
-		assert.False(t, zapfluent.IsNotNil(i))
-		assert.False(t, zapfluent.IsNotNil(s))
-		assert.False(t, zapfluent.IsNotNil(m))
-		assert.False(t, zapfluent.IsNotNil(c))
-		assert.False(t, zapfluent.IsNotNil(f))
-	})
+	actual := zapfluent.IsNotNil(input)
 
-	t.Run("with non-nil values", func(t *testing.T) {
-		p := new(int)
-		var i interface{} = 1
-		s := make([]int, 1)
-		m := make(map[int]int)
-		c := make(chan int)
-		f := func() {}
+	assert.False(t, actual)
+}
 
-		assert.True(t, zapfluent.IsNotNil(1))
-		assert.True(t, zapfluent.IsNotNil("hello"))
-		assert.True(t, zapfluent.IsNotNil(struct{}{}))
-		assert.True(t, zapfluent.IsNotNil(p))
-		assert.True(t, zapfluent.IsNotNil(i))
-		assert.True(t, zapfluent.IsNotNil(s))
-		assert.True(t, zapfluent.IsNotNil(m))
-		assert.True(t, zapfluent.IsNotNil(c))
-		assert.True(t, zapfluent.IsNotNil(f))
-	})
+func TestIsNotNil_WithTypedValues(t *testing.T) {
+	testCases := []struct {
+		name     string
+		input    any
+		expected bool
+	}{
+		{"nil pointer", (*int)(nil), false},
+		{"nil interface", (interface{})(nil), false},
+		{"nil slice", ([]int)(nil), false},
+		{"nil map", (map[int]int)(nil), false},
+		{"nil channel", (chan int)(nil), false},
+		{"nil func", (func())(nil), false},
+		{"non-nil int", 1, true},
+		{"non-nil string", "hello", true},
+		{"non-nil struct", struct{}{}, true},
+		{"non-nil pointer", new(int), true},
+		{"non-nil interface", interface{}(1), true},
+		{"non-nil slice", make([]int, 1), true},
+		{"non-nil map", make(map[int]int), true},
+		{"non-nil channel", make(chan int), true},
+		{"non-nil func", func() {}, true},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			actual := zapfluent.IsNotNil(tc.input)
+
+			assert.Equal(t, tc.expected, actual)
+		})
+	}
 }
