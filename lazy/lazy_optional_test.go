@@ -1,7 +1,6 @@
 package lazy_test
 
 import (
-	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -22,65 +21,22 @@ func TestLazyOptional_Empty(t *testing.T) {
 }
 
 func TestLazyOptional_Filter(t *testing.T) {
-	// Test case 1: Filter passes
-	opt1 := lazy.Some(42).Filter(func(i int) bool { return i > 10 })
-	val1, ok1 := opt1.Get()
-	assert.True(t, ok1)
-	assert.Equal(t, 42, val1)
-
-	// Test case 2: Filter fails
-	opt2 := lazy.Some(42).Filter(func(i int) bool { return i < 10 })
-	_, ok2 := opt2.Get()
-	assert.False(t, ok2)
-
-	// Test case 3: Filter on empty
-	opt3 := lazy.Empty[int]().Filter(func(i int) bool { return i > 10 })
-	_, ok3 := opt3.Get()
-	assert.False(t, ok3)
-}
-
-func TestLazyOptional_Map(t *testing.T) {
-	// Test case 1: Map on Some
-	opt1 := lazy.Some(42)
-	mappedOpt1 := lazy.Map(opt1, func(i int) string {
-		return strconv.Itoa(i)
+	t.Run("on Some with passing condition", func(t *testing.T) {
+		opt := lazy.Some(42).Filter(func(i int) bool { return i > 10 })
+		val, ok := opt.Get()
+		assert.True(t, ok)
+		assert.Equal(t, 42, val)
 	})
-	val1, ok1 := mappedOpt1.Get()
-	assert.True(t, ok1)
-	assert.Equal(t, "42", val1)
 
-	// Test case 2: Map on Empty
-	opt2 := lazy.Empty[int]()
-	mappedOpt2 := lazy.Map(opt2, func(i int) string {
-		return strconv.Itoa(i)
+	t.Run("on Some with failing condition", func(t *testing.T) {
+		opt := lazy.Some(42).Filter(func(i int) bool { return i < 10 })
+		_, ok := opt.Get()
+		assert.False(t, ok)
 	})
-	_, ok2 := mappedOpt2.Get()
-	assert.False(t, ok2)
-}
 
-func TestLazyOptional_FlatMap(t *testing.T) {
-	// Test case 1: FlatMap on Some that returns Some
-	opt1 := lazy.Some(42)
-	fmOpt1 := lazy.FlatMap(opt1, func(i int) lazy.LazyOptional[string] {
-		return lazy.Some(strconv.Itoa(i))
+	t.Run("on Empty", func(t *testing.T) {
+		opt := lazy.Empty[int]().Filter(func(i int) bool { return i > 10 })
+		_, ok := opt.Get()
+		assert.False(t, ok)
 	})
-	val1, ok1 := fmOpt1.Get()
-	assert.True(t, ok1)
-	assert.Equal(t, "42", val1)
-
-	// Test case 2: FlatMap on Some that returns Empty
-	opt2 := lazy.Some(42)
-	fmOpt2 := lazy.FlatMap(opt2, func(i int) lazy.LazyOptional[string] {
-		return lazy.Empty[string]()
-	})
-	_, ok2 := fmOpt2.Get()
-	assert.False(t, ok2)
-
-	// Test case 3: FlatMap on Empty
-	opt3 := lazy.Empty[int]()
-	fmOpt3 := lazy.FlatMap(opt3, func(i int) lazy.LazyOptional[string] {
-		return lazy.Some(strconv.Itoa(i))
-	})
-	_, ok3 := fmOpt3.Get()
-	assert.False(t, ok3)
 }

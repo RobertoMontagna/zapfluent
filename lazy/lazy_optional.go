@@ -6,7 +6,7 @@ type LazyOptional[T any] struct {
 
 func Some[T any](value T) LazyOptional[T] {
 	return LazyOptional[T]{
-		producer: ConstantFunction(value),
+		producer: NewConstantProducer(value, true),
 	}
 }
 
