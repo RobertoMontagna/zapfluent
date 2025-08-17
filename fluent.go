@@ -6,15 +6,18 @@ import (
 )
 
 type Fluent struct {
-	enc zapcore.ObjectEncoder
-	err error
+	enc    zapcore.ObjectEncoder
+	err    error
+	config FluentConfig
 }
 
 func NewFluent(
 	enc zapcore.ObjectEncoder,
+	config FluentConfig,
 ) *Fluent {
 	fluent := &Fluent{
-		enc: enc,
+		enc:    enc,
+		config: config,
 	}
 	return fluent
 }

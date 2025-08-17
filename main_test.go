@@ -21,7 +21,7 @@ func stdOutLogger() *zap.SugaredLogger {
 	core := zapcore.NewCore(
 		zapfluent.NewFluentEncoder(
 			zapcore.NewJSONEncoder(encoderCfg),
-			zapfluent.DefaultFluentConfig(),
+			zapfluent.NewFluentConfig(),
 		),
 		os.Stdout,
 		zap.DebugLevel,

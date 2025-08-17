@@ -12,7 +12,7 @@ type stringTestStruct struct {
 }
 
 func (s stringTestStruct) MarshalLogObject(enc zapcore.ObjectEncoder) error {
-	return zapfluent.NewFluent(enc).
+	return zapfluent.AsFluent(enc).
 		Add(zapfluent.String("field1", s.Field1).NonZero()).
 		Done()
 }

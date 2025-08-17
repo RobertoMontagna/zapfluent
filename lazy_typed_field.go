@@ -30,6 +30,10 @@ func NewTypedField[T any](
 	}
 }
 
+func (f *LazyTypedField[T]) Name() string {
+	return f.name
+}
+
 func (f *LazyTypedField[T]) Encode(encoder zapcore.ObjectEncoder) error {
 	val, ok := f.optional.Get()
 	if !ok {

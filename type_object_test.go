@@ -22,7 +22,7 @@ type objectTestStruct struct {
 }
 
 func (s objectTestStruct) MarshalLogObject(enc zapcore.ObjectEncoder) error {
-	return zapfluent.NewFluent(enc).
+	return zapfluent.AsFluent(enc).
 		Add(zapfluent.Object("field1", s.Field1, zapfluent.IsNotNil).NonZero()).
 		Done()
 }
