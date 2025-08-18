@@ -10,7 +10,7 @@ This project is currently under active development. APIs and functionality may c
 
 This library is being developed with the assistance of Jules by Google, an AI-powered software engineer. The following rules are being followed during development:
 
-- **No Unnecessary Comments**: The code must be self-documenting. Comments are to be avoided unless they are 100% necessary. This includes not using comments to delineate the sections of a test.
+- **Prefer Self-Documenting Code**: Avoid comments by using descriptive function and variable names that make the code's purpose clear. Comments should only be used when the code's logic is inherently complex and cannot be clarified through refactoring.
 - **AAA Unit Test Structure**: All unit tests must be implicitly structured following the Arrange-Act-Assert (AAA) pattern.
 - **Complete Test Coverage**: All production code must be covered by at least one unit test.
 - **Standard Import Formatting**: All import blocks must be grouped into four categories in a specific order: standard library, third-party, shared internal modules, and intra-module dependencies.
