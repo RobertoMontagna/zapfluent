@@ -1,0 +1,35 @@
+package testing_util
+
+import (
+	"os"
+
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
+
+	"go.robertomontagna.dev/zapfluent"
+	"go.robertomontagna.dev/zapfluent/config"
+)
+
+func StdOutLogger() *zap.SugaredLogger {
+	encoderCfg := zapcore.EncoderConfig{
+		MessageKey:     "msg",
+		LevelKey:       "level",
+		NameKey:        "logger",
+		EncodeLevel:    zapcore.LowercaseLevelEncoder,
+		EncodeTime:     zapcore.ISO8601TimeEncoder,
+		EncodeDuration: zapcore.StringDurationEncoder,
+	}
+	core := zapcore.NewCore(
+		zapfluent.NewFluentEncoder(
+			zapcore.NewJSONEncoder(encoderCfg),
+			config.NewConfiguration(),
+		),
+		os.Stdout,
+		zap.DebugLevel,
+	)
+	logger := zap.New(core)
+
+	zap.ReplaceGlobals(logger)
+
+	return zap.S()
+}

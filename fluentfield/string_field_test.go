@@ -1,0 +1,36 @@
+package fluentfield_test
+
+import (
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
+
+	"go.robertomontagna.dev/zapfluent"
+	"go.robertomontagna.dev/zapfluent/fluentfield"
+	"go.robertomontagna.dev/zapfluent/util/testing_util"
+)
+
+type stringTestStruct struct {
+	Field1 string
+}
+
+func (s stringTestStruct) MarshalLogObject(enc zapcore.ObjectEncoder) error {
+	return zapfluent.AsFluent(enc).
+		Add(fluentfield.String("field1", s.Field1).NonZero()).
+		Done()
+}
+
+func ExampleString_notEmpty() {
+	testing_util.StdOutLogger().Infow(
+		"test",
+		zap.Object("test_struct", stringTestStruct{"test"}),
+	)
+	// Output: {"level":"info","msg":"test","test_struct":{"field1":"test"}}
+}
+
+func ExampleString_empty() {
+	testing_util.StdOutLogger().Infow(
+		"test",
+		zap.Object("test_struct", stringTestStruct{}),
+	)
+	// Output: {"level":"info","msg":"test","test_struct":{}}
+}
