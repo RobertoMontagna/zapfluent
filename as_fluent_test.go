@@ -9,6 +9,7 @@ import (
 
 	"go.robertomontagna.dev/zapfluent"
 	"go.robertomontagna.dev/zapfluent/config"
+	"go.robertomontagna.dev/zapfluent/fluentfield"
 )
 
 func TestAsFluent(t *testing.T) {
@@ -20,6 +21,8 @@ func TestAsFluent(t *testing.T) {
 		fluent := zapfluent.AsFluent(fluentEncoder)
 
 		assert.NotNil(t, fluent)
+		err := fluent.Add(fluentfield.String("a-key", "a-value")).Done()
+		assert.NoError(t, err)
 	})
 
 	t.Run("with other encoder", func(t *testing.T) {
@@ -28,5 +31,7 @@ func TestAsFluent(t *testing.T) {
 		fluent := zapfluent.AsFluent(enc)
 
 		assert.NotNil(t, fluent)
+		err := fluent.Add(fluentfield.String("a-key", "a-value")).Done()
+		assert.NoError(t, err)
 	})
 }

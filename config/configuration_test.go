@@ -29,15 +29,32 @@ func TestNewConfiguration(t *testing.T) {
 }
 
 func TestConfiguration_Clone(t *testing.T) {
-	originalCfg := config.NewConfiguration(
-		config.WithErrorHandling(
-			config.NewErrorHandlingConfiguration(
-				config.WithMode(config.ErrorHandlingModeEarlyFailing),
+	t.Run("creates an equal copy", func(t *testing.T) {
+		originalCfg := config.NewConfiguration(
+			config.WithErrorHandling(
+				config.NewErrorHandlingConfiguration(
+					config.WithMode(config.ErrorHandlingModeEarlyFailing),
+				),
 			),
-		),
-	)
+		)
 
-	clone := originalCfg.Clone()
+		clone := originalCfg.Clone()
 
-	assert.Equal(t, originalCfg, clone)
+		assert.Equal(t, originalCfg, clone)
+	})
+
+	t.Run("cloned copy is independent", func(t *testing.T) {
+		originalCfg := config.NewConfiguration()
+
+		clone := originalCfg.Clone(
+			config.WithErrorHandling(
+				config.NewErrorHandlingConfiguration(
+					config.WithMode(config.ErrorHandlingModeEarlyFailing),
+				),
+			),
+		)
+
+		assert.Equal(t, config.ErrorHandlingModeEarlyFailing, clone.ErrorHandling().Mode())
+		assert.Equal(t, config.ErrorHandlingModeContinue, originalCfg.ErrorHandling().Mode())
+	})
 }
