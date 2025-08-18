@@ -1,4 +1,4 @@
-package lazy
+package lazyoptional
 
 func FlatMap[T any, U any](o LazyOptional[T], f func(T) LazyOptional[U]) LazyOptional[U] {
 	return LazyOptional[U]{

@@ -1,7 +1,7 @@
-package zapfluent
+package fluentfield
 
 import (
-	"go.robertomontagna.dev/zapfluent/lazy"
+	"go.robertomontagna.dev/zapfluent/functional/lazyoptional"
 	"go.uber.org/zap/zapcore"
 )
 
@@ -14,7 +14,7 @@ type TypeFieldFunctions[T any] struct {
 
 type LazyTypedField[T any] struct {
 	functions TypeFieldFunctions[T]
-	optional  lazy.LazyOptional[T]
+	optional  lazyoptional.LazyOptional[T]
 	name      string
 }
 
@@ -26,7 +26,7 @@ func NewTypedField[T any](
 	return &LazyTypedField[T]{
 		functions: functions,
 		name:      name,
-		optional:  lazy.Some(value),
+		optional:  lazyoptional.Some(value),
 	}
 }
 
@@ -58,6 +58,6 @@ func (f *LazyTypedField[T]) Format(formatter func(T) string) TypedField[string] 
 	return &LazyTypedField[string]{
 		name:      f.name,
 		functions: stringTypeFns(),
-		optional:  lazy.Map(f.optional, formatter),
+		optional:  lazyoptional.Map(f.optional, formatter),
 	}
 }

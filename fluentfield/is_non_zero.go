@@ -1,4 +1,4 @@
-package zapfluent
+package fluentfield
 
 import "reflect"
 

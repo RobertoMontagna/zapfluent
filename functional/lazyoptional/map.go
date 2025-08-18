@@ -1,4 +1,4 @@
-package lazy
+package lazyoptional
 
 func Map[T any, U any](o LazyOptional[T], mapper func(T) U) LazyOptional[U] {
 	return LazyOptional[U]{

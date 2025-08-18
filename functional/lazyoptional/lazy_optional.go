@@ -1,4 +1,4 @@
-package lazy
+package lazyoptional
 
 type LazyOptional[T any] struct {
 	producer func() (T, bool)

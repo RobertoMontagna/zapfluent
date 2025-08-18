@@ -1,10 +1,11 @@
-package zapfluent_test
+package fluentfield_test
 
 import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
 	"go.robertomontagna.dev/zapfluent"
+	"go.robertomontagna.dev/zapfluent/fluentfield"
 )
 
 type int8TestStruct struct {
@@ -13,7 +14,7 @@ type int8TestStruct struct {
 
 func (s int8TestStruct) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 	return zapfluent.AsFluent(enc).
-		Add(zapfluent.Int8("field1", s.Field1).NonZero()).
+		Add(fluentfield.Int8("field1", s.Field1).NonZero()).
 		Done()
 }
 

@@ -1,4 +1,4 @@
-package zapfluent
+package fluentfield
 
 type TypedField[T any] interface {
 	Field

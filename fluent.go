@@ -3,6 +3,8 @@ package zapfluent
 import (
 	"go.uber.org/multierr"
 	"go.uber.org/zap/zapcore"
+
+	"go.robertomontagna.dev/zapfluent/fluentfield"
 )
 
 type Fluent struct {
@@ -22,7 +24,7 @@ func NewFluent(
 	return fluent
 }
 
-func (z *Fluent) Add(field Field) *Fluent {
+func (z *Fluent) Add(field fluentfield.Field) *Fluent {
 	if z.err != nil {
 		return z
 	}

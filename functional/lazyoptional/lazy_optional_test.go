@@ -1,17 +1,17 @@
-package lazy_test
+package lazyoptional_test
 
 import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 
-	"go.robertomontagna.dev/zapfluent/lazy"
+	"go.robertomontagna.dev/zapfluent/functional/lazyoptional"
 )
 
 func TestLazyOptional_Some(t *testing.T) {
 	expectedValue := 42
 
-	opt := lazy.Some(expectedValue)
+	opt := lazyoptional.Some(expectedValue)
 	val, ok := opt.Get()
 
 	assert.True(t, ok)
@@ -19,7 +19,7 @@ func TestLazyOptional_Some(t *testing.T) {
 }
 
 func TestLazyOptional_Empty(t *testing.T) {
-	opt := lazy.Empty[int]()
+	opt := lazyoptional.Empty[int]()
 
 	_, ok := opt.Get()
 
@@ -28,7 +28,7 @@ func TestLazyOptional_Empty(t *testing.T) {
 
 func TestLazyOptional_Filter(t *testing.T) {
 	t.Run("on Some with passing condition", func(t *testing.T) {
-		opt := lazy.Some(42)
+		opt := lazyoptional.Some(42)
 		predicate := func(i int) bool { return i > 10 }
 
 		filteredOpt := opt.Filter(predicate)
@@ -39,7 +39,7 @@ func TestLazyOptional_Filter(t *testing.T) {
 	})
 
 	t.Run("on Some with failing condition", func(t *testing.T) {
-		opt := lazy.Some(42)
+		opt := lazyoptional.Some(42)
 		predicate := func(i int) bool { return i < 10 }
 
 		filteredOpt := opt.Filter(predicate)
@@ -49,7 +49,7 @@ func TestLazyOptional_Filter(t *testing.T) {
 	})
 
 	t.Run("on Empty", func(t *testing.T) {
-		opt := lazy.Empty[int]()
+		opt := lazyoptional.Empty[int]()
 		predicate := func(i int) bool { return i > 10 }
 
 		filteredOpt := opt.Filter(predicate)

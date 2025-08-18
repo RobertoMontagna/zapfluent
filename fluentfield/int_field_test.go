@@ -1,4 +1,4 @@
-package zapfluent_test
+package fluentfield_test
 
 import (
 	"strings"
@@ -7,6 +7,7 @@ import (
 	"go.uber.org/zap/zapcore"
 
 	"go.robertomontagna.dev/zapfluent"
+	"go.robertomontagna.dev/zapfluent/fluentfield"
 )
 
 type intTestStruct struct {
@@ -15,7 +16,7 @@ type intTestStruct struct {
 
 func (s intTestStruct) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 	return zapfluent.AsFluent(enc).
-		Add(zapfluent.Int("field1", s.Field1).NonZero()).
+		Add(fluentfield.Int("field1", s.Field1).NonZero()).
 		Done()
 }
 
@@ -44,7 +45,7 @@ func fpCurrying2to1[P1, P2, R1 any](f func(P1, P2) R1) func(P1) func(P2) R1 {
 }
 
 func ExampleInt_alternative() {
-	field := zapfluent.
+	field := fluentfield.
 		Int("field1", 5).
 		NonZero().
 		Format(fpCurrying2to1(strings.Repeat)("."))

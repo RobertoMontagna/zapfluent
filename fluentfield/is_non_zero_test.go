@@ -1,17 +1,17 @@
-package zapfluent_test
+package fluentfield_test
 
 import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 
-	"go.robertomontagna.dev/zapfluent"
+	"go.robertomontagna.dev/zapfluent/fluentfield"
 )
 
 func TestIsNotNil_WithUntypedNil(t *testing.T) {
 	var input any = nil
 
-	actual := zapfluent.IsNotNil(input)
+	actual := fluentfield.IsNotNil(input)
 
 	assert.False(t, actual)
 }
@@ -41,7 +41,7 @@ func TestIsNotNil_WithTypedValues(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			actual := zapfluent.IsNotNil(tc.input)
+			actual := fluentfield.IsNotNil(tc.input)
 
 			assert.Equal(t, tc.expected, actual)
 		})
