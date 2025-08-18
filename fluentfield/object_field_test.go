@@ -8,7 +8,6 @@ import (
 	"go.robertomontagna.dev/zapfluent/fluentfield"
 )
 
-// A simple struct that implements zapcore.ObjectMarshaler
 type testObject struct {
 	value string
 }

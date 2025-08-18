@@ -24,6 +24,9 @@ func (h *ErrorHandler) ManageError(newErr error) {
 	if newErr == nil {
 		return
 	}
+	if h.mode == config.ErrorHandlingModeEarlyFailing && h.err != nil {
+		return
+	}
 	h.err = multierr.Append(h.err, newErr)
 }
 
