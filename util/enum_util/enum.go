@@ -6,33 +6,29 @@ type EnumValue interface {
 	~int | ~int8 | ~int16 | ~int32 | ~int64
 }
 
-type UtilEnum[T EnumValue] struct {
-	values  map[T]string
-	unknown T
-	min     T
-	max     T
+type UtilEnum[E EnumValue] struct {
+	values  map[E]string
+	unknown E
 }
 
-func NewUtilEnum[T EnumValue](values map[T]string, unknown T, min T, max T) UtilEnum[T] {
-	return UtilEnum[T]{
+func NewUtilEnum[E EnumValue](values map[E]string, unknown E) UtilEnum[E] {
+	return UtilEnum[E]{
 		values:  values,
 		unknown: unknown,
-		min:     min,
-		max:     max,
 	}
 }
 
-func (e UtilEnum[T]) String(v T) string {
+func (e UtilEnum[E]) String(v E) string {
 	if s, ok := e.values[v]; ok {
 		return s
 	}
 	return fmt.Sprintf("Unknown(%d)", v)
 }
 
-func (e UtilEnum[T]) FromInt(i int) T {
-	v := T(i)
-	if v >= e.min && v <= e.max {
-		return v
+func (e UtilEnum[E]) FromInt(i int) E {
+	k := E(i)
+	if _, ok := e.values[k]; ok {
+		return k
 	}
 	return e.unknown
 }

@@ -43,7 +43,13 @@ func TestFluent_errorHandling_EarlyFailing(t *testing.T) {
 	field1 := errorField{err: err1}
 	field2 := errorField{err: err2}
 
-	cfg := config.NewConfiguration(config.WithErrorHandling(config.WithMode(config.ErrorHandlingModeEarlyFailing)))
+	cfg := config.NewConfiguration(
+		config.WithErrorHandling(
+			config.NewErrorHandlingConfiguration(
+				config.WithMode(config.ErrorHandlingModeEarlyFailing),
+			),
+		),
+	)
 
 	// Create a dummy encoder
 	enc := zapcore.NewJSONEncoder(zap.NewDevelopmentEncoderConfig())

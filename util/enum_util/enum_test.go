@@ -22,8 +22,6 @@ var testEnumHelper = enum_util.NewUtilEnum(
 		testEnumValue2:  "Value2",
 	},
 	testEnumUnknown,
-	testEnumUnknown,
-	testEnumValue2,
 )
 
 func TestUtilEnum_String(t *testing.T) {

@@ -2,9 +2,9 @@ package config
 
 type ConfigurationOption func(*Configuration)
 
-func WithErrorHandling(opts ...ErrorHandlingConfigurationOption) ConfigurationOption {
+func WithErrorHandling(errorHandling ErrorHandlingConfiguration) ConfigurationOption {
 	return func(c *Configuration) {
-		c.errorHandling = NewErrorHandlingConfiguration(opts...)
+		c.errorHandling = errorHandling
 	}
 }
 

@@ -23,7 +23,7 @@ type objectTestStruct struct {
 
 func (s objectTestStruct) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 	return zapfluent.AsFluent(enc).
-		Add(fluentfield.Object("field1", s.Field1, fluentfield.IsNotNil).NonZero()).
+		Add(fluentfield.Object("field1", s.Field1, fluentfield.ReflectiveIsNotNil).NonZero()).
 		Done()
 }
 

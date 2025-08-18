@@ -33,11 +33,6 @@ func ExampleComparableObject_empty() {
 		"test",
 		zap.Object("test_struct", comparableObjectTestStruct{Field1: intTestStruct{}}),
 	)
-	stdOutLogger().Infow(
-		"test",
-		zap.Object("test_struct", comparableObjectTestStruct{Field1: intTestStruct{}}),
-	)
 	// Output:
-	//{"level":"info","msg":"test","test_struct":{}}
 	//{"level":"info","msg":"test","test_struct":{}}
 }

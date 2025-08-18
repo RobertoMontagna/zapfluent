@@ -6,25 +6,22 @@ import (
 )
 
 type ErrorHandler struct {
-	err  error
-	mode config.ErrorHandlingMode
+	err error
+	cfg config.ErrorHandlingConfiguration
 }
 
 func NewErrorHandler(cfg config.ErrorHandlingConfiguration) *ErrorHandler {
 	return &ErrorHandler{
-		mode: cfg.Mode(),
+		cfg: cfg,
 	}
 }
 
 func (h *ErrorHandler) ShouldSkip() bool {
-	return h.mode == config.ErrorHandlingModeEarlyFailing && h.err != nil
+	return h.cfg.Mode() == config.ErrorHandlingModeEarlyFailing && h.err != nil
 }
 
-func (h *ErrorHandler) ManageError(newErr error) {
+func (h *ErrorHandler) AggregateError(newErr error) {
 	if newErr == nil {
-		return
-	}
-	if h.mode == config.ErrorHandlingModeEarlyFailing && h.err != nil {
 		return
 	}
 	h.err = multierr.Append(h.err, newErr)

@@ -26,7 +26,7 @@ func (z *Fluent) Add(field fluentfield.Field) *Fluent {
 	if z.errorHandler.ShouldSkip() {
 		return z
 	}
-	z.errorHandler.ManageError(field.Encode(z.enc))
+	z.errorHandler.AggregateError(field.Encode(z.enc))
 	return z
 }
 

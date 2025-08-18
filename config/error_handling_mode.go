@@ -17,8 +17,6 @@ var errorHandlingModeEnum = enum_util.NewUtilEnum(
 		ErrorHandlingModeContinue:     "Continue",
 	},
 	ErrorHandlingModeUnknown,
-	ErrorHandlingModeUnknown,
-	ErrorHandlingModeContinue,
 )
 
 func (m ErrorHandlingMode) String() string {

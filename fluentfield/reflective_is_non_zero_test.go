@@ -11,7 +11,7 @@ import (
 func TestIsNotNil_WithUntypedNil(t *testing.T) {
 	var input any = nil
 
-	actual := fluentfield.IsNotNil(input)
+	actual := fluentfield.ReflectiveIsNotNil(input)
 
 	assert.False(t, actual)
 }
@@ -41,7 +41,7 @@ func TestIsNotNil_WithTypedValues(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			actual := fluentfield.IsNotNil(tc.input)
+			actual := fluentfield.ReflectiveIsNotNil(tc.input)
 
 			assert.Equal(t, tc.expected, actual)
 		})
