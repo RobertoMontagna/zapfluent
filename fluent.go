@@ -1,37 +1,35 @@
 package zapfluent
 
 import (
-	"go.uber.org/multierr"
 	"go.uber.org/zap/zapcore"
+
+	"go.robertomontagna.dev/zapfluent/config"
+	"go.robertomontagna.dev/zapfluent/fluentfield"
 )
 
 type Fluent struct {
-	enc    zapcore.ObjectEncoder
-	err    error
-	config FluentConfig
+	enc          zapcore.ObjectEncoder
+	errorHandler *ErrorHandler
 }
 
 func NewFluent(
 	enc zapcore.ObjectEncoder,
-	config FluentConfig,
+	config config.Configuration,
 ) *Fluent {
-	fluent := &Fluent{
-		enc:    enc,
-		config: config,
+	return &Fluent{
+		enc:          enc,
+		errorHandler: NewErrorHandler(config.ErrorHandling()),
 	}
-	return fluent
 }
 
-func (z *Fluent) Add(field Field) *Fluent {
-	if z.err != nil {
+func (z *Fluent) Add(field fluentfield.Field) *Fluent {
+	if z.errorHandler.ShouldSkip() {
 		return z
 	}
-	if err := field.Encode(z.enc); err != nil {
-		z.err = multierr.Append(z.err, err)
-	}
+	z.errorHandler.AggregateError(field.Encode(z.enc))
 	return z
 }
 
 func (z *Fluent) Done() error {
-	return z.err
+	return z.errorHandler.AggregatedError()
 }
