@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
 	"go.robertomontagna.dev/zapfluent/functional/lazyoptional"
 )
 

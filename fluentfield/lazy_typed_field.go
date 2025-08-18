@@ -1,8 +1,9 @@
 package fluentfield
 
 import (
-	"go.robertomontagna.dev/zapfluent/functional/lazyoptional"
 	"go.uber.org/zap/zapcore"
+
+	"go.robertomontagna.dev/zapfluent/functional/lazyoptional"
 )
 
 type EncodeFunc[T any] func(zapcore.ObjectEncoder, string, T) error

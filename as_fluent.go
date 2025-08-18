@@ -2,6 +2,7 @@ package zapfluent
 
 import (
 	"go.uber.org/zap/zapcore"
+
 	"go.robertomontagna.dev/zapfluent/config"
 )
 
