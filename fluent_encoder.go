@@ -2,16 +2,17 @@ package zapfluent
 
 import (
 	"go.uber.org/zap/zapcore"
+	"go.robertomontagna.dev/zapfluent/config"
 )
 
 type FluentEncoder struct {
-	config FluentConfig
+	config config.Configuration
 	zapcore.Encoder
 }
 
 func NewFluentEncoder(
 	encoder zapcore.Encoder,
-	config FluentConfig,
+	config config.Configuration,
 ) *FluentEncoder {
 	return &FluentEncoder{
 		Encoder: encoder,

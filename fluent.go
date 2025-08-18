@@ -4,18 +4,19 @@ import (
 	"go.uber.org/multierr"
 	"go.uber.org/zap/zapcore"
 
+	"go.robertomontagna.dev/zapfluent/config"
 	"go.robertomontagna.dev/zapfluent/fluentfield"
 )
 
 type Fluent struct {
 	enc    zapcore.ObjectEncoder
 	err    error
-	config FluentConfig
+	config config.Configuration
 }
 
 func NewFluent(
 	enc zapcore.ObjectEncoder,
-	config FluentConfig,
+	config config.Configuration,
 ) *Fluent {
 	fluent := &Fluent{
 		enc:    enc,

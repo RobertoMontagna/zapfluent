@@ -11,11 +11,9 @@ func Some[T any](value T) LazyOptional[T] {
 }
 
 func Empty[T any]() LazyOptional[T] {
+	var zero T
 	return LazyOptional[T]{
-		producer: func() (T, bool) {
-			var zero T
-			return zero, false
-		},
+		producer: NewConstantProducer(zero, false),
 	}
 }
 

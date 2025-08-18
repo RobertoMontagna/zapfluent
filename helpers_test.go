@@ -7,6 +7,7 @@ import (
 	"go.uber.org/zap/zapcore"
 
 	"go.robertomontagna.dev/zapfluent"
+	"go.robertomontagna.dev/zapfluent/config"
 )
 
 func stdOutLogger() *zap.SugaredLogger {
@@ -21,7 +22,7 @@ func stdOutLogger() *zap.SugaredLogger {
 	core := zapcore.NewCore(
 		zapfluent.NewFluentEncoder(
 			zapcore.NewJSONEncoder(encoderCfg),
-			zapfluent.NewFluentConfig(),
+			config.NewConfiguration(),
 		),
 		os.Stdout,
 		zap.DebugLevel,
