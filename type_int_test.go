@@ -14,7 +14,7 @@ type intTestStruct struct {
 }
 
 func (s intTestStruct) MarshalLogObject(enc zapcore.ObjectEncoder) error {
-	return zapfluent.NewFluent(enc).
+	return zapfluent.AsFluent(enc).
 		Add(zapfluent.Int("field1", s.Field1).NonZero()).
 		Done()
 }

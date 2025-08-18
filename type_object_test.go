@@ -1,9 +1,10 @@
 package zapfluent_test
 
 import (
-	"go.robertomontagna.dev/zapfluent"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+
+	"go.robertomontagna.dev/zapfluent"
 )
 
 // A simple struct that implements zapcore.ObjectMarshaler
@@ -21,7 +22,7 @@ type objectTestStruct struct {
 }
 
 func (s objectTestStruct) MarshalLogObject(enc zapcore.ObjectEncoder) error {
-	return zapfluent.NewFluent(enc).
+	return zapfluent.AsFluent(enc).
 		Add(zapfluent.Object("field1", s.Field1, zapfluent.IsNotNil).NonZero()).
 		Done()
 }

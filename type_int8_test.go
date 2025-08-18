@@ -12,7 +12,7 @@ type int8TestStruct struct {
 }
 
 func (s int8TestStruct) MarshalLogObject(enc zapcore.ObjectEncoder) error {
-	return zapfluent.NewFluent(enc).
+	return zapfluent.AsFluent(enc).
 		Add(zapfluent.Int8("field1", s.Field1).NonZero()).
 		Done()
 }

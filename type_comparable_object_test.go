@@ -1,9 +1,10 @@
 package zapfluent_test
 
 import (
-	"go.robertomontagna.dev/zapfluent"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+
+	"go.robertomontagna.dev/zapfluent"
 )
 
 type comparableObjectTestStruct struct {
@@ -12,7 +13,7 @@ type comparableObjectTestStruct struct {
 }
 
 func (s comparableObjectTestStruct) MarshalLogObject(enc zapcore.ObjectEncoder) error {
-	return zapfluent.NewFluent(enc).
+	return zapfluent.AsFluent(enc).
 		Add(zapfluent.ComparableObject("field1", s.Field1).NonZero()).
 		Add(zapfluent.String("field2", s.Field2).NonZero()).
 		Done()
