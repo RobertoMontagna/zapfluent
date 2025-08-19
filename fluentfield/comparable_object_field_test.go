@@ -6,7 +6,7 @@ import (
 
 	"go.robertomontagna.dev/zapfluent"
 	"go.robertomontagna.dev/zapfluent/fluentfield"
-	"go.robertomontagna.dev/zapfluent/testutil"
+	"go.robertomontagna.dev/zapfluent/util/testing_util"
 )
 
 type comparableObjectTestStruct struct {
@@ -22,7 +22,7 @@ func (s comparableObjectTestStruct) MarshalLogObject(enc zapcore.ObjectEncoder) 
 }
 
 func ExampleComparableObject_notEmpty() {
-	testutil.StdOutLogger().Infow(
+	testing_util.StdOutLogger().Infow(
 		"test",
 		zap.Object("test_struct", comparableObjectTestStruct{Field1: intTestStruct{42}}),
 	)
@@ -30,7 +30,7 @@ func ExampleComparableObject_notEmpty() {
 }
 
 func ExampleComparableObject_empty() {
-	testutil.StdOutLogger().Infow(
+	testing_util.StdOutLogger().Infow(
 		"test",
 		zap.Object("test_struct", comparableObjectTestStruct{Field1: intTestStruct{}}),
 	)

@@ -6,7 +6,7 @@ import (
 
 	"go.robertomontagna.dev/zapfluent"
 	"go.robertomontagna.dev/zapfluent/fluentfield"
-	"go.robertomontagna.dev/zapfluent/testutil"
+	"go.robertomontagna.dev/zapfluent/util/testing_util"
 )
 
 type stringTestStruct struct {
@@ -20,7 +20,7 @@ func (s stringTestStruct) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 }
 
 func ExampleString_notEmpty() {
-	testutil.StdOutLogger().Infow(
+	testing_util.StdOutLogger().Infow(
 		"test",
 		zap.Object("test_struct", stringTestStruct{"test"}),
 	)
@@ -28,7 +28,7 @@ func ExampleString_notEmpty() {
 }
 
 func ExampleString_empty() {
-	testutil.StdOutLogger().Infow(
+	testing_util.StdOutLogger().Infow(
 		"test",
 		zap.Object("test_struct", stringTestStruct{}),
 	)
