@@ -12,9 +12,9 @@ func TestErrorHandlingMode_String(t *testing.T) {
 		mode     config.ErrorHandlingMode
 		expected string
 	}{
-		{config.ErrorHandlingModeUnknown, "Unknown"},
-		{config.ErrorHandlingModeEarlyFailing, "EarlyFailing"},
-		{config.ErrorHandlingModeContinue, "Continue"},
+		{config.ErrorHandlingModeUnknown, config.ErrorHandlingModeUnknownString},
+		{config.ErrorHandlingModeEarlyFailing, config.ErrorHandlingModeEarlyFailingString},
+		{config.ErrorHandlingModeContinue, config.ErrorHandlingModeContinueString},
 		{config.ErrorHandlingMode(99), "Unknown(99)"},
 	}
 
@@ -33,9 +33,9 @@ func TestIntToErrorHandlingMode(t *testing.T) {
 		value    int
 		expected config.ErrorHandlingMode
 	}{
-		{"Unknown", 0, config.ErrorHandlingModeUnknown},
-		{"EarlyFailing", 1, config.ErrorHandlingModeEarlyFailing},
-		{"Continue", 2, config.ErrorHandlingModeContinue},
+		{config.ErrorHandlingModeUnknownString, 0, config.ErrorHandlingModeUnknown},
+		{config.ErrorHandlingModeEarlyFailingString, 1, config.ErrorHandlingModeEarlyFailing},
+		{config.ErrorHandlingModeContinueString, 2, config.ErrorHandlingModeContinue},
 		{"Invalid", 99, config.ErrorHandlingModeUnknown},
 	}
 

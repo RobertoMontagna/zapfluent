@@ -10,11 +10,17 @@ const (
 	ErrorHandlingModeContinue
 )
 
+const (
+	ErrorHandlingModeUnknownString      = "Unknown"
+	ErrorHandlingModeEarlyFailingString = "EarlyFailing"
+	ErrorHandlingModeContinueString     = "Continue"
+)
+
 var errorHandlingModeEnum = enum_util.NewUtilEnum(
 	map[ErrorHandlingMode]string{
-		ErrorHandlingModeUnknown:      "Unknown",
-		ErrorHandlingModeEarlyFailing: "EarlyFailing",
-		ErrorHandlingModeContinue:     "Continue",
+		ErrorHandlingModeUnknown:      ErrorHandlingModeUnknownString,
+		ErrorHandlingModeEarlyFailing: ErrorHandlingModeEarlyFailingString,
+		ErrorHandlingModeContinue:     ErrorHandlingModeContinueString,
 	},
 	ErrorHandlingModeUnknown,
 )
