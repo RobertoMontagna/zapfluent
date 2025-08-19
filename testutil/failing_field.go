@@ -3,7 +3,7 @@ package testutil
 import "go.uber.org/zap/zapcore"
 
 type FailingField struct {
-	Err  error
+	Err       error
 	NameValue string
 }
 

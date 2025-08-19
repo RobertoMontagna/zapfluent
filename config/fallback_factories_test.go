@@ -5,8 +5,9 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"go.robertomontagna.dev/zapfluent/config"
 	"go.uber.org/zap/zapcore"
+
+	"go.robertomontagna.dev/zapfluent/config"
 )
 
 const (
