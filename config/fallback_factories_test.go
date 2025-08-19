@@ -9,28 +9,33 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
+const (
+	testFieldName    = "test-field"
+	testErrorMessage = "test-error"
+)
+
 func TestFixedStringFallback(t *testing.T) {
 	const fallbackValue = "fixed-value"
 	factory := config.FixedStringFallback(fallbackValue)
 
-	field := factory("test-field", errors.New("test-error"))
+	field := factory(testFieldName, errors.New(testErrorMessage))
 
 	enc := zapcore.NewMapObjectEncoder()
 	err := field.Encode(enc)
 	assert.NoError(t, err)
 
-	assert.Equal(t, fallbackValue, enc.Fields["test-field"])
+	assert.Equal(t, fallbackValue, enc.Fields[testFieldName])
 }
 
 func TestErrorStringFallback(t *testing.T) {
 	const errorMsg = "this is the error message"
 	factory := config.ErrorStringFallback()
 
-	field := factory("test-field", errors.New(errorMsg))
+	field := factory(testFieldName, errors.New(errorMsg))
 
 	enc := zapcore.NewMapObjectEncoder()
 	err := field.Encode(enc)
 	assert.NoError(t, err)
 
-	assert.Equal(t, errorMsg, enc.Fields["test-field"])
+	assert.Equal(t, errorMsg, enc.Fields[testFieldName])
 }
