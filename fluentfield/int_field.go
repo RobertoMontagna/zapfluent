@@ -2,8 +2,8 @@ package fluentfield
 
 import "go.uber.org/zap/zapcore"
 
-var (
-	intTypeFns = TypeFieldFunctions[int]{
+func intTypeFns() TypeFieldFunctions[int] {
+	return TypeFieldFunctions[int]{
 		EncodeFunc: func(encoder zapcore.ObjectEncoder, name string, value int) error {
 			encoder.AddInt(name, value)
 			return nil
@@ -12,11 +12,11 @@ var (
 			return i != 0
 		},
 	}
-)
+}
 
 func Int(name string, value int) TypedField[int] {
 	return NewTypedField(
-		intTypeFns,
+		intTypeFns(),
 		name,
 		value,
 	)
