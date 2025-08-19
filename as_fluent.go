@@ -7,8 +7,8 @@ import (
 )
 
 func AsFluent(encoder zapcore.ObjectEncoder) *Fluent {
-	if fluentEncoder, isFluentEncoder := encoder.(*FluentEncoder); isFluentEncoder {
-		return NewFluent(fluentEncoder, fluentEncoder.config)
+	if fEnc, ok := encoder.(*FluentEncoder); ok {
+		return NewFluent(fEnc, fEnc.config)
 	}
 	return NewFluent(encoder, config.NewConfiguration())
 }
