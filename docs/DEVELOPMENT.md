@@ -47,10 +47,19 @@ These principles are language-agnostic and form the core philosophy of writing c
 * **Tell, Don't Ask:** Prefer telling objects what to do rather than asking them for their internal data and then acting on that data. This helps preserve encapsulation. For example, instead of `if (car.getSpeed() > speedLimit) { car.slowDown(); }`, prefer `car.checkAndRegulateSpeed(speedLimit);`.
 * **Objects vs. Data Structures:** A core distinction exists between an object and a data structure. An **object** hides its data and exposes functions. A **data structure** exposes its data and has no meaningful functions. Clean code understands this difference and chooses the right approach for the problem at hand.
 * **The Law of Demeter:** A class should only talk to its immediate friends. Avoid long chains of method calls like `a.getB().getC().doSomething()`. This indicates that your classes are overly coupled and lack proper encapsulation.
+* **SOLID Principles:** Code should adhere to **SOLID principles**, with a strong emphasis on the **Single Responsibility Principle**.
+* **Composition over Inheritance:** Prefer composition to achieve code reuse over inheritance.
+* **Dependency Injection:** Use dependency injection to decouple components and make them more testable.
 
 #### **System Boundaries**
 
 * **Wrap Third-Party Code:** Isolate third-party APIs and libraries behind an interface or a wrapper class that you control. This prevents changes in an external library from propagating throughout your codebase.
+
+#### **Concurrency**
+
+* **Avoid Shared Mutable State:** Shared data is often the root of concurrency issues. The cleanest approach is to avoid sharing state altogether or to manage it carefully with well-defined synchronization primitives.
+* **Know Your Concurrency Primitives:** Understand the tools for managing concurrency in your language (e.g., channels, mutexes, condition variables) and use them correctly and consistently.
+* **Isolate Concurrent Code:** The code that uses concurrency should be isolated from the rest of the application. Separate code that handles threads, channels, or locks into its own logical unit to prevent the rest of the system from having to know about it.
 
 ---
 
@@ -58,16 +67,22 @@ These principles are language-agnostic and form the core philosophy of writing c
 
 These guidelines are tailored to the idioms and conventions of the Go programming language.
 
+#### **Naming Conventions**
+
+* **Idiomatic Naming:** Use shorter, more concise variable names, especially for local variables. Single letters (e.g., `i`, `r`) are common for loop counters or simple type-specific values (e.g., `r` for a `reader`).
+* **Function Visibility:** Use capitalization to determine a function's visibility. Public (exported) functions start with a capital letter, while private (unexported) functions start with a lowercase letter.
+
 #### **Functions**
 
-* **Max 2 Parameters:** Functions should have at most two parameters.
-    * **The Context Corner Case:** A `context.Context` is often a necessary first parameter, but it does not count against the parameter limit, as it is a common and predictable part of the function signature.
-* **No Unnecessary Pointers:** Avoid using pointers for optional values or to pass arguments. Pointers should only be used when strictly necessary (e.g., for channels, or for large objects where copying is a performance concern). Prefer a value-based approach or an `Optional` monad for optional values.
+* **The Context Corner Case:** A `context.Context` is often a necessary first parameter, but it does not count against the parameter limit, as it is a common and predictable part of the function signature.
+* **No Unnecessary Pointers:** Avoid using pointers for optional values or to pass arguments. Pointers should only be used when strictly necessary (e.g., for channels, or for large objects where copying is a performance concern).
 * **The Error Return Corner Case:** A function may return two values (e.g., `(result, error)`). This is a common and valid pattern, as the second value (the error) is conceptually part of a single result: a successful value or a failed state.
-* **Don't Return `nil`:** Avoid returning `nil` from functions that could fail. Prefer returning a zero value or an empty slice/map.
+* **Don't Return `nil`:** Prefer returning a zero value (`struct{}`, empty slice, or `nil` error) instead of a `nil` pointer or `nil` interface, to prevent unexpected panics.
 
 #### **Formatting and Organization**
 
+* **Gofmt is Law:** Let `gofmt` and `goimports` handle all standard formatting, indentation, and import management. There should be no manual changes to this formatting.
+* **Horizontal Formatting:** Keep lines short, generally no more than 100-120 characters wide. This ensures the code is easily readable and avoids the need for horizontal scrolling.
 * **Code Locality and Cohesion:** Group related code together. Avoid mixing unrelated concepts in the same file or package. For example, a generic `constants.go` file is discouraged as it tends to aggregate values that have little in common besides being constants.
 * **Standard Import Formatting:** All import blocks must be grouped into four categories in a specific order: standard library, third-party, shared internal modules, and intra-module dependencies.
 
@@ -78,11 +93,6 @@ These guidelines are tailored to the idioms and conventions of the Go programmin
 * **Test One Concept:** A test should verify a single, specific behavior or concept. This makes the test's purpose immediately clear and aids in diagnosing failures.
     * **One Assert Guideline:** While a test should focus on one concept, it's a good practice to use only one assertion to enforce this. However, multiple assertions may be acceptable if they all verify different aspects of that *single* concept (e.g., asserting different fields on a returned object). The primary goal is diagnostic clarity.
     * **Custom Assertions:** Consider creating custom assertion functions if they are reusable across the project, simple to define (e.g., a low number of parameters), and have a very clear, unambiguous name and purpose. These can help enforce the "one concept" rule while simplifying the test code.
+    * **Table-Driven Tests:** For functions with multiple inputs and expected outputs, use table-driven tests. This pattern helps consolidate test cases and makes it easy to add new scenarios without duplicating boilerplate code.
 * **First-Class Tests:** Tests are as important as production code. They should be clean, readable, and well-organized.
 * **No Magic Values:** Avoid magic strings and numbers. If the same value is used more than once, introduce a constant for it.
-
-#### **Principles and General Rules**
-
-* **SOLID Principles:** Code should adhere to **SOLID principles**, with a strong emphasis on the **Single Responsibility Principle**.
-* **Composition over Inheritance:** Prefer composition to achieve code reuse over inheritance.
-* **Dependency Injection:** Use dependency injection to decouple components and make them more testable.
