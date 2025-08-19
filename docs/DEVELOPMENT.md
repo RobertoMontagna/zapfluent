@@ -1,14 +1,14 @@
 # Development
 
-The rules presented here are a framework for software craftsmanship, informed by the principles of Clean Code. They are not meant to be followed dogmatically, but rather to guide us in a continuous effort to improve the quality of our codebase.
+The rules presented here are a framework for software craftsmanship, informed by the principles of Clean Code and Go community best practices. They are not meant to be followed dogmatically, but rather to guide us in a continuous effort to improve the quality of our codebase.
 
 Our responsibility is to leave the code cleaner than we found it—to fix "code smells" and apply these principles incrementally with every change. The ultimate measure of success is code that is readable and tells a clear story, even if it means making a pragmatic exception to a specific rule.
 
-### **General Principles**
+## General Principles
 
 These principles are language-agnostic and form the core philosophy of writing clean, maintainable code.
 
-#### **Naming**
+#### Naming
 
 * **Use Intention-Revealing Names:** Names should answer the big questions: why it exists, what it does, and how it's used. Avoid names that need a comment to explain their purpose.
 * **Avoid Disinformation:** Don't use names that mislead. For example, `hp` shouldn't be used for a variable representing `horsepower` if it actually represents something else, like `health points`.
@@ -21,7 +21,7 @@ These principles are language-agnostic and form the core philosophy of writing c
 * **Add Context to Names:** A variable named `state` is only meaningful if it has a context, like `addrState`.
 * **Don't Add a Prefix to Interface Names:** It's generally not necessary to prefix interfaces with an `I` or similar. The name of the interface should be sufficient.
 
-#### **Functions**
+#### Functions
 
 * **Functions Should Be Small:** Functions should be very short, typically no more than a few lines.
 * **Do One Thing:** A function should do one thing, and do it well. If a function can be described by more than one verb, it's likely doing too much.
@@ -32,7 +32,7 @@ These principles are language-agnostic and form the core philosophy of writing c
 * **Prefer Command-Query Separation:** Functions should either do something or answer something, but not both. For example, a `set()` function shouldn't also return a status code.
 * **Don't Repeat Yourself (DRY):** Avoid duplicating code. If you find yourself writing the same logic in multiple places, extract it into a function.
 
-#### **Comments**
+#### Comments
 
 * **Prefer Self-Documenting Code:** The best code is its own documentation. Comments should be a last resort.
 * **Explain "Why," Not "What":** Use comments to explain **why** a particular decision was made, not to restate what the code is doing.
@@ -40,7 +40,7 @@ These principles are language-agnostic and form the core philosophy of writing c
 * **Avoid Redundant Comments:** Don't comment on something that's already obvious from the code.
 * **Do Not Use Commented-Out Code:** Delete commented-out code. Use version control to retrieve old code if needed.
 
-#### **Class and Object Design**
+#### Class and Object Design
 
 * **Classes Should Be Small:** A class should have a single, well-defined responsibility. As a general rule, a class with more than a few methods or instance variables is likely doing too much.
 * **Encapsulation of Data:** Classes should hide their internal data structures and expose behavior through well-defined methods. Avoid creating classes that are just collections of public variables with no meaningful functions (known as Data Transfer Objects, which are a different concept).
@@ -51,48 +51,80 @@ These principles are language-agnostic and form the core philosophy of writing c
 * **Composition over Inheritance:** Prefer composition to achieve code reuse over inheritance.
 * **Dependency Injection:** Use dependency injection to decouple components and make them more testable.
 
-#### **System Boundaries**
+#### System Boundaries
 
 * **Wrap Third-Party Code:** Isolate third-party APIs and libraries behind an interface or a wrapper class that you control. This prevents changes in an external library from propagating throughout your codebase.
 
-#### **Concurrency**
-
-* **Avoid Shared Mutable State:** Shared data is often the root of concurrency issues. The cleanest approach is to avoid sharing state altogether or to manage it carefully with well-defined synchronization primitives.
-* **Know Your Concurrency Primitives:** Understand the tools for managing concurrency in your language (e.g., channels, mutexes, condition variables) and use them correctly and consistently.
-* **Isolate Concurrent Code:** The code that uses concurrency should be isolated from the rest of the application. Separate code that handles threads, channels, or locks into its own logical unit to prevent the rest of the system from having to know about it.
-
 ---
 
-### **Go-Specific Guidelines**
+## Go-Specific Guidelines
 
 These guidelines are tailored to the idioms and conventions of the Go programming language.
 
-#### **Naming Conventions**
+### Package and Project Organization
 
-* **Idiomatic Naming:** Use shorter, more concise variable names, especially for local variables. Single letters (e.g., `i`, `r`) are common for loop counters or simple type-specific values (e.g., `r` for a `reader`).
-* **Function Visibility:** Use capitalization to determine a function's visibility. Public (exported) functions start with a capital letter, while private (unexported) functions start with a lowercase letter.
+*   **Package Naming:** Choose package names that are short, concise, and all lowercase. Avoid underscores and mixed case. The name should be descriptive of the package's purpose. Avoid generic names like `util`, `common`, or `lib`.
+*   **Package Size and Cohesion:** A package should have a single, well-defined responsibility. Group related types and functions together. If two packages are so tightly coupled that they are almost always used together, consider merging them.
+*   **Project Layout:** For consistency, consider following the [Standard Go Project Layout](https://github.com/golang-standards/project-layout). This is not an official standard, but it is a community-accepted convention.
 
-#### **Functions**
+### Error Handling
 
-* **The Context Corner Case:** A `context.Context` is often a necessary first parameter, but it does not count against the parameter limit, as it is a common and predictable part of the function signature.
-* **No Unnecessary Pointers:** Avoid using pointers for optional values or to pass arguments. Pointers should only be used when strictly necessary (e.g., for channels, or for large objects where copying is a performance concern).
-* **The Error Return Corner Case:** A function may return two values (e.g., `(result, error)`). This is a common and valid pattern, as the second value (the error) is conceptually part of a single result: a successful value or a failed state.
-* **Don't Return `nil`:** Prefer returning a zero value (`struct{}`, empty slice, or `nil` error) instead of a `nil` pointer or `nil` interface, to prevent unexpected panics.
+Proper error handling is critical for writing robust Go code.
 
-#### **Formatting and Organization**
+*   **Error Types:**
+    *   For simple, static error messages, use `errors.New`.
+    *   For dynamic error messages, use `fmt.Errorf`.
+    *   For errors that need to be handled programmatically by callers, define a custom error type that implements the `error` interface. This allows callers to use `errors.As` to inspect the error's details.
+    *   For sentinel errors that callers can check with `errors.Is`, declare them as exported variables (e.g., `var ErrNotFound = errors.New("not found")`).
+*   **Error Wrapping:**
+    *   When propagating an error from a downstream function, add context using `fmt.Errorf` with the `%w` verb. This allows callers to inspect the underlying error chain with `errors.Is` and `errors.As`.
+    *   Keep the context concise. Avoid phrases like "failed to", which are redundant.
+*   **Error Naming:**
+    *   Error variables should be prefixed with `Err` (e.g., `ErrNotFound`).
+    *   Custom error types should be suffixed with `Error` (e.g., `NotFoundError`).
+*   **Handling Errors Once:** An error should be handled only once. If you log an error, don't also return it up the call stack, as this can lead to duplicate logging. Decide at each level whether to handle the error (e.g., by logging it and returning a default value) or to propagate it.
 
-* **Gofmt is Law:** Let `gofmt` and `goimports` handle all standard formatting, indentation, and import management. There should be no manual changes to this formatting.
-* **Horizontal Formatting:** Keep lines short, generally no more than 100-120 characters wide. This ensures the code is easily readable and avoids the need for horizontal scrolling.
-* **Code Locality and Cohesion:** Group related code together. Avoid mixing unrelated concepts in the same file or package. For example, a generic `constants.go` file is discouraged as it tends to aggregate values that have little in common besides being constants.
-* **Standard Import Formatting:** All import blocks must be grouped into four categories in a specific order: standard library, third-party, shared internal modules, and intra-module dependencies.
+### Concurrency
 
-#### **Tests**
+*   **Goroutine Lifetime:** Never start a goroutine without knowing when it will exit. Leaked goroutines can lead to memory leaks and other issues. Use a `sync.WaitGroup` to wait for goroutines to finish.
+*   **Channel Usage:** Channels should usually have a size of one or be unbuffered (size zero). Any other size should be carefully considered to avoid deadlocks and other issues.
+*   **Mutexes:** Use the zero-value of a `sync.Mutex` or `sync.RWMutex`. Do not use a pointer to a mutex. Do not embed mutexes in public structs, as this exposes implementation details.
 
-* **AAA Unit Test Structure:** All unit tests must be implicitly structured following the **Arrange-Act-Assert** (AAA) pattern.
-* **Complete Test Coverage:** All production code must be covered by at least one unit test.
-* **Test One Concept:** A test should verify a single, specific behavior or concept. This makes the test's purpose immediately clear and aids in diagnosing failures.
-    * **One Assert Guideline:** While a test should focus on one concept, it's a good practice to use only one assertion to enforce this. However, multiple assertions may be acceptable if they all verify different aspects of that *single* concept (e.g., asserting different fields on a returned object). The primary goal is diagnostic clarity.
-    * **Custom Assertions:** Consider creating custom assertion functions if they are reusable across the project, simple to define (e.g., a low number of parameters), and have a very clear, unambiguous name and purpose. These can help enforce the "one concept" rule while simplifying the test code.
-    * **Table-Driven Tests:** For functions with multiple inputs and expected outputs, use table-driven tests. This pattern helps consolidate test cases and makes it easy to add new scenarios without duplicating boilerplate code.
-* **First-Class Tests:** Tests are as important as production code. They should be clean, readable, and well-organized.
-* **No Magic Values:** Avoid magic strings and numbers. If the same value is used more than once, introduce a constant for it.
+### Testing
+
+*   **Table-Driven Tests:** Use table-driven tests to avoid duplicating code when testing multiple scenarios. This makes it easy to add new test cases and improves readability.
+*   **Test Helpers:** Distinguish between test setup helpers and assertion helpers. It is idiomatic in Go to avoid assertion helpers that call `t.Fatal` or `t.Error`. Instead, return an error from your validation function and let the test function decide whether to fail the test.
+*   **`t.Fatal` vs. `t.Error`:** Use `t.Fatal` when a test cannot continue because a setup step has failed. Use `t.Error` when a test case has failed but other test cases can still be run.
+
+### Performance
+
+*   **Use `strconv`:** When converting primitives to and from strings, `strconv` is generally faster than `fmt`.
+*   **Pre-allocate Slices and Maps:** When you know the size of a slice or map in advance, pre-allocate it using `make` with a capacity hint. This can significantly reduce the number of allocations.
+*   **Avoid Repeated String-to-Byte Conversions:** If you need to use the byte representation of a fixed string multiple times, convert it to a `[]byte` once and reuse it.
+
+### Linting
+
+To ensure code quality and consistency, use a standard set of linters. We recommend using `golangci-lint` as a lint runner with the following linters enabled at a minimum:
+*   `errcheck`: Checks for unhandled errors.
+*   `goimports`: Formats code and manages imports.
+*   `golint`: Points out common style mistakes.
+*   `govet`: Analyzes code for common mistakes.
+*   `staticcheck`: Provides a wide range of static analysis checks.
+
+### Formatting and Organization
+
+*   **Gofmt:** All Go code in the repository must be formatted with `gofmt`.
+*   **Import Grouping:** Imports should be grouped into two blocks: standard library and everything else.
+*   **Reduce Nesting:** Avoid deep nesting by handling error cases and special conditions first and returning early.
+*   **Function Grouping:** Functions in a file should be grouped by receiver. Exported functions should appear first, after type, const, and var definitions.
+*   **Variable Scope:** Reduce the scope of variables as much as possible. If a variable is only used inside an `if` block, declare it inside the `if`.
+*   **Raw String Literals:** Use raw string literals (backticks) to avoid escaping quotes and to write multi-line strings.
+*   **Initializing Structs:**
+    *   Always use field names when initializing structs.
+    *   Omit zero-value fields unless they provide meaningful context.
+    *   Use the `var` form to declare zero-value structs (e.g., `var u User`).
+    *   Use `&T{}` instead of `new(T)` to initialize struct references.
+*   **Initializing Maps:**
+    *   Use `make` for empty maps and maps that are populated programmatically.
+    *   Use map literals for maps with a fixed set of elements.
+*   **Printf-style Functions:** If you declare a `Printf`-style function, name it with an `f` suffix (e.g., `Wrapf`) so that `go vet` can check the format string.
