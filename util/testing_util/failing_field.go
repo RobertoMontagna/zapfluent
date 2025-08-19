@@ -1,4 +1,4 @@
-package testutil
+package testing_util
 
 import "go.uber.org/zap/zapcore"
 

@@ -10,7 +10,7 @@ import (
 	"go.robertomontagna.dev/zapfluent"
 	"go.robertomontagna.dev/zapfluent/config"
 	"go.robertomontagna.dev/zapfluent/fluentfield"
-	"go.robertomontagna.dev/zapfluent/testutil"
+	"go.robertomontagna.dev/zapfluent/util/testing_util"
 )
 
 const (
@@ -33,8 +33,8 @@ func newFluentWithConfig(cfg config.Configuration) (*zapfluent.Fluent, *zapcore.
 func TestFluent_Done_WithMultipleErrors_AggregatesErrors(t *testing.T) {
 	err1 := errors.New(testError1)
 	err2 := errors.New(testError2)
-	field1 := testutil.FailingField{Err: err1}
-	field2 := testutil.FailingField{Err: err2}
+	field1 := testing_util.FailingField{Err: err1}
+	field2 := testing_util.FailingField{Err: err2}
 
 	enc := zapcore.NewMapObjectEncoder()
 	fluent := zapfluent.NewFluent(enc, config.NewConfiguration())
@@ -48,8 +48,8 @@ func TestFluent_Done_WithMultipleErrors_AggregatesErrors(t *testing.T) {
 func TestFluent_errorHandling_EarlyFailing(t *testing.T) {
 	err1 := errors.New(testError1)
 	err2 := errors.New(testError2)
-	field1 := testutil.FailingField{Err: err1, NameValue: testFieldName1}
-	field2 := testutil.FailingField{Err: err2, NameValue: testFieldName2}
+	field1 := testing_util.FailingField{Err: err1, NameValue: testFieldName1}
+	field2 := testing_util.FailingField{Err: err2, NameValue: testFieldName2}
 
 	cfg := config.NewConfiguration(
 		config.WithErrorHandling(
@@ -76,7 +76,7 @@ func TestFluent_WithFallback(t *testing.T) {
 			),
 		)
 		fluent, enc := newFluentWithConfig(cfg)
-		failingField := testutil.FailingField{Err: testErr, NameValue: testFailingField}
+		failingField := testing_util.FailingField{Err: testErr, NameValue: testFailingField}
 
 		err := fluent.Add(failingField).Done()
 
@@ -92,7 +92,7 @@ func TestFluent_WithFallback(t *testing.T) {
 		fallbackErr := errors.New(testFallbackError)
 
 		failingFactory := func(name string, err error) fluentfield.Field {
-			return testutil.FailingField{NameValue: name, Err: fallbackErr}
+			return testing_util.FailingField{NameValue: name, Err: fallbackErr}
 		}
 
 		cfg := config.NewConfiguration(
@@ -103,7 +103,7 @@ func TestFluent_WithFallback(t *testing.T) {
 			),
 		)
 		fluent, enc := newFluentWithConfig(cfg)
-		initialFailingField := testutil.FailingField{Err: originalErr, NameValue: testFailingField}
+		initialFailingField := testing_util.FailingField{Err: originalErr, NameValue: testFailingField}
 
 		err := fluent.Add(initialFailingField).Done()
 

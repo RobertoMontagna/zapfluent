@@ -1,4 +1,4 @@
-package zapfluent_test
+package testing_util
 
 import (
 	"os"
