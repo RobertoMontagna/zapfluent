@@ -13,8 +13,8 @@ import (
 func TestErrorHandler_Continue(t *testing.T) {
 	cfg := config.NewErrorHandlingConfiguration(config.WithMode(config.ErrorHandlingModeContinue))
 	handler := zapfluent.NewErrorHandler(cfg)
-	err1 := errors.New("error 1")
-	err2 := errors.New("error 2")
+	err1 := errors.New(testError1)
+	err2 := errors.New(testError2)
 
 	handler.AggregateError(err1)
 	skip := handler.ShouldSkip()
@@ -22,15 +22,15 @@ func TestErrorHandler_Continue(t *testing.T) {
 	finalErr := handler.AggregatedError()
 
 	assert.False(t, skip)
-	assert.ErrorContains(t, finalErr, "error 1")
-	assert.ErrorContains(t, finalErr, "error 2")
+	assert.ErrorContains(t, finalErr, testError1)
+	assert.ErrorContains(t, finalErr, testError2)
 }
 
 func TestErrorHandler_EarlyFailing(t *testing.T) {
 	cfg := config.NewErrorHandlingConfiguration(config.WithMode(config.ErrorHandlingModeEarlyFailing))
 	handler := zapfluent.NewErrorHandler(cfg)
-	err1 := errors.New("error 1")
-	err2 := errors.New("error 2")
+	err1 := errors.New(testError1)
+	err2 := errors.New(testError2)
 
 	handler.AggregateError(err1)
 	skip := handler.ShouldSkip()
@@ -38,6 +38,6 @@ func TestErrorHandler_EarlyFailing(t *testing.T) {
 	finalErr := handler.AggregatedError()
 
 	assert.True(t, skip)
-	assert.ErrorContains(t, finalErr, "error 1")
-	assert.ErrorContains(t, finalErr, "error 2")
+	assert.ErrorContains(t, finalErr, testError1)
+	assert.ErrorContains(t, finalErr, testError2)
 }
