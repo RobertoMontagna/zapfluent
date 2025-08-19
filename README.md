@@ -20,6 +20,7 @@ These rules serve as a strict guideline to ensure code quality, readability, and
 - **No Unnecessary Pointers**: Avoid using pointers for optional values or to pass arguments to functions. Pointers should only be used when strictly necessary (e.g., for channels, or for large objects where copying is a performance concern). Prefer using an `Optional` monad for optional values.
 - **SOLID Principles**: Code should adhere to SOLID principles, with a strong emphasis on the Single Responsibility Principle.
 - **Max 2 Parameters**: Functions and methods should have at most two parameters. If a third is required, it should typically be a `context.Context`. More complex arguments should be grouped into a struct.
+- **Code Locality and Cohesion**: Strive for high cohesion by grouping related code together. Conversely, avoid mixing unrelated concepts in the same file or package. For example, creating a generic `constants.go` file is discouraged as it tends to aggregate values that have little in common besides being constants.
 
 ### Test Code
 

@@ -13,6 +13,17 @@ import (
 	"go.robertomontagna.dev/zapfluent/testutil"
 )
 
+const (
+	testError1        = "error 1"
+	testError2        = "error 2"
+	testFieldName1    = "field1"
+	testFieldName2    = "field2"
+	testOriginalError = "original error"
+	testFallbackValue = "fallback-value"
+	testFailingField  = "failing_field"
+	testFallbackError = "fallback failed"
+)
+
 func newFluentWithConfig(cfg config.Configuration) (*zapfluent.Fluent, *zapcore.MapObjectEncoder) {
 	enc := zapcore.NewMapObjectEncoder()
 	fluent := zapfluent.NewFluent(enc, cfg)
@@ -20,8 +31,8 @@ func newFluentWithConfig(cfg config.Configuration) (*zapfluent.Fluent, *zapcore.
 }
 
 func TestFluent_Done_WithMultipleErrors_AggregatesErrors(t *testing.T) {
-	err1 := errors.New(testutil.TestError1)
-	err2 := errors.New(testutil.TestError2)
+	err1 := errors.New(testError1)
+	err2 := errors.New(testError2)
 	field1 := testutil.FailingField{Err: err1}
 	field2 := testutil.FailingField{Err: err2}
 
@@ -30,15 +41,15 @@ func TestFluent_Done_WithMultipleErrors_AggregatesErrors(t *testing.T) {
 
 	err := fluent.Add(field1).Add(field2).Done()
 
-	assert.ErrorContains(t, err, testutil.TestError1)
-	assert.ErrorContains(t, err, testutil.TestError2)
+	assert.ErrorContains(t, err, testError1)
+	assert.ErrorContains(t, err, testError2)
 }
 
 func TestFluent_errorHandling_EarlyFailing(t *testing.T) {
-	err1 := errors.New(testutil.TestError1)
-	err2 := errors.New(testutil.TestError2)
-	field1 := testutil.FailingField{Err: err1, NameValue: testutil.TestFieldName1}
-	field2 := testutil.FailingField{Err: err2, NameValue: testutil.TestFieldName2}
+	err1 := errors.New(testError1)
+	err2 := errors.New(testError2)
+	field1 := testutil.FailingField{Err: err1, NameValue: testFieldName1}
+	field2 := testutil.FailingField{Err: err2, NameValue: testFieldName2}
 
 	cfg := config.NewConfiguration(
 		config.WithErrorHandling(
@@ -56,29 +67,29 @@ func TestFluent_errorHandling_EarlyFailing(t *testing.T) {
 
 func TestFluent_WithFallback(t *testing.T) {
 	t.Run("it replaces the failing field and aggregates the error", func(t *testing.T) {
-		testErr := errors.New(testutil.TestOriginalError)
+		testErr := errors.New(testOriginalError)
 		cfg := config.NewConfiguration(
 			config.WithErrorHandling(
 				config.NewErrorHandlingConfiguration(
-					config.WithFallbackFieldFactory(config.FixedStringFallback(testutil.TestFallbackValue)),
+					config.WithFallbackFieldFactory(config.FixedStringFallback(testFallbackValue)),
 				),
 			),
 		)
 		fluent, enc := newFluentWithConfig(cfg)
-		failingField := testutil.FailingField{Err: testErr, NameValue: testutil.TestFailingField}
+		failingField := testutil.FailingField{Err: testErr, NameValue: testFailingField}
 
 		err := fluent.Add(failingField).Done()
 
 		assert.Equal(t, testErr, err, "The original error should be aggregated")
 
-		fallbackValue, exists := enc.Fields[testutil.TestFailingField]
+		fallbackValue, exists := enc.Fields[testFailingField]
 		assert.True(t, exists, "The fallback field should have been added")
-		assert.Equal(t, testutil.TestFallbackValue, fallbackValue)
+		assert.Equal(t, testFallbackValue, fallbackValue)
 	})
 
 	t.Run("it aggregates errors from the fallback field itself", func(t *testing.T) {
-		originalErr := errors.New(testutil.TestOriginalError)
-		fallbackErr := errors.New(testutil.TestFallbackError)
+		originalErr := errors.New(testOriginalError)
+		fallbackErr := errors.New(testFallbackError)
 
 		failingFactory := func(name string, err error) fluentfield.Field {
 			return testutil.FailingField{NameValue: name, Err: fallbackErr}
@@ -92,7 +103,7 @@ func TestFluent_WithFallback(t *testing.T) {
 			),
 		)
 		fluent, enc := newFluentWithConfig(cfg)
-		initialFailingField := testutil.FailingField{Err: originalErr, NameValue: testutil.TestFailingField}
+		initialFailingField := testutil.FailingField{Err: originalErr, NameValue: testFailingField}
 
 		err := fluent.Add(initialFailingField).Done()
 
