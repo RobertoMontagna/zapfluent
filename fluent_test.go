@@ -5,36 +5,28 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
 	"go.robertomontagna.dev/zapfluent"
 	"go.robertomontagna.dev/zapfluent/config"
 	"go.robertomontagna.dev/zapfluent/fluentfield"
+	"go.robertomontagna.dev/zapfluent/testutil"
 )
 
-type errorField struct {
-	err  error
-	name string
+func newFluentWithConfig(cfg config.Configuration) (*zapfluent.Fluent, *zapcore.MapObjectEncoder) {
+	enc := zapcore.NewMapObjectEncoder()
+	fluent := zapfluent.NewFluent(enc, cfg)
+	return fluent, enc
 }
 
-func (f errorField) Encode(enc zapcore.ObjectEncoder) error {
-	return f.err
-}
-
-func (f errorField) Name() string {
-	if f.name == "" {
-		return "error"
-	}
-	return f.name
-}
-
-func TestFluent_errorHandling(t *testing.T) {
+func TestFluent_Done_WithMultipleErrors_AggregatesErrors(t *testing.T) {
 	err1 := errors.New("error 1")
 	err2 := errors.New("error 2")
-	field1 := errorField{err: err1}
-	field2 := errorField{err: err2}
-	fluent := zapfluent.AsFluent(nil)
+	field1 := testutil.FailingField{Err: err1}
+	field2 := testutil.FailingField{Err: err2}
+
+	enc := zapcore.NewMapObjectEncoder()
+	fluent := zapfluent.NewFluent(enc, config.NewConfiguration())
 
 	err := fluent.Add(field1).Add(field2).Done()
 
@@ -45,8 +37,8 @@ func TestFluent_errorHandling(t *testing.T) {
 func TestFluent_errorHandling_EarlyFailing(t *testing.T) {
 	err1 := errors.New("error 1")
 	err2 := errors.New("error 2")
-	field1 := errorField{err: err1, name: "field1"}
-	field2 := errorField{err: err2, name: "field2"}
+	field1 := testutil.FailingField{Err: err1, NameValue: "field1"}
+	field2 := testutil.FailingField{Err: err2, NameValue: "field2"}
 
 	cfg := config.NewConfiguration(
 		config.WithErrorHandling(
@@ -55,12 +47,7 @@ func TestFluent_errorHandling_EarlyFailing(t *testing.T) {
 			),
 		),
 	)
-
-	// Create a dummy encoder
-	enc := zapcore.NewJSONEncoder(zap.NewDevelopmentEncoderConfig())
-
-	// Create a fluent instance with the custom config
-	fluent := zapfluent.NewFluent(enc, cfg)
+	fluent, _ := newFluentWithConfig(cfg)
 
 	err := fluent.Add(field1).Add(field2).Done()
 
@@ -69,8 +56,6 @@ func TestFluent_errorHandling_EarlyFailing(t *testing.T) {
 
 func TestFluent_WithFallback(t *testing.T) {
 	t.Run("it replaces the failing field and aggregates the error", func(t *testing.T) {
-		// Arrange
-		enc := zapcore.NewMapObjectEncoder()
 		testErr := errors.New("original error")
 		cfg := config.NewConfiguration(
 			config.WithErrorHandling(
@@ -79,13 +64,11 @@ func TestFluent_WithFallback(t *testing.T) {
 				),
 			),
 		)
-		fluent := zapfluent.NewFluent(enc, cfg)
-		failingField := errorField{err: testErr, name: "failing_field"}
+		fluent, enc := newFluentWithConfig(cfg)
+		failingField := testutil.FailingField{Err: testErr, NameValue: "failing_field"}
 
-		// Act
 		err := fluent.Add(failingField).Done()
 
-		// Assert
 		assert.Equal(t, testErr, err, "The original error should be aggregated")
 
 		fallbackValue, exists := enc.Fields["failing_field"]
@@ -94,13 +77,11 @@ func TestFluent_WithFallback(t *testing.T) {
 	})
 
 	t.Run("it aggregates errors from the fallback field itself", func(t *testing.T) {
-		// Arrange
-		enc := zapcore.NewMapObjectEncoder()
 		originalErr := errors.New("original error")
 		fallbackErr := errors.New("fallback failed")
 
 		failingFactory := func(name string, err error) fluentfield.Field {
-			return errorField{name: name, err: fallbackErr}
+			return testutil.FailingField{NameValue: name, Err: fallbackErr}
 		}
 
 		cfg := config.NewConfiguration(
@@ -110,13 +91,11 @@ func TestFluent_WithFallback(t *testing.T) {
 				),
 			),
 		)
-		fluent := zapfluent.NewFluent(enc, cfg)
-		initialFailingField := errorField{err: originalErr, name: "failing_field"}
+		fluent, enc := newFluentWithConfig(cfg)
+		initialFailingField := testutil.FailingField{Err: originalErr, NameValue: "failing_field"}
 
-		// Act
 		err := fluent.Add(initialFailingField).Done()
 
-		// Assert
 		assert.ErrorIs(t, err, originalErr, "The original error should be aggregated")
 		assert.ErrorIs(t, err, fallbackErr, "The fallback's error should also be aggregated")
 		assert.Empty(t, enc.Fields, "No field should have been successfully encoded")

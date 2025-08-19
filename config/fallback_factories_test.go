@@ -15,7 +15,6 @@ func TestFixedStringFallback(t *testing.T) {
 
 	field := factory("test-field", errors.New("test-error"))
 
-	// To test the field, we can encode it and check the result.
 	enc := zapcore.NewMapObjectEncoder()
 	err := field.Encode(enc)
 	assert.NoError(t, err)

@@ -8,6 +8,7 @@ import (
 
 	"go.robertomontagna.dev/zapfluent"
 	"go.robertomontagna.dev/zapfluent/fluentfield"
+	"go.robertomontagna.dev/zapfluent/testutil"
 )
 
 type intTestStruct struct {
@@ -21,7 +22,7 @@ func (s intTestStruct) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 }
 
 func ExampleInt_notEmpty() {
-	stdOutLogger().Infow(
+	testutil.StdOutLogger().Infow(
 		"test",
 		zap.Object("test_struct", intTestStruct{42}),
 	)
@@ -29,7 +30,7 @@ func ExampleInt_notEmpty() {
 }
 
 func ExampleInt_empty() {
-	stdOutLogger().Infow(
+	testutil.StdOutLogger().Infow(
 		"test",
 		zap.Object("test_struct", intTestStruct{}),
 	)
@@ -50,7 +51,7 @@ func ExampleInt_alternative() {
 		NonZero().
 		Format(fpCurrying2to1(strings.Repeat)("."))
 
-	stdOutLogger().Infow(
+	testutil.StdOutLogger().Infow(
 		"test",
 		zap.Object("test_struct", zapcore.ObjectMarshalerFunc(field.Encode)),
 	)

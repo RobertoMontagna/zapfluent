@@ -1,4 +1,4 @@
-package fluentfield_test
+package testutil
 
 import (
 	"os"
@@ -10,7 +10,7 @@ import (
 	"go.robertomontagna.dev/zapfluent/config"
 )
 
-func stdOutLogger() *zap.SugaredLogger {
+func StdOutLogger() *zap.SugaredLogger {
 	encoderCfg := zapcore.EncoderConfig{
 		MessageKey:     "msg",
 		LevelKey:       "level",
