@@ -9,12 +9,13 @@ This project is currently under active development. APIs and functionality may c
 
 ## Development
 
-This library is being developed with the assistance of Jules by Google, an AI-powered software engineer. The following rules are being followed during development:
+The rules presented here are a framework for software craftsmanship, informed by the principles of Clean Code. They are not meant to be followed dogmatically, but rather to guide us in a continuous effort to improve the quality of our codebase.
 
-These rules serve as a strict guideline to ensure code quality, readability, and maintainability. However, they are not unbreakable laws; exceptions can be made when adhering to a rule would detract from the overall quality of the code.
+Our responsibility is to leave the code cleaner than we found it—to fix "code smells" and apply these principles incrementally with every change. The ultimate measure of success is code that is readable and tells a clear story, even if it means making a pragmatic exception to a specific rule.
 
+### **General Principles**
 
-### All Code
+These principles are language-agnostic and form the core philosophy of writing clean, maintainable code.
 
 #### **Naming**
 
@@ -33,9 +34,9 @@ These rules serve as a strict guideline to ensure code quality, readability, and
 
 * **Functions Should Be Small:** Functions should be very short, typically no more than a few lines.
 * **Do One Thing:** A function should do one thing, and do it well. If a function can be described by more than one verb, it's likely doing too much.
-* **Max 2 Parameters:** Functions and methods should have at most two parameters. If a third is required, it should typically be a **`context.Context`** or a struct for more complex arguments.
+* **Function Parameters:** The ideal number of arguments for a function is zero (niladic). Next comes one (monadic), followed closely by two (dyadic). Three arguments (triadic) should be avoided where possible. More than three requires very special justification — and then shouldn't be used anyway.
+* **Function Return Values:** Functions should either be commands that perform an action and do not return a value, or queries that return a single, meaningful value without performing any side effects. Avoid using output arguments.
 * **Use Descriptive Names:** Prefer self-documenting code over comments. The name of the function should clearly describe what it does.
-* **No Unnecessary Pointers:** Avoid using pointers for optional values or to pass arguments. Pointers should only be used when strictly necessary (e.g., for channels, or for large objects where copying is a performance concern). Prefer a value-based approach or an `Optional` monad for optional values.
 * **Avoid Side Effects:** A function shouldn't do something that isn't explicitly stated in its name. For example, a function named `isPasswordValid()` shouldn't also initialize a session.
 * **Prefer Command-Query Separation:** Functions should either do something or answer something, but not both. For example, a `set()` function shouldn't also return a status code.
 * **Don't Repeat Yourself (DRY):** Avoid duplicating code. If you find yourself writing the same logic in multiple places, extract it into a function.
@@ -48,30 +49,48 @@ These rules serve as a strict guideline to ensure code quality, readability, and
 * **Avoid Redundant Comments:** Don't comment on something that's already obvious from the code.
 * **Do Not Use Commented-Out Code:** Delete commented-out code. Use version control to retrieve old code if needed.
 
+#### **Class and Object Design**
+
+* **Classes Should Be Small:** A class should have a single, well-defined responsibility. As a general rule, a class with more than a few methods or instance variables is likely doing too much.
+* **Encapsulation of Data:** Classes should hide their internal data structures and expose behavior through well-defined methods. Avoid creating classes that are just collections of public variables with no meaningful functions (known as Data Transfer Objects, which are a different concept).
+* **Tell, Don't Ask:** Prefer telling objects what to do rather than asking them for their internal data and then acting on that data. This helps preserve encapsulation. For example, instead of `if (car.getSpeed() > speedLimit) { car.slowDown(); }`, prefer `car.checkAndRegulateSpeed(speedLimit);`.
+* **Objects vs. Data Structures:** A core distinction exists between an object and a data structure. An **object** hides its data and exposes functions. A **data structure** exposes its data and has no meaningful functions. Clean code understands this difference and chooses the right approach for the problem at hand.
+* **The Law of Demeter:** A class should only talk to its immediate friends. Avoid long chains of method calls like `a.getB().getC().doSomething()`. This indicates that your classes are overly coupled and lack proper encapsulation.
+
+#### **System Boundaries**
+
+* **Wrap Third-Party Code:** Isolate third-party APIs and libraries behind an interface or a wrapper class that you control. This prevents changes in an external library from propagating throughout your codebase.
+
+---
+
+### **Go-Specific Guidelines**
+
+These guidelines are tailored to the idioms and conventions of the Go programming language.
+
+#### **Functions**
+
+* **Max 2 Parameters:** Functions should have at most two parameters.
+    * **The Context Corner Case:** A `context.Context` is often a necessary first parameter, but it does not count against the parameter limit, as it is a common and predictable part of the function signature.
+* **No Unnecessary Pointers:** Avoid using pointers for optional values or to pass arguments. Pointers should only be used when strictly necessary (e.g., for channels, or for large objects where copying is a performance concern). Prefer a value-based approach or an `Optional` monad for optional values.
+* **The Error Return Corner Case:** A function may return two values (e.g., `(result, error)`). This is a common and valid pattern, as the second value (the error) is conceptually part of a single result: a successful value or a failed state.
+* **Don't Return `nil`:** Avoid returning `nil` from functions that could fail. Prefer returning a zero value or an empty slice/map.
+
 #### **Formatting and Organization**
 
-* **Vertical Formatting:** Strive to keep files short, with a strong preference for high cohesion by grouping related code together.
 * **Code Locality and Cohesion:** Group related code together. Avoid mixing unrelated concepts in the same file or package. For example, a generic `constants.go` file is discouraged as it tends to aggregate values that have little in common besides being constants.
 * **Standard Import Formatting:** All import blocks must be grouped into four categories in a specific order: standard library, third-party, shared internal modules, and intra-module dependencies.
 
-#### **Error Handling**
-
-* **Don't Return `nil`:** Avoid returning `nil` from functions that could fail. Prefer returning a zero value or an empty slice/map.
-* **Use Exceptions (or Error Types) over Error Codes:** When possible, use specific error types rather than returning generic error codes or boolean values.
-
----
-
-### **Test Code Rules**
+#### **Tests**
 
 * **AAA Unit Test Structure:** All unit tests must be implicitly structured following the **Arrange-Act-Assert** (AAA) pattern.
 * **Complete Test Coverage:** All production code must be covered by at least one unit test.
-* **One Assert per Test:** Each test function should test one concept and have a single assertion. This makes it clear what the test is for and what failed if it breaks.
+* **Test One Concept:** A test should verify a single, specific behavior or concept. This makes the test's purpose immediately clear and aids in diagnosing failures.
+    * **One Assert Guideline:** While a test should focus on one concept, it's a good practice to use only one assertion to enforce this. However, multiple assertions may be acceptable if they all verify different aspects of that *single* concept (e.g., asserting different fields on a returned object). The primary goal is diagnostic clarity.
+    * **Custom Assertions:** Consider creating custom assertion functions if they are reusable across the project, simple to define (e.g., a low number of parameters), and have a very clear, unambiguous name and purpose. These can help enforce the "one concept" rule while simplifying the test code.
 * **First-Class Tests:** Tests are as important as production code. They should be clean, readable, and well-organized.
 * **No Magic Values:** Avoid magic strings and numbers. If the same value is used more than once, introduce a constant for it.
 
----
-
-### **Principles and General Rules**
+#### **Principles and General Rules**
 
 * **SOLID Principles:** Code should adhere to **SOLID principles**, with a strong emphasis on the **Single Responsibility Principle**.
 * **Composition over Inheritance:** Prefer composition to achieve code reuse over inheritance.
