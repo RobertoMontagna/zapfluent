@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	. "github.com/onsi/gomega"
 	"go.uber.org/zap/zapcore"
 
 	"go.robertomontagna.dev/zapfluent/config"
@@ -16,10 +16,12 @@ const (
 )
 
 func TestNewErrorHandlingConfiguration(t *testing.T) {
+	g := NewWithT(t)
+
 	t.Run("with default options", func(t *testing.T) {
 		cfg := config.NewErrorHandlingConfiguration()
 
-		assert.Equal(t, config.ErrorHandlingModeContinue, cfg.Mode())
+		g.Expect(cfg.Mode()).To(Equal(config.ErrorHandlingModeContinue))
 	})
 
 	t.Run("with WithMode option", func(t *testing.T) {
@@ -27,11 +29,13 @@ func TestNewErrorHandlingConfiguration(t *testing.T) {
 
 		cfg := config.NewErrorHandlingConfiguration(opt)
 
-		assert.Equal(t, config.ErrorHandlingModeEarlyFailing, cfg.Mode())
+		g.Expect(cfg.Mode()).To(Equal(config.ErrorHandlingModeEarlyFailing))
 	})
 }
 
 func TestErrorHandlingMode_String(t *testing.T) {
+	g := NewWithT(t)
+
 	testCases := []struct {
 		mode     config.ErrorHandlingMode
 		expected string
@@ -46,12 +50,14 @@ func TestErrorHandlingMode_String(t *testing.T) {
 		t.Run(tc.expected, func(t *testing.T) {
 			s := tc.mode.String()
 
-			assert.Equal(t, tc.expected, s)
+			g.Expect(s).To(Equal(tc.expected))
 		})
 	}
 }
 
 func TestIntToErrorHandlingMode(t *testing.T) {
+	g := NewWithT(t)
+
 	testCases := []struct {
 		name     string
 		value    int
@@ -67,12 +73,13 @@ func TestIntToErrorHandlingMode(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			mode := config.IntToErrorHandlingMode(tc.value)
 
-			assert.Equal(t, tc.expected, mode)
+			g.Expect(mode).To(Equal(tc.expected))
 		})
 	}
 }
 
 func TestFixedStringFallback(t *testing.T) {
+	g := NewWithT(t)
 	const fallbackValue = "fixed-value"
 	factory := config.FixedStringFallback(fallbackValue)
 
@@ -80,12 +87,13 @@ func TestFixedStringFallback(t *testing.T) {
 
 	enc := zapcore.NewMapObjectEncoder()
 	err := field.Encode(enc)
-	assert.NoError(t, err)
+	g.Expect(err).ToNot(HaveOccurred())
 
-	assert.Equal(t, fallbackValue, enc.Fields[testFieldName])
+	g.Expect(enc.Fields).To(HaveKeyWithValue(testFieldName, fallbackValue))
 }
 
 func TestErrorStringFallback(t *testing.T) {
+	g := NewWithT(t)
 	const errorMsg = "this is the error message"
 	factory := config.ErrorStringFallback()
 
@@ -93,7 +101,7 @@ func TestErrorStringFallback(t *testing.T) {
 
 	enc := zapcore.NewMapObjectEncoder()
 	err := field.Encode(enc)
-	assert.NoError(t, err)
+	g.Expect(err).ToNot(HaveOccurred())
 
-	assert.Equal(t, errorMsg, enc.Fields[testFieldName])
+	g.Expect(enc.Fields).To(HaveKeyWithValue(testFieldName, errorMsg))
 }

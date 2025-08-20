@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	. "github.com/onsi/gomega"
 	"go.uber.org/zap/zapcore"
 
 	"go.robertomontagna.dev/zapfluent"
@@ -40,15 +40,16 @@ func TestFluent(t *testing.T) {
 		name       string
 		cfg        config.Configuration
 		fields     []fluentfield.Field
-		assertions func(t *testing.T, err error, enc *zapcore.MapObjectEncoder)
+		assertions func(g *GomegaWithT, err error, enc *zapcore.MapObjectEncoder)
 	}{
 		{
 			name:   "Done_WithMultipleErrors_AggregatesErrors",
 			cfg:    config.NewConfiguration(),
 			fields: []fluentfield.Field{testing_util.FailingField{Err: err1}, testing_util.FailingField{Err: err2}},
-			assertions: func(t *testing.T, err error, enc *zapcore.MapObjectEncoder) {
-				assert.ErrorContains(t, err, testError1)
-				assert.ErrorContains(t, err, testError2)
+			assertions: func(g *GomegaWithT, err error, enc *zapcore.MapObjectEncoder) {
+				g.Expect(err).To(HaveOccurred())
+				g.Expect(err.Error()).To(ContainSubstring(testError1))
+				g.Expect(err.Error()).To(ContainSubstring(testError2))
 			},
 		},
 		{
@@ -64,8 +65,8 @@ func TestFluent(t *testing.T) {
 				testing_util.FailingField{Err: err1, NameValue: testFieldName1},
 				testing_util.FailingField{Err: err2, NameValue: testFieldName2},
 			},
-			assertions: func(t *testing.T, err error, enc *zapcore.MapObjectEncoder) {
-				assert.Equal(t, err1, err) // Should only return the first error
+			assertions: func(g *GomegaWithT, err error, enc *zapcore.MapObjectEncoder) {
+				g.Expect(err).To(MatchError(err1)) // Should only return the first error
 			},
 		},
 		{
@@ -80,11 +81,9 @@ func TestFluent(t *testing.T) {
 			fields: []fluentfield.Field{
 				testing_util.FailingField{Err: originalErr, NameValue: testFailingField},
 			},
-			assertions: func(t *testing.T, err error, enc *zapcore.MapObjectEncoder) {
-				assert.Equal(t, originalErr, err, "The original error should be aggregated")
-				fallbackValue, exists := enc.Fields[testFailingField]
-				assert.True(t, exists, "The fallback field should have been added")
-				assert.Equal(t, testFallbackValue, fallbackValue)
+			assertions: func(g *GomegaWithT, err error, enc *zapcore.MapObjectEncoder) {
+				g.Expect(err).To(MatchError(originalErr))
+				g.Expect(enc.Fields).To(HaveKeyWithValue(testFailingField, testFallbackValue))
 			},
 		},
 		{
@@ -101,22 +100,24 @@ func TestFluent(t *testing.T) {
 			fields: []fluentfield.Field{
 				testing_util.FailingField{Err: originalErr, NameValue: testFailingField},
 			},
-			assertions: func(t *testing.T, err error, enc *zapcore.MapObjectEncoder) {
-				assert.ErrorIs(t, err, originalErr, "The original error should be aggregated")
-				assert.ErrorIs(t, err, fallbackErr, "The fallback's error should also be aggregated")
-				assert.Empty(t, enc.Fields, "No field should have been successfully encoded")
+			assertions: func(g *GomegaWithT, err error, enc *zapcore.MapObjectEncoder) {
+				g.Expect(err).To(HaveOccurred())
+				g.Expect(err.Error()).To(ContainSubstring(originalErr.Error()))
+				g.Expect(err.Error()).To(ContainSubstring(fallbackErr.Error()))
+				g.Expect(enc.Fields).To(BeEmpty())
 			},
 		},
 	}
 
 	for _, s := range scenarios {
 		t.Run(s.name, func(t *testing.T) {
+			g := NewWithT(t)
 			fluent, enc := newFluentWithConfig(s.cfg)
 			for _, f := range s.fields {
 				fluent.Add(f)
 			}
 			err := fluent.Done()
-			s.assertions(t, err, enc)
+			s.assertions(g, err, enc)
 		})
 	}
 }

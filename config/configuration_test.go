@@ -3,16 +3,18 @@ package config_test
 import (
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	. "github.com/onsi/gomega"
 
 	"go.robertomontagna.dev/zapfluent/config"
 )
 
 func TestNewConfiguration(t *testing.T) {
+	g := NewWithT(t)
+
 	t.Run("with default options", func(t *testing.T) {
 		cfg := config.NewConfiguration()
 
-		assert.Equal(t, config.ErrorHandlingModeContinue, cfg.ErrorHandling().Mode())
+		g.Expect(cfg.ErrorHandling().Mode()).To(Equal(config.ErrorHandlingModeContinue))
 	})
 
 	t.Run("with WithErrorHandling option", func(t *testing.T) {
@@ -24,11 +26,12 @@ func TestNewConfiguration(t *testing.T) {
 
 		cfg := config.NewConfiguration(opt)
 
-		assert.Equal(t, config.ErrorHandlingModeEarlyFailing, cfg.ErrorHandling().Mode())
+		g.Expect(cfg.ErrorHandling().Mode()).To(Equal(config.ErrorHandlingModeEarlyFailing))
 	})
 }
 
 func TestConfiguration_Clone(t *testing.T) {
+	g := NewWithT(t)
 	originalCfg := config.NewConfiguration(
 		config.WithErrorHandling(
 			config.NewErrorHandlingConfiguration(
@@ -39,5 +42,5 @@ func TestConfiguration_Clone(t *testing.T) {
 
 	clone := originalCfg.Clone()
 
-	assert.Equal(t, originalCfg, clone)
+	g.Expect(clone).To(Equal(originalCfg))
 }

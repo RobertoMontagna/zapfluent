@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	. "github.com/onsi/gomega"
 
 	"go.robertomontagna.dev/zapfluent/config"
 )
@@ -15,6 +15,7 @@ const (
 )
 
 func TestErrorHandler_Continue(t *testing.T) {
+	g := NewWithT(t)
 	cfg := config.NewErrorHandlingConfiguration(config.WithMode(config.ErrorHandlingModeContinue))
 	handler := newErrorHandler(cfg)
 	err1 := errors.New(testError1)
@@ -25,12 +26,14 @@ func TestErrorHandler_Continue(t *testing.T) {
 	handler.aggregateError(err2)
 	finalErr := handler.aggregatedError()
 
-	assert.False(t, skip)
-	assert.ErrorContains(t, finalErr, testError1)
-	assert.ErrorContains(t, finalErr, testError2)
+	g.Expect(skip).To(BeFalse())
+	g.Expect(finalErr).To(HaveOccurred())
+	g.Expect(finalErr.Error()).To(ContainSubstring(testError1))
+	g.Expect(finalErr.Error()).To(ContainSubstring(testError2))
 }
 
 func TestErrorHandler_EarlyFailing(t *testing.T) {
+	g := NewWithT(t)
 	cfg := config.NewErrorHandlingConfiguration(config.WithMode(config.ErrorHandlingModeEarlyFailing))
 	handler := newErrorHandler(cfg)
 	err1 := errors.New(testError1)
@@ -41,7 +44,8 @@ func TestErrorHandler_EarlyFailing(t *testing.T) {
 	handler.aggregateError(err2)
 	finalErr := handler.aggregatedError()
 
-	assert.True(t, skip)
-	assert.ErrorContains(t, finalErr, testError1)
-	assert.ErrorContains(t, finalErr, testError2)
+	g.Expect(skip).To(BeTrue())
+	g.Expect(finalErr).To(HaveOccurred())
+	g.Expect(finalErr.Error()).To(ContainSubstring(testError1))
+	g.Expect(finalErr.Error()).To(ContainSubstring(testError2))
 }
