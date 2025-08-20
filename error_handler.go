@@ -1,10 +1,11 @@
 package zapfluent
 
 import (
+	"go.uber.org/multierr"
+
 	"go.robertomontagna.dev/zapfluent/config"
 	"go.robertomontagna.dev/zapfluent/fluentfield"
 	"go.robertomontagna.dev/zapfluent/functional/optional"
-	"go.uber.org/multierr"
 )
 
 type errorHandler struct {
@@ -22,7 +23,7 @@ func (h *errorHandler) shouldSkip() bool {
 	return h.cfg.Mode() == config.ErrorHandlingModeEarlyFailing && h.err != nil
 }
 
-func (h *errorHandler) process(field fluentfield.Field, err error) optional.Optional[fluentfield.Field] {
+func (h *errorHandler) handleError(field fluentfield.Field, err error) optional.Optional[fluentfield.Field] {
 	if err == nil {
 		return optional.Empty[fluentfield.Field]()
 	}

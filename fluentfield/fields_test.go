@@ -8,7 +8,7 @@ import (
 
 	"go.robertomontagna.dev/zapfluent"
 	"go.robertomontagna.dev/zapfluent/fluentfield"
-	"go.robertomontagna.dev/zapfluent/util/testing_util"
+	"go.robertomontagna.dev/zapfluent/testutil"
 )
 
 // test structs
@@ -73,11 +73,10 @@ func (s stringTestStruct) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 		Done()
 }
 
-
 // example tests
 
 func ExampleComparableObject_notEmpty() {
-	testing_util.StdOutLogger().Infow(
+	testutil.StdOutLogger().Infow(
 		"test",
 		zap.Object("test_struct", comparableObjectTestStruct{Field1: intTestStruct{42}}),
 	)
@@ -85,7 +84,7 @@ func ExampleComparableObject_notEmpty() {
 }
 
 func ExampleComparableObject_empty() {
-	testing_util.StdOutLogger().Infow(
+	testutil.StdOutLogger().Infow(
 		"test",
 		zap.Object("test_struct", comparableObjectTestStruct{Field1: intTestStruct{}}),
 	)
@@ -94,7 +93,7 @@ func ExampleComparableObject_empty() {
 }
 
 func ExampleInt8_notEmpty() {
-	testing_util.StdOutLogger().Infow(
+	testutil.StdOutLogger().Infow(
 		"test",
 		zap.Object("test_struct", int8TestStruct{42}),
 	)
@@ -102,7 +101,7 @@ func ExampleInt8_notEmpty() {
 }
 
 func ExampleInt8_empty() {
-	testing_util.StdOutLogger().Infow(
+	testutil.StdOutLogger().Infow(
 		"test",
 		zap.Object("test_struct", int8TestStruct{}),
 	)
@@ -110,7 +109,7 @@ func ExampleInt8_empty() {
 }
 
 func ExampleInt_notEmpty() {
-	testing_util.StdOutLogger().Infow(
+	testutil.StdOutLogger().Infow(
 		"test",
 		zap.Object("test_struct", intTestStruct{42}),
 	)
@@ -118,7 +117,7 @@ func ExampleInt_notEmpty() {
 }
 
 func ExampleInt_empty() {
-	testing_util.StdOutLogger().Infow(
+	testutil.StdOutLogger().Infow(
 		"test",
 		zap.Object("test_struct", intTestStruct{}),
 	)
@@ -139,7 +138,7 @@ func ExampleInt_alternative() {
 		NonZero().
 		Format(fpCurrying2to1(strings.Repeat)("."))
 
-	testing_util.StdOutLogger().Infow(
+	testutil.StdOutLogger().Infow(
 		"test",
 		zap.Object("test_struct", zapcore.ObjectMarshalerFunc(field.Encode)),
 	)
@@ -147,7 +146,7 @@ func ExampleInt_alternative() {
 }
 
 func ExampleObject_notEmpty() {
-	testing_util.StdOutLogger().Infow(
+	testutil.StdOutLogger().Infow(
 		"test",
 		zap.Object("test_struct", objectTestStruct{Field1: &testObject{"hello"}}),
 	)
@@ -155,7 +154,7 @@ func ExampleObject_notEmpty() {
 }
 
 func ExampleObject_empty() {
-	testing_util.StdOutLogger().Infow(
+	testutil.StdOutLogger().Infow(
 		"test",
 		zap.Object("test_struct", objectTestStruct{Field1: nil}),
 	)
@@ -163,7 +162,7 @@ func ExampleObject_empty() {
 }
 
 func ExampleString_notEmpty() {
-	testing_util.StdOutLogger().Infow(
+	testutil.StdOutLogger().Infow(
 		"test",
 		zap.Object("test_struct", stringTestStruct{"test"}),
 	)
@@ -171,7 +170,7 @@ func ExampleString_notEmpty() {
 }
 
 func ExampleString_empty() {
-	testing_util.StdOutLogger().Infow(
+	testutil.StdOutLogger().Infow(
 		"test",
 		zap.Object("test_struct", stringTestStruct{}),
 	)

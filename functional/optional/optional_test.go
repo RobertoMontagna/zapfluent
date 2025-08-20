@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	. "github.com/onsi/gomega"
+
 	"go.robertomontagna.dev/zapfluent/functional/optional"
 )
 

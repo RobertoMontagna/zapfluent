@@ -1,5 +1,5 @@
-// Package testing_util provides helpers for testing purposes.
-package testing_util
+// Package testutil provides helpers for testing purposes.
+package testutil
 
 import "go.uber.org/zap/zapcore"
 
