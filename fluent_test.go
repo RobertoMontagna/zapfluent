@@ -87,7 +87,7 @@ func TestFluent(t *testing.T) {
 			},
 		},
 		{
-			name: "WithFallback_aggregates_errors_from_the_fallback_field_itself",
+			name: "WithFailingFallback_logs_a_predefined_error_field",
 			cfg: config.NewConfiguration(
 				config.WithErrorHandling(
 					config.NewErrorHandlingConfiguration(
@@ -101,10 +101,8 @@ func TestFluent(t *testing.T) {
 				testutil.FailingField{Err: originalErr, NameValue: testFailingField},
 			},
 			assertions: func(g *GomegaWithT, err error, enc *zapcore.MapObjectEncoder) {
-				g.Expect(err).To(HaveOccurred())
-				g.Expect(err.Error()).To(ContainSubstring(originalErr.Error()))
-				g.Expect(err.Error()).To(ContainSubstring(fallbackErr.Error()))
-				g.Expect(enc.Fields).To(BeEmpty())
+				g.Expect(err).To(MatchError(originalErr))
+				g.Expect(enc.Fields).To(HaveKeyWithValue("fluent_error", "failed to encode fallback field"))
 			},
 		},
 	}
