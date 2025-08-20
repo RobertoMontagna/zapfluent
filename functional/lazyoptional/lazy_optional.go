@@ -46,3 +46,50 @@ func (o LazyOptional[T]) Filter(condition func(T) bool) LazyOptional[T] {
 		return Empty[T]()
 	})
 }
+
+// NewConstantProducer returns a producer function that, when called, always
+// returns the same two values that were provided at creation time.
+// This is useful for creating the start of a lazy evaluation chain, such as
+// in `Some` or `Empty`.
+func NewConstantProducer[T1 any, T2 any](v1 T1, v2 T2) func() (T1, T2) {
+	return func() (T1, T2) {
+		return v1, v2
+	}
+}
+
+// FlatMap transforms the value inside a LazyOptional by applying a function
+// that itself returns a LazyOptional.
+//
+// If the input optional is empty, the result is an empty optional. Otherwise,
+// the function `f` is applied to the value, and the resulting optional is
+// returned. This is a fundamental operation for chaining lazy computations.
+func FlatMap[T any, U any](o LazyOptional[T], f func(T) LazyOptional[U]) LazyOptional[U] {
+	return LazyOptional[U]{
+		producer: func() (U, bool) {
+			val, ok := o.Get()
+			if !ok {
+				var zero U
+				return zero, false
+			}
+			return f(val).Get()
+		},
+	}
+}
+
+// Map transforms the value inside a LazyOptional by applying a function to it.
+//
+// If the input optional is empty, the result is an empty optional. Otherwise,
+// the `mapper` function is applied to the value, and a new optional containing
+// the result is returned.
+func Map[T any, U any](o LazyOptional[T], mapper func(T) U) LazyOptional[U] {
+	return LazyOptional[U]{
+		producer: func() (U, bool) {
+			val, ok := o.Get()
+			if !ok {
+				var zero U
+				return zero, false
+			}
+			return mapper(val), true
+		},
+	}
+}
