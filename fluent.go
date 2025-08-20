@@ -40,12 +40,12 @@ func (z *Fluent) Add(field fluentfield.Field) *Fluent {
 
 	// Attempt to encode the field. If it fails, the error handler may provide a
 	// fallback field to be encoded instead.
-	z.errorHandler.handleError(field, field.Encode(z.enc)).ForEach(func(fallbackField fluentfield.Field) {
+	if fallbackField, ok := z.errorHandler.handleError(field, field.Encode(z.enc)).Get(); ok {
 		if err := fallbackField.Encode(z.enc); err != nil {
 			// If the fallback also fails, aggregate its error as well.
 			z.errorHandler.aggregateError(err)
 		}
-	})
+	}
 
 	return z
 }

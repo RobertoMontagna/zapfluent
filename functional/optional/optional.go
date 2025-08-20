@@ -38,13 +38,6 @@ func (o Optional[T]) IsPresent() bool {
 	return o.hasValue
 }
 
-// ForEach performs the given action with the value, but only if a value is present.
-func (o Optional[T]) ForEach(f func(T)) {
-	if o.IsPresent() {
-		f(o.value)
-	}
-}
-
 // Map applies the given mapping function to the value if it is present.
 //
 // It returns an Optional describing the result of the mapping function.
