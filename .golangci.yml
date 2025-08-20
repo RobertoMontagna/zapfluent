@@ -20,5 +20,13 @@ linters-settings:
     # Enforce local prefixes to group imports correctly, aligning with the guidelines.
     local-prefixes: go.robertomontagna.dev/zapfluent
 
+issues:
+  exclude-rules:
+    # Exclude specific linter rules from test files where they are not critical.
+    - path: "_test.go"
+      linters:
+        - revive
+      text: "dot-imports|unused-parameter"
+
 # We can add more configuration here as needed, but this provides a solid baseline
 # that directly reflects the project's development documentation.

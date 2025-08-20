@@ -4,15 +4,15 @@ package enum
 
 import "fmt"
 
-// EnumValue is a constraint that permits any signed integer type to be used
-// as the underlying type for an enum.
-type EnumValue interface {
+// Value is a constraint that permits any signed integer type to be used as the
+// underlying type for an enum.
+type Value interface {
 	~int | ~int8 | ~int16 | ~int32 | ~int64
 }
 
 // Enum provides a generic way to handle enum-like types, mapping enum values
 // to their string representations.
-type Enum[E EnumValue] struct {
+type Enum[E Value] struct {
 	values  map[E]string
 	unknown E
 }
@@ -21,7 +21,7 @@ type Enum[E EnumValue] struct {
 //
 // It takes a map of enum values to their string names, and a designated
 // "unknown" value to be used as a fallback.
-func New[E EnumValue](values map[E]string, unknown E) Enum[E] {
+func New[E Value](values map[E]string, unknown E) Enum[E] {
 	return Enum[E]{
 		values:  values,
 		unknown: unknown,

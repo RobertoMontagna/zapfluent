@@ -111,7 +111,7 @@ func IntToErrorHandlingMode(value int) ErrorHandlingMode {
 // FixedStringFallback returns a FallbackFieldFactory that creates a field with a
 // predefined, fixed string value.
 func FixedStringFallback(value string) FallbackFieldFactory {
-	return func(name string, err error) fluentfield.Field {
+	return func(name string, _ error) fluentfield.Field {
 		return fluentfield.String(name, value)
 	}
 }

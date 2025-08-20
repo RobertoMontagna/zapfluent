@@ -15,7 +15,7 @@ type FailingField struct {
 
 // Encode implements the fluentfield.Field interface and always returns the
 // configured error.
-func (f FailingField) Encode(enc zapcore.ObjectEncoder) error {
+func (f FailingField) Encode(_ zapcore.ObjectEncoder) error {
 	return f.Err
 }
 
