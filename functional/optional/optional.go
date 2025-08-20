@@ -1,12 +1,16 @@
+// Package optional provides a generic, eager implementation of an Optional type.
 package optional
 
 // Optional is a container object which may or may not contain a non-nil value.
+//
+// This is an "eager" optional, meaning that transformations are applied
+// immediately. For a "lazy" alternative, see the `lazyoptional` package.
 type Optional[T any] struct {
 	value    T
 	hasValue bool
 }
 
-// Some returns an Optional with the specified present non-nil value.
+// Some returns an Optional that contains the given non-nil value.
 func Some[T any](value T) Optional[T] {
 	return Optional[T]{
 		value:    value,
@@ -19,7 +23,8 @@ func Empty[T any]() Optional[T] {
 	return Optional[T]{}
 }
 
-// Get returns the value if present, otherwise returns the zero value of the type and false.
+// Get returns the value if present, and `true`. Otherwise, it returns the
+// zero value of the type and `false`.
 func (o Optional[T]) Get() (T, bool) {
 	if !o.hasValue {
 		var zero T
@@ -28,20 +33,22 @@ func (o Optional[T]) Get() (T, bool) {
 	return o.value, true
 }
 
-// IsPresent returns true if there is a value present, otherwise false.
+// IsPresent returns `true` if there is a value present, otherwise `false`.
 func (o Optional[T]) IsPresent() bool {
 	return o.hasValue
 }
 
-// ForEach performs the given action with the value if a value is present.
+// ForEach performs the given action with the value, but only if a value is present.
 func (o Optional[T]) ForEach(f func(T)) {
 	if o.IsPresent() {
 		f(o.value)
 	}
 }
 
-// Map applies the given mapping function to the value if a value is present,
-// and returns an Optional describing the result.
+// Map applies the given mapping function to the value if it is present.
+//
+// It returns an Optional describing the result of the mapping function.
+// If the original optional is empty, this returns an empty optional.
 func Map[T any, R any](o Optional[T], f func(T) R) Optional[R] {
 	if o.IsPresent() {
 		return Some(f(o.value))
@@ -49,8 +56,11 @@ func Map[T any, R any](o Optional[T], f func(T) R) Optional[R] {
 	return Empty[R]()
 }
 
-// FlatMap applies the given Optional-bearing mapping function to the value if a value is present,
-// and returns the result.
+// FlatMap applies the given Optional-bearing mapping function to the value if
+// it is present.
+//
+// This is useful for chaining operations that each return an Optional.
+// If the original optional is empty, this returns an empty optional.
 func FlatMap[T any, R any](o Optional[T], f func(T) Optional[R]) Optional[R] {
 	if o.IsPresent() {
 		return f(o.value)

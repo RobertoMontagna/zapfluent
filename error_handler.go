@@ -7,27 +7,27 @@ import (
 	"go.uber.org/multierr"
 )
 
-type ErrorHandler struct {
+type errorHandler struct {
 	err error
 	cfg config.ErrorHandlingConfiguration
 }
 
-func NewErrorHandler(cfg config.ErrorHandlingConfiguration) *ErrorHandler {
-	return &ErrorHandler{
+func newErrorHandler(cfg config.ErrorHandlingConfiguration) *errorHandler {
+	return &errorHandler{
 		cfg: cfg,
 	}
 }
 
-func (h *ErrorHandler) ShouldSkip() bool {
+func (h *errorHandler) shouldSkip() bool {
 	return h.cfg.Mode() == config.ErrorHandlingModeEarlyFailing && h.err != nil
 }
 
-func (h *ErrorHandler) Process(field fluentfield.Field, err error) optional.Optional[fluentfield.Field] {
+func (h *errorHandler) process(field fluentfield.Field, err error) optional.Optional[fluentfield.Field] {
 	if err == nil {
 		return optional.Empty[fluentfield.Field]()
 	}
 
-	h.AggregateError(err)
+	h.aggregateError(err)
 
 	return optional.Map(
 		h.cfg.FallbackFactory(),
@@ -37,13 +37,13 @@ func (h *ErrorHandler) Process(field fluentfield.Field, err error) optional.Opti
 	)
 }
 
-func (h *ErrorHandler) AggregateError(newErr error) {
+func (h *errorHandler) aggregateError(newErr error) {
 	if newErr == nil {
 		return
 	}
 	h.err = multierr.Append(h.err, newErr)
 }
 
-func (h *ErrorHandler) AggregatedError() error {
+func (h *errorHandler) aggregatedError() error {
 	return h.err
 }

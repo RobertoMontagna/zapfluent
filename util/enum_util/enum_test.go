@@ -3,7 +3,7 @@ package enum_util_test
 import (
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	. "github.com/onsi/gomega"
 	"go.robertomontagna.dev/zapfluent/util/enum_util"
 )
 
@@ -25,29 +25,33 @@ var testEnumHelper = enum_util.NewUtilEnum(
 )
 
 func TestUtilEnum_String(t *testing.T) {
+	g := NewWithT(t)
+
 	t.Run("with known value", func(t *testing.T) {
 		val := testEnumValue1
 		s := testEnumHelper.String(val)
-		assert.Equal(t, "Value1", s)
+		g.Expect(s).To(Equal("Value1"))
 	})
 
 	t.Run("with unknown value", func(t *testing.T) {
 		val := testEnum(99)
 		s := testEnumHelper.String(val)
-		assert.Equal(t, "Unknown(99)", s)
+		g.Expect(s).To(Equal("Unknown(99)"))
 	})
 }
 
 func TestUtilEnum_FromInt(t *testing.T) {
+	g := NewWithT(t)
+
 	t.Run("with valid int", func(t *testing.T) {
 		i := 1
 		val := testEnumHelper.FromInt(i)
-		assert.Equal(t, testEnumValue1, val)
+		g.Expect(val).To(Equal(testEnumValue1))
 	})
 
 	t.Run("with invalid int", func(t *testing.T) {
 		i := 99
 		val := testEnumHelper.FromInt(i)
-		assert.Equal(t, testEnumUnknown, val)
+		g.Expect(val).To(Equal(testEnumUnknown))
 	})
 }

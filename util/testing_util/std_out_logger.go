@@ -10,6 +10,10 @@ import (
 	"go.robertomontagna.dev/zapfluent/config"
 )
 
+// StdOutLogger creates a new zap.SugaredLogger that is configured to write
+// JSON-formatted logs to standard output.
+//
+// This is useful for debugging and running examples.
 func StdOutLogger() *zap.SugaredLogger {
 	encoderCfg := zapcore.EncoderConfig{
 		MessageKey:     "msg",

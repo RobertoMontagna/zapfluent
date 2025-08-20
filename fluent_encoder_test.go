@@ -3,7 +3,7 @@ package zapfluent_test
 import (
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	. "github.com/onsi/gomega"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
@@ -12,21 +12,23 @@ import (
 )
 
 func TestNewFluentEncoder(t *testing.T) {
+	g := NewWithT(t)
 	cfg := config.NewConfiguration()
 	enc := zapcore.NewJSONEncoder(zap.NewDevelopmentEncoderConfig())
 
 	fluentEncoder := zapfluent.NewFluentEncoder(enc, cfg)
 
-	assert.NotNil(t, fluentEncoder)
+	g.Expect(fluentEncoder).ToNot(BeNil())
 }
 
 func TestFluentEncoder_Clone(t *testing.T) {
+	g := NewWithT(t)
 	cfg := config.NewConfiguration()
 	enc := zapcore.NewJSONEncoder(zap.NewDevelopmentEncoderConfig())
 	fluentEncoder := zapfluent.NewFluentEncoder(enc, cfg)
 
 	clone := fluentEncoder.Clone()
 
-	assert.NotNil(t, clone)
-	assert.NotSame(t, fluentEncoder, clone)
+	g.Expect(clone).ToNot(BeNil())
+	g.Expect(clone).ToNot(BeIdenticalTo(fluentEncoder))
 }

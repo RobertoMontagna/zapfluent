@@ -9,7 +9,7 @@ import (
 
 type Fluent struct {
 	enc          zapcore.ObjectEncoder
-	errorHandler *ErrorHandler
+	errorHandler *errorHandler
 }
 
 func NewFluent(
@@ -18,18 +18,18 @@ func NewFluent(
 ) *Fluent {
 	return &Fluent{
 		enc:          enc,
-		errorHandler: NewErrorHandler(config.ErrorHandling()),
+		errorHandler: newErrorHandler(config.ErrorHandling()),
 	}
 }
 
 func (z *Fluent) Add(field fluentfield.Field) *Fluent {
-	if z.errorHandler.ShouldSkip() {
+	if z.errorHandler.shouldSkip() {
 		return z
 	}
 
-	z.errorHandler.Process(field, field.Encode(z.enc)).ForEach(func(fallbackField fluentfield.Field) {
+	z.errorHandler.process(field, field.Encode(z.enc)).ForEach(func(fallbackField fluentfield.Field) {
 		if err := fallbackField.Encode(z.enc); err != nil {
-			z.errorHandler.AggregateError(err)
+			z.errorHandler.aggregateError(err)
 		}
 	})
 
@@ -37,5 +37,5 @@ func (z *Fluent) Add(field fluentfield.Field) *Fluent {
 }
 
 func (z *Fluent) Done() error {
-	return z.errorHandler.AggregatedError()
+	return z.errorHandler.aggregatedError()
 }

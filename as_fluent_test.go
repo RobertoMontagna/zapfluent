@@ -3,7 +3,7 @@ package zapfluent_test
 import (
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	. "github.com/onsi/gomega"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
@@ -12,6 +12,8 @@ import (
 )
 
 func TestAsFluent(t *testing.T) {
+	g := NewWithT(t)
+
 	t.Run("with FluentEncoder", func(t *testing.T) {
 		cfg := config.NewConfiguration()
 		enc := zapcore.NewJSONEncoder(zap.NewDevelopmentEncoderConfig())
@@ -19,7 +21,7 @@ func TestAsFluent(t *testing.T) {
 
 		fluent := zapfluent.AsFluent(fluentEncoder)
 
-		assert.NotNil(t, fluent)
+		g.Expect(fluent).ToNot(BeNil())
 	})
 
 	t.Run("with other encoder", func(t *testing.T) {
@@ -27,6 +29,6 @@ func TestAsFluent(t *testing.T) {
 
 		fluent := zapfluent.AsFluent(enc)
 
-		assert.NotNil(t, fluent)
+		g.Expect(fluent).ToNot(BeNil())
 	})
 }
