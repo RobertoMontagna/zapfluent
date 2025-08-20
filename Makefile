@@ -38,6 +38,16 @@ lint: tools ## 🔍 Run linter
 	@echo ">> running linter..."
 	@$(GOLANGCI_LINT) run ./...
 
+.PHONY: coverage
+coverage: ## 📊 Generate test coverage report
+	@echo ">> generating coverage report..."
+	@go test -coverprofile=coverage.out ./...
+
+.PHONY: coverage-html
+coverage-html: coverage ## 🌐 View coverage report in browser
+	@echo ">> opening coverage report in browser..."
+	@go tool cover -html=coverage.out
+
 # ==============================================================================
 # Tooling Targets
 # ==============================================================================
@@ -58,7 +68,8 @@ $(GOLANGCI_LINT):
 .PHONY: clean
 clean: ## 🧹 Clean build artifacts
 	@echo ">> cleaning up..."
-	@# This project is a library, so there are no build artifacts to clean by default.
+	@rm -f coverage.out
+	@# This project is a library, so there are no other build artifacts to clean by default.
 	@# This target is here for convention.
 
 # Set the default target to 'help'
