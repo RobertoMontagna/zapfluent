@@ -14,6 +14,7 @@ func stringTypeFns() TypeFieldFunctions[string] {
 	}
 }
 
+// String returns a new field with a string value.
 func String(name string, value string) TypedField[string] {
 	return NewTypedField(
 		stringTypeFns(),

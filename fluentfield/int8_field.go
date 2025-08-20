@@ -14,6 +14,7 @@ func int8TypeFns() TypeFieldFunctions[int8] {
 	}
 }
 
+// Int8 returns a new field with an int8 value.
 func Int8(name string, value int8) TypedField[int8] {
 	return NewTypedField(
 		int8TypeFns(),

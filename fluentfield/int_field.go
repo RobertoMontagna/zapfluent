@@ -14,6 +14,7 @@ func intTypeFns() TypeFieldFunctions[int] {
 	}
 }
 
+// Int returns a new field with an int value.
 func Int(name string, value int) TypedField[int] {
 	return NewTypedField(
 		intTypeFns(),

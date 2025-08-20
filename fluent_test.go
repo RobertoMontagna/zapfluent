@@ -30,85 +30,93 @@ func newFluentWithConfig(cfg config.Configuration) (*zapfluent.Fluent, *zapcore.
 	return fluent, enc
 }
 
-func TestFluent_Done_WithMultipleErrors_AggregatesErrors(t *testing.T) {
+func TestFluent(t *testing.T) {
 	err1 := errors.New(testError1)
 	err2 := errors.New(testError2)
-	field1 := testing_util.FailingField{Err: err1}
-	field2 := testing_util.FailingField{Err: err2}
+	originalErr := errors.New(testOriginalError)
+	fallbackErr := errors.New(testFallbackError)
 
-	enc := zapcore.NewMapObjectEncoder()
-	fluent := zapfluent.NewFluent(enc, config.NewConfiguration())
-
-	err := fluent.Add(field1).Add(field2).Done()
-
-	assert.ErrorContains(t, err, testError1)
-	assert.ErrorContains(t, err, testError2)
-}
-
-func TestFluent_errorHandling_EarlyFailing(t *testing.T) {
-	err1 := errors.New(testError1)
-	err2 := errors.New(testError2)
-	field1 := testing_util.FailingField{Err: err1, NameValue: testFieldName1}
-	field2 := testing_util.FailingField{Err: err2, NameValue: testFieldName2}
-
-	cfg := config.NewConfiguration(
-		config.WithErrorHandling(
-			config.NewErrorHandlingConfiguration(
-				config.WithMode(config.ErrorHandlingModeEarlyFailing),
-			),
-		),
-	)
-	fluent, _ := newFluentWithConfig(cfg)
-
-	err := fluent.Add(field1).Add(field2).Done()
-
-	assert.Equal(t, err1, err) // Should only return the first error
-}
-
-func TestFluent_WithFallback(t *testing.T) {
-	t.Run("it replaces the failing field and aggregates the error", func(t *testing.T) {
-		testErr := errors.New(testOriginalError)
-		cfg := config.NewConfiguration(
-			config.WithErrorHandling(
-				config.NewErrorHandlingConfiguration(
-					config.WithFallbackFieldFactory(config.FixedStringFallback(testFallbackValue)),
+	scenarios := []struct {
+		name       string
+		cfg        config.Configuration
+		fields     []fluentfield.Field
+		assertions func(t *testing.T, err error, enc *zapcore.MapObjectEncoder)
+	}{
+		{
+			name:   "Done_WithMultipleErrors_AggregatesErrors",
+			cfg:    config.NewConfiguration(),
+			fields: []fluentfield.Field{testing_util.FailingField{Err: err1}, testing_util.FailingField{Err: err2}},
+			assertions: func(t *testing.T, err error, enc *zapcore.MapObjectEncoder) {
+				assert.ErrorContains(t, err, testError1)
+				assert.ErrorContains(t, err, testError2)
+			},
+		},
+		{
+			name: "ErrorHandling_EarlyFailing",
+			cfg: config.NewConfiguration(
+				config.WithErrorHandling(
+					config.NewErrorHandlingConfiguration(
+						config.WithMode(config.ErrorHandlingModeEarlyFailing),
+					),
 				),
 			),
-		)
-		fluent, enc := newFluentWithConfig(cfg)
-		failingField := testing_util.FailingField{Err: testErr, NameValue: testFailingField}
-
-		err := fluent.Add(failingField).Done()
-
-		assert.Equal(t, testErr, err, "The original error should be aggregated")
-
-		fallbackValue, exists := enc.Fields[testFailingField]
-		assert.True(t, exists, "The fallback field should have been added")
-		assert.Equal(t, testFallbackValue, fallbackValue)
-	})
-
-	t.Run("it aggregates errors from the fallback field itself", func(t *testing.T) {
-		originalErr := errors.New(testOriginalError)
-		fallbackErr := errors.New(testFallbackError)
-
-		failingFactory := func(name string, err error) fluentfield.Field {
-			return testing_util.FailingField{NameValue: name, Err: fallbackErr}
-		}
-
-		cfg := config.NewConfiguration(
-			config.WithErrorHandling(
-				config.NewErrorHandlingConfiguration(
-					config.WithFallbackFieldFactory(failingFactory),
+			fields: []fluentfield.Field{
+				testing_util.FailingField{Err: err1, NameValue: testFieldName1},
+				testing_util.FailingField{Err: err2, NameValue: testFieldName2},
+			},
+			assertions: func(t *testing.T, err error, enc *zapcore.MapObjectEncoder) {
+				assert.Equal(t, err1, err) // Should only return the first error
+			},
+		},
+		{
+			name: "WithFallback_replaces_the_failing_field_and_aggregates_the_error",
+			cfg: config.NewConfiguration(
+				config.WithErrorHandling(
+					config.NewErrorHandlingConfiguration(
+						config.WithFallbackFieldFactory(config.FixedStringFallback(testFallbackValue)),
+					),
 				),
 			),
-		)
-		fluent, enc := newFluentWithConfig(cfg)
-		initialFailingField := testing_util.FailingField{Err: originalErr, NameValue: testFailingField}
+			fields: []fluentfield.Field{
+				testing_util.FailingField{Err: originalErr, NameValue: testFailingField},
+			},
+			assertions: func(t *testing.T, err error, enc *zapcore.MapObjectEncoder) {
+				assert.Equal(t, originalErr, err, "The original error should be aggregated")
+				fallbackValue, exists := enc.Fields[testFailingField]
+				assert.True(t, exists, "The fallback field should have been added")
+				assert.Equal(t, testFallbackValue, fallbackValue)
+			},
+		},
+		{
+			name: "WithFallback_aggregates_errors_from_the_fallback_field_itself",
+			cfg: config.NewConfiguration(
+				config.WithErrorHandling(
+					config.NewErrorHandlingConfiguration(
+						config.WithFallbackFieldFactory(func(name string, err error) fluentfield.Field {
+							return testing_util.FailingField{NameValue: name, Err: fallbackErr}
+						}),
+					),
+				),
+			),
+			fields: []fluentfield.Field{
+				testing_util.FailingField{Err: originalErr, NameValue: testFailingField},
+			},
+			assertions: func(t *testing.T, err error, enc *zapcore.MapObjectEncoder) {
+				assert.ErrorIs(t, err, originalErr, "The original error should be aggregated")
+				assert.ErrorIs(t, err, fallbackErr, "The fallback's error should also be aggregated")
+				assert.Empty(t, enc.Fields, "No field should have been successfully encoded")
+			},
+		},
+	}
 
-		err := fluent.Add(initialFailingField).Done()
-
-		assert.ErrorIs(t, err, originalErr, "The original error should be aggregated")
-		assert.ErrorIs(t, err, fallbackErr, "The fallback's error should also be aggregated")
-		assert.Empty(t, enc.Fields, "No field should have been successfully encoded")
-	})
+	for _, s := range scenarios {
+		t.Run(s.name, func(t *testing.T) {
+			fluent, enc := newFluentWithConfig(s.cfg)
+			for _, f := range s.fields {
+				fluent.Add(f)
+			}
+			err := fluent.Done()
+			s.assertions(t, err, enc)
+		})
+	}
 }
