@@ -41,9 +41,7 @@ func (z *Fluent) Add(field fluentfield.Field) *Fluent {
 
 	maybeFallbackField := z.errorHandler.handleError(field, field.Encode(z.enc))
 
-	maybeEncodingError := optional.Map(maybeFallbackField, func(fallbackField fluentfield.Field) error {
-		return fallbackField.Encode(z.enc)
-	})
+	maybeEncodingError := optional.FlatMap(maybeFallbackField, z.encodeAndLift)
 
 	optional.Map(maybeEncodingError, func(encodingErr error) bool {
 		if encodingErr != nil {
@@ -53,6 +51,10 @@ func (z *Fluent) Add(field fluentfield.Field) *Fluent {
 	})
 
 	return z
+}
+
+func (z *Fluent) encodeAndLift(field fluentfield.Field) optional.Optional[error] {
+	return optional.OfError(field.Encode(z.enc))
 }
 
 // Done completes the fluent chain and returns any aggregated errors that
