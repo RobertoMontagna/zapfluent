@@ -1,6 +1,7 @@
 package optional_test
 
 import (
+	"errors"
 	"strconv"
 	"testing"
 
@@ -25,6 +26,40 @@ func TestOptional_Empty(t *testing.T) {
 	val, ok := o.Get()
 	g.Expect(ok).To(BeFalse())
 	g.Expect(val).To(Equal("")) // Zero value
+}
+
+func TestOptional_OfPtr(t *testing.T) {
+	g := NewWithT(t)
+
+	t.Run("with nil pointer", func(t *testing.T) {
+		o := optional.OfPtr[int](nil)
+		g.Expect(o.IsPresent()).To(BeFalse())
+	})
+
+	t.Run("with non-nil pointer", func(t *testing.T) {
+		v := 123
+		o := optional.OfPtr(&v)
+		g.Expect(o.IsPresent()).To(BeTrue())
+		val, _ := o.Get()
+		g.Expect(val).To(Equal(123))
+	})
+}
+
+func TestOptional_OfError(t *testing.T) {
+	g := NewWithT(t)
+	testErr := errors.New("test error")
+
+	t.Run("with nil error", func(t *testing.T) {
+		o := optional.OfError(nil)
+		g.Expect(o.IsPresent()).To(BeFalse())
+	})
+
+	t.Run("with non-nil error", func(t *testing.T) {
+		o := optional.OfError(testErr)
+		g.Expect(o.IsPresent()).To(BeTrue())
+		val, _ := o.Get()
+		g.Expect(val).To(MatchError(testErr))
+	})
 }
 
 func TestOptional_Map(t *testing.T) {
