@@ -1,8 +1,6 @@
 # General Principles
 
-These principles are language-agnostic and form the core philosophy of writing clean, maintainable code.
-
-#### Naming
+## Naming
 
 * **Use Intention-Revealing Names:** Names should answer the big questions: why it exists, what it does, and how it's used. Avoid names that need a comment to explain their purpose.
 * **Avoid Disinformation:** Don't use names that mislead. For example, `hp` shouldn't be used for a variable representing `horsepower` if it actually represents something else, like `health points`.
@@ -14,7 +12,7 @@ These principles are language-agnostic and form the core philosophy of writing c
 * **One Word Per Concept:** Choose one word for a concept and stick with it. For example, don't mix `fetch`, `retrieve`, and `get` for the same kind of action.
 * **Add Context to Names:** A variable named `state` is only meaningful if it has a context, like `addrState`.
 
-#### Functions
+## Functions
 
 * **Functions Should Be Small:** Functions should be very short, typically no more than a few lines.
 * **Do One Thing:** A function should do one thing, and do it well. If a function can be described by more than one verb, it's likely doing too much.
@@ -25,7 +23,7 @@ These principles are language-agnostic and form the core philosophy of writing c
 * **Prefer Command-Query Separation:** Functions should either do something or answer something, but not both. For example, a `set()` function shouldn't also return a status code; its success should be implied unless an error is reported.
 * **Don't Repeat Yourself (DRY):** Avoid duplicating code. If you find yourself writing the same logic in multiple places, extract it into a function.
 
-#### Comments
+## Comments
 
 * **Prefer Self-Documenting Code:** The best code is its own documentation. Comments should be a last resort.
 * **Explain "Why," Not "What":** Use comments to explain **why** a particular decision was made, not to restate what the code is doing.
@@ -33,7 +31,7 @@ These principles are language-agnostic and form the core philosophy of writing c
 * **Avoid Redundant Comments:** Don't comment on something that's already obvious from the code.
 * **Do Not Use Commented-Out Code:** Delete commented-out code. Use version control to retrieve old code if needed.
 
-#### Object and Data Structure Design
+## Object and Data Structure Design
 
 * **Classes Should Be Small:** A class should have a single, well-defined responsibility. As a general rule, a class with more than a few methods or instance variables is likely doing too much.
 * **Encapsulation of Data:** Classes should hide their internal data structures and expose behavior through well-defined methods. Avoid creating classes that are just collections of public variables with no meaningful functions (known as Data Transfer Objects, which are a different concept).
@@ -44,7 +42,7 @@ These principles are language-agnostic and form the core philosophy of writing c
 * **Composition over Inheritance:** Prefer composition to achieve code reuse over inheritance.
 * **Dependency Injection:** Use dependency injection to decouple components and make them more testable.
 
-#### **Testing**
+## Testing
 
 * **AAA Unit Test Structure:** All unit tests must be implicitly structured following the **Arrange-Act-Assert** (AAA) pattern.
 * **Complete Test Coverage:** All production code must be covered by at least one unit test.
@@ -60,7 +58,7 @@ These principles are language-agnostic and form the core philosophy of writing c
     * **Extensive Scripts:** SQL scripts or other large text dumps.
     * **External Test Data:** When externalizing, store the data in a `testdata/` directory within the same package.
 
-#### System Boundaries
+## System Boundaries
 
 * **Validate Inputs and Boundaries:** All data entering the system from an external source (e.g., user input, API requests, configuration files) must be validated at the system boundary before it is used. This prevents bugs and security vulnerabilities.
 * **Wrap Third-Party Code:** Isolate third-party APIs and libraries behind an interface or a wrapper class that you control. This prevents changes in an external library from propagating throughout your codebase.
