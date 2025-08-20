@@ -12,7 +12,7 @@ import (
 // encoding structured, nested data.
 type Fluent struct {
 	enc          zapcore.ObjectEncoder
-	errorHandler *ErrorHandler
+	errorHandler *errorHandler
 }
 
 // NewFluent creates a new Fluent instance.
@@ -25,7 +25,7 @@ func NewFluent(
 ) *Fluent {
 	return &Fluent{
 		enc:          enc,
-		errorHandler: NewErrorHandler(config.ErrorHandling()),
+		errorHandler: newErrorHandler(config.ErrorHandling()),
 	}
 }
 
@@ -37,13 +37,13 @@ func NewFluent(
 //
 // It returns the Fluent instance to allow for method chaining.
 func (f *Fluent) Add(field fluentfield.Field) *Fluent {
-	if f.errorHandler.ShouldSkip() {
+	if f.errorHandler.shouldSkip() {
 		return f
 	}
 
-	f.errorHandler.Process(field, field.Encode(f.enc)).ForEach(func(fallbackField fluentfield.Field) {
+	f.errorHandler.process(field, field.Encode(f.enc)).ForEach(func(fallbackField fluentfield.Field) {
 		if err := fallbackField.Encode(f.enc); err != nil {
-			f.errorHandler.AggregateError(err)
+			f.errorHandler.aggregateError(err)
 		}
 	})
 
@@ -56,5 +56,5 @@ func (f *Fluent) Add(field fluentfield.Field) *Fluent {
 // Otherwise, it returns an error that may contain multiple underlying errors,
 // which can be inspected using the `multierr` package.
 func (f *Fluent) Done() error {
-	return f.errorHandler.AggregatedError()
+	return f.errorHandler.aggregatedError()
 }

@@ -34,34 +34,34 @@ type TypedField[T any] interface {
 	Format(formatter func(T) string) TypedField[string]
 }
 
-// EncodeFunc is a generic function type for encoding a field of a specific type.
-type EncodeFunc[T any] func(zapcore.ObjectEncoder, string, T) error
+// encodeFunc is a generic function type for encoding a field of a specific type.
+type encodeFunc[T any] func(zapcore.ObjectEncoder, string, T) error
 
-// TypeFieldFunctions holds the core functions for handling a specific type in
+// typeFieldFunctions holds the core functions for handling a specific type in
 // a TypedField. It includes how to encode the type and how to check if a value
 // of the type is "non-zero" (and thus should be included by default).
-type TypeFieldFunctions[T any] struct {
-	EncodeFunc EncodeFunc[T]
+type typeFieldFunctions[T any] struct {
+	EncodeFunc encodeFunc[T]
 	IsNonZero  func(T) bool
 }
 
-// LazyTypedField is the default implementation of the TypedField interface.
+// lazyTypedField is the default implementation of the TypedField interface.
 // It uses a LazyOptional to defer transformations and filtering, which avoids
 // unnecessary allocations and computations if a field is ultimately filtered out.
-type LazyTypedField[T any] struct {
-	functions TypeFieldFunctions[T]
+type lazyTypedField[T any] struct {
+	functions typeFieldFunctions[T]
 	optional  lazyoptional.LazyOptional[T]
 	name      string
 }
 
-// NewTypedField creates a new TypedField with the given functions, name, and
+// newTypedField creates a new TypedField with the given functions, name, and
 // initial value. This is the primary constructor for creating concrete field types.
-func NewTypedField[T any](
-	functions TypeFieldFunctions[T],
+func newTypedField[T any](
+	functions typeFieldFunctions[T],
 	name string,
 	value T,
 ) TypedField[T] {
-	return &LazyTypedField[T]{
+	return &lazyTypedField[T]{
 		functions: functions,
 		name:      name,
 		optional:  lazyoptional.Some(value),
@@ -69,14 +69,14 @@ func NewTypedField[T any](
 }
 
 // Name returns the key for the field.
-func (f *LazyTypedField[T]) Name() string {
+func (f *lazyTypedField[T]) Name() string {
 	return f.name
 }
 
 // Encode writes the field to the underlying zapcore.ObjectEncoder.
 // If the internal LazyOptional is empty (e.g., due to filtering), this
 // method does nothing.
-func (f *LazyTypedField[T]) Encode(encoder zapcore.ObjectEncoder) error {
+func (f *lazyTypedField[T]) Encode(encoder zapcore.ObjectEncoder) error {
 	val, ok := f.optional.Get()
 	if !ok {
 		return nil
@@ -86,8 +86,8 @@ func (f *LazyTypedField[T]) Encode(encoder zapcore.ObjectEncoder) error {
 
 // Filter returns a new field that will only be encoded if the provided
 // condition returns true for its value.
-func (f *LazyTypedField[T]) Filter(condition func(T) bool) TypedField[T] {
-	return &LazyTypedField[T]{
+func (f *lazyTypedField[T]) Filter(condition func(T) bool) TypedField[T] {
+	return &lazyTypedField[T]{
 		functions: f.functions,
 		name:      f.name,
 		optional:  f.optional.Filter(condition),
@@ -96,14 +96,14 @@ func (f *LazyTypedField[T]) Filter(condition func(T) bool) TypedField[T] {
 
 // NonZero is a convenience method that filters the field, ensuring it is only
 // encoded if its value is not the type's zero value.
-func (f *LazyTypedField[T]) NonZero() TypedField[T] {
+func (f *lazyTypedField[T]) NonZero() TypedField[T] {
 	return f.Filter(f.functions.IsNonZero)
 }
 
 // Format returns a new string-based field by applying a formatting function to
 // the original field's value.
-func (f *LazyTypedField[T]) Format(formatter func(T) string) TypedField[string] {
-	return &LazyTypedField[string]{
+func (f *lazyTypedField[T]) Format(formatter func(T) string) TypedField[string] {
+	return &lazyTypedField[string]{
 		name:      f.name,
 		functions: stringTypeFns(),
 		optional:  lazyoptional.Map(f.optional, formatter),

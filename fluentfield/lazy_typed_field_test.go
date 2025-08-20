@@ -1,10 +1,9 @@
-package fluentfield_test
+package fluentfield
 
 import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"go.robertomontagna.dev/zapfluent/fluentfield"
 	"go.uber.org/zap/zapcore"
 )
 
@@ -14,14 +13,14 @@ const (
 
 func TestLazyTypedField_Encode(t *testing.T) {
 	t.Run("when value is present, it encodes the value", func(t *testing.T) {
-		functions := fluentfield.TypeFieldFunctions[string]{
+		functions := typeFieldFunctions[string]{
 			EncodeFunc: func(enc zapcore.ObjectEncoder, name string, value string) error {
 				enc.AddString(name, value)
 				return nil
 			},
 			IsNonZero: func(s string) bool { return s != "" },
 		}
-		field := fluentfield.NewTypedField(functions, testFieldName, "test-value")
+		field := newTypedField(functions, testFieldName, "test-value")
 		enc := zapcore.NewMapObjectEncoder()
 
 		err := field.Encode(enc)
@@ -31,14 +30,14 @@ func TestLazyTypedField_Encode(t *testing.T) {
 	})
 
 	t.Run("when value is not present, it does not encode anything", func(t *testing.T) {
-		functions := fluentfield.TypeFieldFunctions[string]{
+		functions := typeFieldFunctions[string]{
 			EncodeFunc: func(enc zapcore.ObjectEncoder, name string, value string) error {
 				enc.AddString(name, value)
 				return nil
 			},
 			IsNonZero: func(s string) bool { return s != "" },
 		}
-		field := fluentfield.NewTypedField(functions, testFieldName, "test-value").
+		field := newTypedField(functions, testFieldName, "test-value").
 			Filter(func(s string) bool { return false }) // This will make the value not present
 		enc := zapcore.NewMapObjectEncoder()
 
@@ -50,21 +49,21 @@ func TestLazyTypedField_Encode(t *testing.T) {
 }
 
 func TestLazyTypedField_Name(t *testing.T) {
-	functions := fluentfield.TypeFieldFunctions[string]{}
-	field := fluentfield.NewTypedField(functions, testFieldName, "test-value")
+	functions := typeFieldFunctions[string]{}
+	field := newTypedField(functions, testFieldName, "test-value")
 
 	assert.Equal(t, testFieldName, field.Name())
 }
 
 func TestLazyTypedField_Filter(t *testing.T) {
-	functions := fluentfield.TypeFieldFunctions[string]{
+	functions := typeFieldFunctions[string]{
 		EncodeFunc: func(enc zapcore.ObjectEncoder, name string, value string) error {
 			enc.AddString(name, value)
 			return nil
 		},
 		IsNonZero: func(s string) bool { return s != "" },
 	}
-	field := fluentfield.NewTypedField(functions, testFieldName, "test-value")
+	field := newTypedField(functions, testFieldName, "test-value")
 
 	t.Run("when condition is met, it keeps the value", func(t *testing.T) {
 		filteredField := field.Filter(func(s string) bool { return true })
@@ -82,7 +81,7 @@ func TestLazyTypedField_Filter(t *testing.T) {
 }
 
 func TestLazyTypedField_NonZero(t *testing.T) {
-	functions := fluentfield.TypeFieldFunctions[string]{
+	functions := typeFieldFunctions[string]{
 		EncodeFunc: func(enc zapcore.ObjectEncoder, name string, value string) error {
 			enc.AddString(name, value)
 			return nil
@@ -91,14 +90,14 @@ func TestLazyTypedField_NonZero(t *testing.T) {
 	}
 
 	t.Run("when value is not zero, it keeps the value", func(t *testing.T) {
-		field := fluentfield.NewTypedField(functions, testFieldName, "test-value").NonZero()
+		field := newTypedField(functions, testFieldName, "test-value").NonZero()
 		enc := zapcore.NewMapObjectEncoder()
 		_ = field.Encode(enc)
 		assert.NotEmpty(t, enc.Fields)
 	})
 
 	t.Run("when value is zero, it removes the value", func(t *testing.T) {
-		field := fluentfield.NewTypedField(functions, testFieldName, "").NonZero()
+		field := newTypedField(functions, testFieldName, "").NonZero()
 		enc := zapcore.NewMapObjectEncoder()
 		_ = field.Encode(enc)
 		assert.Empty(t, enc.Fields)
@@ -106,13 +105,13 @@ func TestLazyTypedField_NonZero(t *testing.T) {
 }
 
 func TestLazyTypedField_Format(t *testing.T) {
-	functions := fluentfield.TypeFieldFunctions[int]{
+	functions := typeFieldFunctions[int]{
 		EncodeFunc: func(enc zapcore.ObjectEncoder, name string, value int) error {
 			enc.AddInt(name, value)
 			return nil
 		},
 	}
-	field := fluentfield.NewTypedField(functions, testFieldName, 5)
+	field := newTypedField(functions, testFieldName, 5)
 	formattedField := field.Format(func(i int) string { return "formatted" })
 	enc := zapcore.NewMapObjectEncoder()
 

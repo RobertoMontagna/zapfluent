@@ -4,7 +4,7 @@ import "go.uber.org/zap/zapcore"
 
 // String returns a new field with a string value.
 func String(name string, value string) TypedField[string] {
-	return NewTypedField(
+	return newTypedField(
 		stringTypeFns(),
 		name,
 		value,
@@ -13,7 +13,7 @@ func String(name string, value string) TypedField[string] {
 
 // Int returns a new field with an int value.
 func Int(name string, value int) TypedField[int] {
-	return NewTypedField(
+	return newTypedField(
 		intTypeFns(),
 		name,
 		value,
@@ -22,7 +22,7 @@ func Int(name string, value int) TypedField[int] {
 
 // Int8 returns a new field with an int8 value.
 func Int8(name string, value int8) TypedField[int8] {
-	return NewTypedField(
+	return newTypedField(
 		int8TypeFns(),
 		name,
 		value,
@@ -34,7 +34,7 @@ func Int8(name string, value int8) TypedField[int8] {
 // It requires an `isNonZero` function to determine if the object should be
 // omitted when the `NonZero` method is called.
 func Object[T zapcore.ObjectMarshaler](name string, value T, isNonZero func(T) bool) TypedField[T] {
-	return NewTypedField(
+	return newTypedField(
 		objectTypeFns(isNonZero),
 		name,
 		value,
@@ -59,8 +59,8 @@ func ComparableObject[T comparableObject](name string, value T) TypedField[T] {
 }
 
 // unexported helpers that were in the original files
-func stringTypeFns() TypeFieldFunctions[string] {
-	return TypeFieldFunctions[string]{
+func stringTypeFns() typeFieldFunctions[string] {
+	return typeFieldFunctions[string]{
 		EncodeFunc: func(encoder zapcore.ObjectEncoder, name string, value string) error {
 			encoder.AddString(name, value)
 			return nil
@@ -71,8 +71,8 @@ func stringTypeFns() TypeFieldFunctions[string] {
 	}
 }
 
-func intTypeFns() TypeFieldFunctions[int] {
-	return TypeFieldFunctions[int]{
+func intTypeFns() typeFieldFunctions[int] {
+	return typeFieldFunctions[int]{
 		EncodeFunc: func(encoder zapcore.ObjectEncoder, name string, value int) error {
 			encoder.AddInt(name, value)
 			return nil
@@ -83,8 +83,8 @@ func intTypeFns() TypeFieldFunctions[int] {
 	}
 }
 
-func int8TypeFns() TypeFieldFunctions[int8] {
-	return TypeFieldFunctions[int8]{
+func int8TypeFns() typeFieldFunctions[int8] {
+	return typeFieldFunctions[int8]{
 		EncodeFunc: func(encoder zapcore.ObjectEncoder, name string, value int8) error {
 			encoder.AddInt8(name, value)
 			return nil
@@ -95,8 +95,8 @@ func int8TypeFns() TypeFieldFunctions[int8] {
 	}
 }
 
-func objectTypeFns[T zapcore.ObjectMarshaler](isNonZero func(T) bool) TypeFieldFunctions[T] {
-	return TypeFieldFunctions[T]{
+func objectTypeFns[T zapcore.ObjectMarshaler](isNonZero func(T) bool) typeFieldFunctions[T] {
+	return typeFieldFunctions[T]{
 		EncodeFunc: func(encoder zapcore.ObjectEncoder, name string, value T) error {
 			return encoder.AddObject(name, value)
 		},
