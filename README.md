@@ -4,12 +4,12 @@
 [![codecov](https://codecov.io/gh/RobertoMontagna/zapfluent/graph/badge.svg)](https://codecov.io/gh/RobertoMontagna/zapfluent)
 [![Developed with Google Jules](https://img.shields.io/badge/Developed%20with-Google%20Jules-blue?logo=google)](https://jules.google/)
 
-<table>
+<table border="0">
   <tr>
     <td align="center" width="400">
       <img src="assets/images/fluentzap_logo.png" alt="Zap Fluent Encoder Logo" width="400"/>
     </td>
-    <td>
+    <td valign="top">
       A fluent interface encoder for <a href="https://github.com/uber-go/zap">Uber's Zap logging library</a> that provides a more intuitive and expressive way to add structured logging fields. Say goodbye to endless <code>zap.String("key", "value")</code> calls and hello to a cleaner, more readable logging style!
     </td>
   </tr>
