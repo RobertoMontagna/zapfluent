@@ -31,12 +31,12 @@ build: ## 🔨 Build the project
 .PHONY: test
 test: ## 🧪 Run all tests
 	@echo ">> running tests..."
-	@go test ./...
+	@go test -tags=test ./...
 
 .PHONY: lint
 lint: tools ## 🔍 Run linter
 	@echo ">> running linter..."
-	@$(GOLANGCI_LINT) run ./...
+	@$(GOLANGCI_LINT) run --build-tags=test ./...
 
 .PHONY: lint-fix
 lint-fix: tools ## Fix all auto-fixable problems
@@ -46,7 +46,7 @@ lint-fix: tools ## Fix all auto-fixable problems
 .PHONY: coverage
 coverage: ## 📊 Generate test coverage report
 	@echo ">> generating coverage report..."
-	@go test -coverprofile=coverage.out ./...
+	@go test -tags=test -coverprofile=coverage.out ./...
 
 .PHONY: coverage-html
 coverage-html: coverage ## 🌐 View coverage report in browser

@@ -1,3 +1,5 @@
+//go:build test
+
 // Package testutil provides helpers for testing purposes.
 package testutil
 
