@@ -2,6 +2,7 @@ package zapfluent
 
 import (
 	"go.uber.org/multierr"
+	"go.uber.org/zap/zapcore"
 
 	"go.robertomontagna.dev/zapfluent/config"
 	"go.robertomontagna.dev/zapfluent/fluentfield"
@@ -9,18 +10,23 @@ import (
 )
 
 type errorHandler struct {
-	err error
-	cfg config.ErrorHandlingConfiguration
+	cfg        config.ErrorHandlingConfiguration
+	enc        zapcore.ObjectEncoder
+	totalError error
 }
 
-func newErrorHandler(cfg config.ErrorHandlingConfiguration) *errorHandler {
+func newErrorHandler(
+	cfg config.ErrorHandlingConfiguration,
+	enc zapcore.ObjectEncoder,
+) *errorHandler {
 	return &errorHandler{
 		cfg: cfg,
+		enc: enc,
 	}
 }
 
 func (h *errorHandler) shouldSkip() bool {
-	return h.cfg.Mode() == config.ErrorHandlingModeEarlyFailing && h.err != nil
+	return h.cfg.Mode() == config.ErrorHandlingModeEarlyFailing && h.totalError != nil
 }
 
 func (h *errorHandler) handleError(field fluentfield.Field, err error) optional.Optional[fluentfield.Field] {
@@ -38,13 +44,33 @@ func (h *errorHandler) handleError(field fluentfield.Field, err error) optional.
 	)
 }
 
-func (h *errorHandler) aggregateError(newErr error) {
-	if newErr == nil {
-		return
+type fieldEncodingErrorManager func()
+
+func (h *errorHandler) encodeField(field fluentfield.Field) fieldEncodingErrorManager {
+	if h.shouldSkip() {
+		return func() {}
 	}
-	h.err = multierr.Append(h.err, newErr)
+	maybeFallbackField := h.handleError(field, field.Encode(h.enc))
+
+	return func() {
+		maybeEncodingError := optional.FlatMap(maybeFallbackField, h.encodeAndLift)
+		maybeFallbackFailed := optional.Map(maybeEncodingError, func(_ error) fluentfield.Field {
+			return fluentfield.String(field.Name(), "failed to encode fallback field")
+		})
+		optional.FlatMap(maybeFallbackFailed, h.encodeAndLift)
+	}
+}
+
+func (h *errorHandler) encodeAndLift(field fluentfield.Field) optional.Optional[error] {
+	err := field.Encode(h.enc)
+	h.aggregateError(err)
+	return optional.OfError(err)
+}
+
+func (h *errorHandler) aggregateError(newErr error) {
+	h.totalError = multierr.Append(h.totalError, newErr)
 }
 
 func (h *errorHandler) aggregatedError() error {
-	return h.err
+	return h.totalError
 }

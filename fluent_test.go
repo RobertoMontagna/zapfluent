@@ -102,7 +102,7 @@ func TestFluent(t *testing.T) {
 			},
 			assertions: func(g *GomegaWithT, err error, enc *zapcore.MapObjectEncoder) {
 				g.Expect(err).To(MatchError(originalErr))
-				g.Expect(enc.Fields).To(HaveKeyWithValue("fluent_error", "failed to encode fallback field"))
+				g.Expect(enc.Fields).To(HaveKeyWithValue(testFailingField, "failed to encode fallback field"))
 			},
 		},
 	}

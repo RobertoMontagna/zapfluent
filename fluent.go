@@ -7,7 +7,6 @@ import (
 
 	"go.robertomontagna.dev/zapfluent/config"
 	"go.robertomontagna.dev/zapfluent/fluentfield"
-	"go.robertomontagna.dev/zapfluent/functional/optional"
 )
 
 // Fluent provides a fluent interface for adding structured logging fields to a
@@ -26,7 +25,7 @@ func NewFluent(
 ) *Fluent {
 	return &Fluent{
 		enc:          enc,
-		errorHandler: newErrorHandler(config.ErrorHandling()),
+		errorHandler: newErrorHandler(config.ErrorHandling(), enc),
 	}
 }
 
@@ -39,18 +38,10 @@ func (z *Fluent) Add(field fluentfield.Field) *Fluent {
 		return z
 	}
 
-	maybeFallbackField := z.errorHandler.handleError(field, field.Encode(z.enc))
-	maybeEncodingError := optional.FlatMap(maybeFallbackField, z.encodeAndLift)
-	optional.Map(maybeEncodingError, func(encodingErr error) bool {
-		z.enc.AddString(field.Name(), "failed to encode fallback field")
-		return true
-	})
+	encodingErrorManager := z.errorHandler.encodeField(field)
+	encodingErrorManager()
 
 	return z
-}
-
-func (z *Fluent) encodeAndLift(field fluentfield.Field) optional.Optional[error] {
-	return optional.OfError(field.Encode(z.enc))
 }
 
 // Done completes the fluent chain and returns any aggregated errors that
