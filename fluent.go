@@ -40,13 +40,9 @@ func (z *Fluent) Add(field fluentfield.Field) *Fluent {
 	}
 
 	maybeFallbackField := z.errorHandler.handleError(field, field.Encode(z.enc))
-
 	maybeEncodingError := optional.FlatMap(maybeFallbackField, z.encodeAndLift)
-
 	optional.Map(maybeEncodingError, func(encodingErr error) bool {
-		if encodingErr != nil {
-			z.enc.AddString("fluent_error", "failed to encode fallback field")
-		}
+		z.enc.AddString(field.Name(), "failed to encode fallback field")
 		return true
 	})
 
