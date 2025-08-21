@@ -4,7 +4,16 @@
 [![codecov](https://codecov.io/gh/RobertoMontagna/zapfluent/graph/badge.svg)](https://codecov.io/gh/RobertoMontagna/zapfluent)
 [![Developed with Google Jules](https://img.shields.io/badge/Developed%20with-Google%20Jules-blue?logo=google)](https://jules.google/)
 
-A fluent interface encoder for [Uber's Zap logging library](https://github.com/uber-go/zap) that provides a more intuitive and expressive way to add structured logging fields. Say goodbye to endless `zap.String("key", "value")` calls and hello to a cleaner, more readable logging style!
+<table border="0">
+  <tr>
+    <td align="center" width="400">
+      <img src="assets/images/fluentzap_logo.png" alt="Zap Fluent Encoder Logo" width="400"/>
+    </td>
+    <td valign="top">
+      A fluent interface encoder for <a href="https://github.com/uber-go/zap">Uber's Zap logging library</a> that provides a more intuitive and expressive way to add structured logging fields. Say goodbye to endless <code>zap.String("key", "value")</code> calls and hello to a cleaner, more readable logging style!
+    </td>
+  </tr>
+</table>
 
 ## ⚠️ Work in Progress
 
@@ -17,6 +26,8 @@ Here's a quick example of how to use `zapfluent` to create a `zapcore.ObjectMars
 First, define your struct:
 
 ```go
+package main
+
 import (
 	"go.uber.org/zap/zapcore"
 	"go.robertomontagna.dev/zapfluent"
@@ -42,6 +53,8 @@ func (u User) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 Now, you can use it with your Zap logger. `zapfluent` makes it easy to control which fields get logged based on their value.
 
 ```go
+package main
+
 import "go.uber.org/zap"
 
 func main() {
@@ -66,6 +79,18 @@ func main() {
 	// Log output: {"level":"info","ts":...,"caller":"...", "msg":"User with partial details","user":{"id":456,"username":"jane"}}
 }
 ```
+
+## 🚧 TODO
+
+This is a non-exhaustive list of planned features and improvements, in no particular order.
+
+- [ ] Add a configuration option to automatically sort logging fields in lexicographical order.
+- [ ] Implement an error handling configuration to control the placement of field-specific error messages (e.g., in-place or at the end of the field list).
+- [ ] Add a global configuration setting to automatically omit all zero-value fields from the log output.
+- [ ] Expand field support to include all remaining primitive types (non-pointer, non-slice, non-array, non-map).
+- [ ] Add support for logging pointer fields, automatically handling `nil` values.
+- [ ] Implement support for logging slice fields.
+- [ ] [Optional] Implement support for logging map fields.
 
 ## 🤝 Contributing
 
