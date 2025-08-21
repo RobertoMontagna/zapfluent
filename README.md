@@ -26,6 +26,8 @@ Here's a quick example of how to use `zapfluent` to create a `zapcore.ObjectMars
 First, define your struct:
 
 ```go
+package main
+
 import (
 	"go.uber.org/zap/zapcore"
 	"go.robertomontagna.dev/zapfluent"
@@ -51,6 +53,8 @@ func (u User) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 Now, you can use it with your Zap logger. `zapfluent` makes it easy to control which fields get logged based on their value.
 
 ```go
+package main
+
 import "go.uber.org/zap"
 
 func main() {
