@@ -7,6 +7,7 @@ import (
 	. "github.com/onsi/gomega"
 
 	"go.robertomontagna.dev/zapfluent/functional/optional"
+	"go.robertomontagna.dev/zapfluent/functional/optional/matchers"
 )
 
 func TestLiftToOptional(t *testing.T) {
@@ -16,7 +17,7 @@ func TestLiftToOptional(t *testing.T) {
 		f := func() *int { return nil }
 		lifted := optional.LiftToOptional(f)
 		result := lifted()
-		g.Expect(result.IsPresent()).To(BeFalse())
+		g.Expect(result).To(matchers.BeEmpty())
 	})
 
 	t.Run("for value-returning function", func(t *testing.T) {
@@ -24,9 +25,8 @@ func TestLiftToOptional(t *testing.T) {
 		f := func() *int { return &v }
 		lifted := optional.LiftToOptional(f)
 		result := lifted()
-		g.Expect(result.IsPresent()).To(BeTrue())
-		val, _ := result.Get()
-		g.Expect(val).To(Equal(123))
+		g.Expect(result).To(matchers.BePresent())
+		g.Expect(result).To(matchers.HaveValue(123))
 	})
 }
 
@@ -37,7 +37,7 @@ func TestLiftToOptional1(t *testing.T) {
 		f := func(s string) *int { return nil }
 		lifted := optional.LiftToOptional1(f)
 		result := lifted("test")
-		g.Expect(result.IsPresent()).To(BeFalse())
+		g.Expect(result).To(matchers.BeEmpty())
 	})
 
 	t.Run("for value-returning function", func(t *testing.T) {
@@ -48,9 +48,8 @@ func TestLiftToOptional1(t *testing.T) {
 		}
 		lifted := optional.LiftToOptional1(f)
 		result := lifted("test")
-		g.Expect(result.IsPresent()).To(BeTrue())
-		val, _ := result.Get()
-		g.Expect(val).To(Equal(123))
+		g.Expect(result).To(matchers.BePresent())
+		g.Expect(result).To(matchers.HaveValue(123))
 	})
 }
 
@@ -61,7 +60,7 @@ func TestLiftToOptional2(t *testing.T) {
 		f := func(s string, i int) *int { return nil }
 		lifted := optional.LiftToOptional2(f)
 		result := lifted("test", 1)
-		g.Expect(result.IsPresent()).To(BeFalse())
+		g.Expect(result).To(matchers.BeEmpty())
 	})
 
 	t.Run("for value-returning function", func(t *testing.T) {
@@ -73,9 +72,8 @@ func TestLiftToOptional2(t *testing.T) {
 		}
 		lifted := optional.LiftToOptional2(f)
 		result := lifted("test", 1)
-		g.Expect(result.IsPresent()).To(BeTrue())
-		val, _ := result.Get()
-		g.Expect(val).To(Equal(123))
+		g.Expect(result).To(matchers.BePresent())
+		g.Expect(result).To(matchers.HaveValue(123))
 	})
 }
 
@@ -87,16 +85,15 @@ func TestLiftErrorToOptional(t *testing.T) {
 		f := func() error { return nil }
 		lifted := optional.LiftErrorToOptional(f)
 		result := lifted()
-		g.Expect(result.IsPresent()).To(BeFalse())
+		g.Expect(result).To(matchers.BeEmpty())
 	})
 
 	t.Run("for error-returning function", func(t *testing.T) {
 		f := func() error { return testErr }
 		lifted := optional.LiftErrorToOptional(f)
 		result := lifted()
-		g.Expect(result.IsPresent()).To(BeTrue())
-		val, _ := result.Get()
-		g.Expect(val).To(MatchError(testErr))
+		g.Expect(result).To(matchers.BePresent())
+		g.Expect(result).To(matchers.HaveValue(testErr))
 	})
 }
 
@@ -108,7 +105,7 @@ func TestLiftErrorToOptional1(t *testing.T) {
 		f := func(s string) error { return nil }
 		lifted := optional.LiftErrorToOptional1(f)
 		result := lifted("test")
-		g.Expect(result.IsPresent()).To(BeFalse())
+		g.Expect(result).To(matchers.BeEmpty())
 	})
 
 	t.Run("for error-returning function", func(t *testing.T) {
@@ -118,9 +115,8 @@ func TestLiftErrorToOptional1(t *testing.T) {
 		}
 		lifted := optional.LiftErrorToOptional1(f)
 		result := lifted("test")
-		g.Expect(result.IsPresent()).To(BeTrue())
-		val, _ := result.Get()
-		g.Expect(val).To(MatchError(testErr))
+		g.Expect(result).To(matchers.BePresent())
+		g.Expect(result).To(matchers.HaveValue(testErr))
 	})
 }
 
@@ -132,7 +128,7 @@ func TestLiftErrorToOptional2(t *testing.T) {
 		f := func(s string, i int) error { return nil }
 		lifted := optional.LiftErrorToOptional2(f)
 		result := lifted("test", 1)
-		g.Expect(result.IsPresent()).To(BeFalse())
+		g.Expect(result).To(matchers.BeEmpty())
 	})
 
 	t.Run("for error-returning function", func(t *testing.T) {
@@ -143,8 +139,7 @@ func TestLiftErrorToOptional2(t *testing.T) {
 		}
 		lifted := optional.LiftErrorToOptional2(f)
 		result := lifted("test", 1)
-		g.Expect(result.IsPresent()).To(BeTrue())
-		val, _ := result.Get()
-		g.Expect(val).To(MatchError(testErr))
+		g.Expect(result).To(matchers.BePresent())
+		g.Expect(result).To(matchers.HaveValue(testErr))
 	})
 }

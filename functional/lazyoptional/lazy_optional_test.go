@@ -7,6 +7,7 @@ import (
 	. "github.com/onsi/gomega"
 
 	"go.robertomontagna.dev/zapfluent/functional/lazyoptional"
+	"go.robertomontagna.dev/zapfluent/functional/lazyoptional/matchers"
 )
 
 func TestLazyOptional_Some(t *testing.T) {
@@ -14,19 +15,16 @@ func TestLazyOptional_Some(t *testing.T) {
 	expectedValue := 42
 
 	opt := lazyoptional.Some(expectedValue)
-	val, ok := opt.Get()
 
-	g.Expect(ok).To(BeTrue())
-	g.Expect(val).To(Equal(expectedValue))
+	g.Expect(opt).To(matchers.BePresent())
+	g.Expect(opt).To(matchers.HaveValue(expectedValue))
 }
 
 func TestLazyOptional_Empty(t *testing.T) {
 	g := NewWithT(t)
 	opt := lazyoptional.Empty[int]()
 
-	_, ok := opt.Get()
-
-	g.Expect(ok).To(BeFalse())
+	g.Expect(opt).To(matchers.BeEmpty())
 }
 
 func TestLazyOptional_Filter(t *testing.T) {
@@ -37,10 +35,9 @@ func TestLazyOptional_Filter(t *testing.T) {
 		predicate := func(i int) bool { return i > 10 }
 
 		filteredOpt := opt.Filter(predicate)
-		val, ok := filteredOpt.Get()
 
-		g.Expect(ok).To(BeTrue())
-		g.Expect(val).To(Equal(42))
+		g.Expect(filteredOpt).To(matchers.BePresent())
+		g.Expect(filteredOpt).To(matchers.HaveValue(42))
 	})
 
 	t.Run("on Some with failing condition", func(t *testing.T) {
@@ -48,9 +45,8 @@ func TestLazyOptional_Filter(t *testing.T) {
 		predicate := func(i int) bool { return i < 10 }
 
 		filteredOpt := opt.Filter(predicate)
-		_, ok := filteredOpt.Get()
 
-		g.Expect(ok).To(BeFalse())
+		g.Expect(filteredOpt).To(matchers.BeEmpty())
 	})
 
 	t.Run("on Empty", func(t *testing.T) {
@@ -58,9 +54,8 @@ func TestLazyOptional_Filter(t *testing.T) {
 		predicate := func(i int) bool { return i > 10 }
 
 		filteredOpt := opt.Filter(predicate)
-		_, ok := filteredOpt.Get()
 
-		g.Expect(ok).To(BeFalse())
+		g.Expect(filteredOpt).To(matchers.BeEmpty())
 	})
 }
 
@@ -84,10 +79,9 @@ func TestFlatMap(t *testing.T) {
 		f := func(i int) lazyoptional.LazyOptional[string] { return lazyoptional.Some(strconv.Itoa(i)) }
 
 		fmOpt := lazyoptional.FlatMap(opt, f)
-		val, ok := fmOpt.Get()
 
-		g.Expect(ok).To(BeTrue())
-		g.Expect(val).To(Equal("42"))
+		g.Expect(fmOpt).To(matchers.BePresent())
+		g.Expect(fmOpt).To(matchers.HaveValue("42"))
 	})
 
 	t.Run("on Some that returns Empty", func(t *testing.T) {
@@ -95,9 +89,8 @@ func TestFlatMap(t *testing.T) {
 		f := func(i int) lazyoptional.LazyOptional[string] { return lazyoptional.Empty[string]() }
 
 		fmOpt := lazyoptional.FlatMap(opt, f)
-		_, ok := fmOpt.Get()
 
-		g.Expect(ok).To(BeFalse())
+		g.Expect(fmOpt).To(matchers.BeEmpty())
 	})
 
 	t.Run("on Empty", func(t *testing.T) {
@@ -105,9 +98,8 @@ func TestFlatMap(t *testing.T) {
 		f := func(i int) lazyoptional.LazyOptional[string] { return lazyoptional.Some(strconv.Itoa(i)) }
 
 		fmOpt := lazyoptional.FlatMap(opt, f)
-		_, ok := fmOpt.Get()
 
-		g.Expect(ok).To(BeFalse())
+		g.Expect(fmOpt).To(matchers.BeEmpty())
 	})
 }
 
@@ -119,10 +111,9 @@ func TestMap(t *testing.T) {
 		mapper := func(i int) string { return strconv.Itoa(i) }
 
 		mappedOpt := lazyoptional.Map(opt, mapper)
-		val, ok := mappedOpt.Get()
 
-		g.Expect(ok).To(BeTrue())
-		g.Expect(val).To(Equal("42"))
+		g.Expect(mappedOpt).To(matchers.BePresent())
+		g.Expect(mappedOpt).To(matchers.HaveValue("42"))
 	})
 
 	t.Run("on Empty", func(t *testing.T) {
@@ -130,8 +121,7 @@ func TestMap(t *testing.T) {
 		mapper := func(i int) string { return strconv.Itoa(i) }
 
 		mappedOpt := lazyoptional.Map(opt, mapper)
-		_, ok := mappedOpt.Get()
 
-		g.Expect(ok).To(BeFalse())
+		g.Expect(mappedOpt).To(matchers.BeEmpty())
 	})
 }
