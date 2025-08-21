@@ -23,7 +23,7 @@ func stdOutLogger() *zap.SugaredLogger {
 		EncodeDuration: zapcore.StringDurationEncoder,
 	}
 	coreEncoder := zapcore.NewCore(
-		zapfluent.NewFluentEncoder(
+		core.NewFluentEncoder(
 			zapcore.NewJSONEncoder(encoderCfg),
 			core.NewConfiguration(),
 		),

@@ -150,7 +150,7 @@ func TestAsFluent(t *testing.T) {
 	t.Run("with FluentEncoder", func(t *testing.T) {
 		cfg := core.NewConfiguration()
 		enc := zapcore.NewJSONEncoder(zap.NewDevelopmentEncoderConfig())
-		fluentEncoder := zapfluent.NewFluentEncoder(enc, cfg)
+		fluentEncoder := core.NewFluentEncoder(enc, cfg)
 
 		fluent := zapfluent.AsFluent(fluentEncoder)
 

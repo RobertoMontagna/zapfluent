@@ -56,8 +56,8 @@ func (z *Fluent) Done() error {
 // default configuration. This is useful for integrating with libraries like
 // Zap that provide an encoder.
 func AsFluent(encoder zapcore.ObjectEncoder) *Fluent {
-	if fEnc, ok := encoder.(*FluentEncoder); ok {
-		return NewFluent(fEnc, fEnc.config)
+	if fEnc, ok := encoder.(*core.FluentEncoder); ok {
+		return NewFluent(fEnc, fEnc.Config)
 	}
 	return NewFluent(encoder, core.NewConfiguration())
 }
