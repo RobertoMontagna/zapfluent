@@ -4,7 +4,7 @@
 [![codecov](https://codecov.io/gh/RobertoMontagna/zapfluent/graph/badge.svg)](https://codecov.io/gh/RobertoMontagna/zapfluent)
 [![Developed with Google Jules](https://img.shields.io/badge/Developed%20with-Google%20Jules-blue?logo=google)](https://jules.google/)
 
-A fluent interface encoder for Uber's Zap logging library that provides a more intuitive and expressive way to add structured logging fields. Say goodbye to endless `zap.String("key", "value")` calls and hello to a cleaner, more readable logging style!
+A fluent interface encoder for [Uber's Zap logging library](https://github.com/uber-go/zap) that provides a more intuitive and expressive way to add structured logging fields. Say goodbye to endless `zap.String("key", "value")` calls and hello to a cleaner, more readable logging style!
 
 ## ⚠️ Work in Progress
 
@@ -71,7 +71,7 @@ func main() {
 
 Contributions are welcome! This project is open to improvements and new features.
 
-To get started, please check out the [Development Guidelines](docs/DEVELOPMENT.md).
+To get started, please check out the [Development Guidelines](assets/DEVELOPMENT.md).
 
 ### Local Development
 
