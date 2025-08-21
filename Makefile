@@ -43,6 +43,20 @@ lint-fix: tools ## Fix all auto-fixable problems
 	@echo ">> running linter and applying fixes..."
 	@$(GOLANGCI_LINT) run --fix ./...
 
+.PHONY: fmt
+fmt: ## 🎨 Format all Go files
+	@echo ">> formatting go files..."
+	@go fmt ./...
+
+.PHONY: check-fmt
+check-fmt: ## 🧐 Check if all Go files are formatted
+	@echo ">> checking go files formatting..."
+	@if [ -n "$$(gofmt -l .)" ]; then \
+		echo "The following files are not formatted:"; \
+		gofmt -l .; \
+		exit 1; \
+	fi
+
 .PHONY: coverage
 coverage: ## 📊 Generate test coverage report
 	@echo ">> generating coverage report..."
