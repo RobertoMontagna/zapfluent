@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/RobertoMontagna/zapfluent/actions/workflows/ci.yml/badge.svg)](https://github.com/RobertoMontagna/zapfluent/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/RobertoMontagna/zapfluent/graph/badge.svg)](https://codecov.io/gh/RobertoMontagna/zapfluent)
-[![Developed with Google Jules](https://img.shields.io/badge/Developed%20with-Google%20Jules-blue?logo=google&style=for-the-badge)](https://jules.google/)
+[![Developed with Google Jules](https://img.shields.io/badge/Developed%20with-Google%20Jules-blue?logo=google)](https://jules.google/)
 
 A fluent interface encoder for Uber's Zap logging library that provides a more intuitive and expressive way to add structured logging fields. Say goodbye to endless `zap.String("key", "value")` calls and hello to a cleaner, more readable logging style!
 

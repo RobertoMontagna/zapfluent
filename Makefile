@@ -5,8 +5,9 @@
 # Ensure that go-installed binaries are available in the PATH
 export PATH := $(shell go env GOPATH)/bin:$(PATH)
 
-# Define the binary name for the linter
+# Define binary names
 GOLANGCI_LINT := golangci-lint
+GO_JUNIT_REPORT := go-junit-report
 
 # ==============================================================================
 # Help Target
@@ -58,9 +59,9 @@ check-fmt: ## 🧐 Check if all Go files are formatted
 	fi
 
 .PHONY: coverage
-coverage: ## 📊 Generate test coverage report
-	@echo ">> generating coverage report..."
-	@go test -coverprofile=coverage.out ./...
+coverage: tools ## 📊 Generate test coverage and JUnit reports
+	@echo ">> generating test reports..."
+	@go test -v -coverprofile=coverage.out ./... | tee /dev/tty | $(GO_JUNIT_REPORT) > report.xml
 
 .PHONY: coverage-html
 coverage-html: coverage ## 🌐 View coverage report in browser
@@ -72,13 +73,19 @@ coverage-html: coverage ## 🌐 View coverage report in browser
 # ==============================================================================
 
 .PHONY: tools
-tools: $(GOLANGCI_LINT) ## 🛠️ Install development tools
+tools: $(GOLANGCI_LINT) $(GO_JUNIT_REPORT) ## 🛠️ Install development tools
 
 $(GOLANGCI_LINT):
 	@echo ">> checking for $(GOLANGCI_LINT)..."
 	@command -v $(GOLANGCI_LINT) >/dev/null 2>&1 || \
 		(echo "   -> $(GOLANGCI_LINT) not found, installing..." && \
 		go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest)
+
+$(GO_JUNIT_REPORT):
+	@echo ">> checking for $(GO_JUNIT_REPORT)..."
+	@command -v $(GO_JUNIT_REPORT) >/dev/null 2>&1 || \
+		(echo "   -> $(GO_JUNIT_REPORT) not found, installing..." && \
+		go install github.com/jstemmer/go-junit-report@latest)
 
 # ==============================================================================
 # Housekeeping Targets
