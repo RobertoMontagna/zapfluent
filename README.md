@@ -71,7 +71,7 @@ func main() {
 
 Contributions are welcome! This project is open to improvements and new features.
 
-To get started, please check out the [Development Guidelines](docs/DEVELOPMENT.md).
+To get started, please check out the [Development Guidelines](assets/DEVELOPMENT.md).
 
 ### Local Development
 
