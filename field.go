@@ -1,11 +1,11 @@
-package fluentfield
+package zapfluent
 
 import (
 	"reflect"
 
 	"go.uber.org/zap/zapcore"
 
-	"go.robertomontagna.dev/zapfluent/functional/lazyoptional"
+	"go.robertomontagna.dev/zapfluent/internal/functional/lazyoptional"
 )
 
 // Field is the interface that all concrete field types must implement. It

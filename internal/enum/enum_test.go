@@ -3,9 +3,9 @@ package enum_test
 import (
 	"testing"
 
-	. "github.com/onsi/gomega"
+	"go.robertomontagna.dev/zapfluent/internal/enum"
 
-	"go.robertomontagna.dev/zapfluent/enum"
+	. "github.com/onsi/gomega"
 )
 
 type testEnum int
@@ -30,13 +30,17 @@ func TestEnum_String(t *testing.T) {
 
 	t.Run("with known value", func(t *testing.T) {
 		val := testEnumValue1
+
 		s := testEnumSpec.String(val)
+
 		g.Expect(s).To(Equal("Value1"))
 	})
 
 	t.Run("with unknown value", func(t *testing.T) {
 		val := testEnum(99)
+
 		s := testEnumSpec.String(val)
+
 		g.Expect(s).To(Equal("Unknown(99)"))
 	})
 }
@@ -46,13 +50,17 @@ func TestEnum_FromInt(t *testing.T) {
 
 	t.Run("with valid int", func(t *testing.T) {
 		i := 1
+
 		val := testEnumSpec.FromInt(i)
+
 		g.Expect(val).To(Equal(testEnumValue1))
 	})
 
 	t.Run("with invalid int", func(t *testing.T) {
 		i := 99
+
 		val := testEnumSpec.FromInt(i)
+
 		g.Expect(val).To(Equal(testEnumUnknown))
 	})
 }

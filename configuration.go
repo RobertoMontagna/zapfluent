@@ -1,4 +1,4 @@
-package config
+package zapfluent
 
 // A ConfigurationOption is a function that applies a configuration to a
 // Configuration object.

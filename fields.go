@@ -1,4 +1,4 @@
-package fluentfield
+package zapfluent
 
 import "go.uber.org/zap/zapcore"
 

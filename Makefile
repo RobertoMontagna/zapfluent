@@ -38,6 +38,11 @@ lint: tools ## 🔍 Run linter
 	@echo ">> running linter..."
 	@$(GOLANGCI_LINT) run ./...
 
+.PHONY: lint-fix
+lint-fix: tools ## Fix all auto-fixable problems
+	@echo ">> running linter and applying fixes..."
+	@$(GOLANGCI_LINT) run --fix ./...
+
 .PHONY: coverage
 coverage: ## 📊 Generate test coverage report
 	@echo ">> generating coverage report..."

@@ -5,8 +5,6 @@ package zapfluent
 import (
 	"go.uber.org/zap/zapcore"
 
-	"go.robertomontagna.dev/zapfluent/config"
-	"go.robertomontagna.dev/zapfluent/fluentfield"
 )
 
 // Fluent provides a fluent interface for adding structured logging fields to a
@@ -21,7 +19,7 @@ type Fluent struct {
 // object to configure its behavior, such as error handling.
 func NewFluent(
 	enc zapcore.ObjectEncoder,
-	config config.Configuration,
+	config Configuration,
 ) *Fluent {
 	return &Fluent{
 		enc:          enc,
@@ -30,10 +28,10 @@ func NewFluent(
 }
 
 // Add adds a field to the log entry.
-// It takes a fluentfield.Field, which is an interface that allows for custom
+// It takes a Field, which is an interface that allows for custom
 // field types and encoding logic.
 // The method returns the Fluent pointer, allowing for chained calls.
-func (z *Fluent) Add(field fluentfield.Field) *Fluent {
+func (z *Fluent) Add(field Field) *Fluent {
 	if z.errorHandler.shouldSkip() {
 		return z
 	}

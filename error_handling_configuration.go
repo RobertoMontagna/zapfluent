@@ -1,14 +1,13 @@
-package config
+package zapfluent
 
 import (
-	"go.robertomontagna.dev/zapfluent/enum"
-	"go.robertomontagna.dev/zapfluent/fluentfield"
-	"go.robertomontagna.dev/zapfluent/functional/optional"
+	"go.robertomontagna.dev/zapfluent/internal/enum"
+	"go.robertomontagna.dev/zapfluent/internal/functional/optional"
 )
 
 // FallbackFieldFactory is a function that creates a fallback field.
 // It receives the name of the field that failed to encode and the error that occurred.
-type FallbackFieldFactory func(name string, err error) fluentfield.Field
+type FallbackFieldFactory func(name string, err error) Field
 
 // An ErrorHandlingConfigurationOption is a function that applies a configuration
 // to an ErrorHandlingConfiguration object.
@@ -30,6 +29,15 @@ func WithFallbackFieldFactory(factory FallbackFieldFactory) ErrorHandlingConfigu
 	}
 }
 
+// WithFallbackErrorMessage is an ErrorHandlingConfigurationOption that sets the
+// string to be used when a field cannot be encoded and no fallback factory is
+// configured.
+func WithFallbackErrorMessage(message string) ErrorHandlingConfigurationOption {
+	return func(c *ErrorHandlingConfiguration) {
+		c.FallbackErrorMessage = message
+	}
+}
+
 // NewErrorHandlingConfiguration creates a new ErrorHandlingConfiguration with
 // the given options.
 //
@@ -37,8 +45,9 @@ func WithFallbackFieldFactory(factory FallbackFieldFactory) ErrorHandlingConfigu
 // on error and does not use a fallback factory.
 func NewErrorHandlingConfiguration(opts ...ErrorHandlingConfigurationOption) ErrorHandlingConfiguration {
 	config := ErrorHandlingConfiguration{
-		mode:            ErrorHandlingModeContinue,
-		fallbackFactory: optional.Empty[FallbackFieldFactory](),
+		mode:                 ErrorHandlingModeContinue,
+		fallbackFactory:      optional.Empty[FallbackFieldFactory](),
+		FallbackErrorMessage: "failed to encode fallback field",
 	}
 	for _, opt := range opts {
 		opt(&config)
@@ -49,8 +58,9 @@ func NewErrorHandlingConfiguration(opts ...ErrorHandlingConfigurationOption) Err
 // ErrorHandlingConfiguration holds the settings that define how errors are
 // handled during field encoding.
 type ErrorHandlingConfiguration struct {
-	mode            ErrorHandlingMode
-	fallbackFactory optional.Optional[FallbackFieldFactory]
+	mode                 ErrorHandlingMode
+	fallbackFactory      optional.Optional[FallbackFieldFactory]
+	FallbackErrorMessage string
 }
 
 // Mode returns the configured error handling mode.
@@ -111,15 +121,15 @@ func IntToErrorHandlingMode(value int) ErrorHandlingMode {
 // FixedStringFallback returns a FallbackFieldFactory that creates a field with a
 // predefined, fixed string value.
 func FixedStringFallback(value string) FallbackFieldFactory {
-	return func(name string, _ error) fluentfield.Field {
-		return fluentfield.String(name, value)
+	return func(name string, _ error) Field {
+		return String(name, value)
 	}
 }
 
 // ErrorStringFallback returns a FallbackFieldFactory that creates a field whose
 // value is the string representation of the error that occurred.
 func ErrorStringFallback() FallbackFieldFactory {
-	return func(name string, err error) fluentfield.Field {
-		return fluentfield.String(name, err.Error())
+	return func(name string, err error) Field {
+		return String(name, err.Error())
 	}
 }
