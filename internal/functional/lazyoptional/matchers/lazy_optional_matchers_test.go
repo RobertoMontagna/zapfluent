@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"go.robertomontagna.dev/zapfluent/internal/functional/lazyoptional"
+
 	. "go.robertomontagna.dev/zapfluent/internal/functional/lazyoptional/matchers"
 )
 

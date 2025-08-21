@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"go.robertomontagna.dev/zapfluent/internal/functional/optional"
+
 	. "go.robertomontagna.dev/zapfluent/internal/functional/optional/matchers"
 )
 
