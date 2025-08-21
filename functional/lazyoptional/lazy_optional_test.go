@@ -16,7 +16,7 @@ func TestLazyOptional_Some(t *testing.T) {
 
 	opt := lazyoptional.Some(expectedValue)
 
-	g.Expect(opt).To(matchers.BePresent())
+	g.Expect(opt).To(matchers.BePresent[int]())
 	g.Expect(opt).To(matchers.HaveValue(expectedValue))
 }
 
@@ -24,7 +24,7 @@ func TestLazyOptional_Empty(t *testing.T) {
 	g := NewWithT(t)
 	opt := lazyoptional.Empty[int]()
 
-	g.Expect(opt).To(matchers.BeEmpty())
+	g.Expect(opt).To(matchers.BeEmpty[int]())
 }
 
 func TestLazyOptional_Filter(t *testing.T) {
@@ -36,7 +36,7 @@ func TestLazyOptional_Filter(t *testing.T) {
 
 		filteredOpt := opt.Filter(predicate)
 
-		g.Expect(filteredOpt).To(matchers.BePresent())
+		g.Expect(filteredOpt).To(matchers.BePresent[int]())
 		g.Expect(filteredOpt).To(matchers.HaveValue(42))
 	})
 
@@ -46,7 +46,7 @@ func TestLazyOptional_Filter(t *testing.T) {
 
 		filteredOpt := opt.Filter(predicate)
 
-		g.Expect(filteredOpt).To(matchers.BeEmpty())
+		g.Expect(filteredOpt).To(matchers.BeEmpty[int]())
 	})
 
 	t.Run("on Empty", func(t *testing.T) {
@@ -55,7 +55,7 @@ func TestLazyOptional_Filter(t *testing.T) {
 
 		filteredOpt := opt.Filter(predicate)
 
-		g.Expect(filteredOpt).To(matchers.BeEmpty())
+		g.Expect(filteredOpt).To(matchers.BeEmpty[int]())
 	})
 }
 
@@ -80,7 +80,7 @@ func TestFlatMap(t *testing.T) {
 
 		fmOpt := lazyoptional.FlatMap(opt, f)
 
-		g.Expect(fmOpt).To(matchers.BePresent())
+		g.Expect(fmOpt).To(matchers.BePresent[string]())
 		g.Expect(fmOpt).To(matchers.HaveValue("42"))
 	})
 
@@ -90,7 +90,7 @@ func TestFlatMap(t *testing.T) {
 
 		fmOpt := lazyoptional.FlatMap(opt, f)
 
-		g.Expect(fmOpt).To(matchers.BeEmpty())
+		g.Expect(fmOpt).To(matchers.BeEmpty[string]())
 	})
 
 	t.Run("on Empty", func(t *testing.T) {
@@ -99,7 +99,7 @@ func TestFlatMap(t *testing.T) {
 
 		fmOpt := lazyoptional.FlatMap(opt, f)
 
-		g.Expect(fmOpt).To(matchers.BeEmpty())
+		g.Expect(fmOpt).To(matchers.BeEmpty[string]())
 	})
 }
 
@@ -112,7 +112,7 @@ func TestMap(t *testing.T) {
 
 		mappedOpt := lazyoptional.Map(opt, mapper)
 
-		g.Expect(mappedOpt).To(matchers.BePresent())
+		g.Expect(mappedOpt).To(matchers.BePresent[string]())
 		g.Expect(mappedOpt).To(matchers.HaveValue("42"))
 	})
 
@@ -122,6 +122,6 @@ func TestMap(t *testing.T) {
 
 		mappedOpt := lazyoptional.Map(opt, mapper)
 
-		g.Expect(mappedOpt).To(matchers.BeEmpty())
+		g.Expect(mappedOpt).To(matchers.BeEmpty[string]())
 	})
 }

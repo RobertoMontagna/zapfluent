@@ -6,105 +6,88 @@ import (
 
 	"github.com/onsi/gomega/format"
 	"github.com/onsi/gomega/types"
+
+	"go.robertomontagna.dev/zapfluent/functional/lazyoptional"
 )
 
 // BePresent succeeds if the actual value is an optional that is present.
-func BePresent() types.GomegaMatcher {
-	return &bePresentMatcher{}
+func BePresent[T any]() types.GomegaMatcher {
+	return &BePresentMatcher[T]{}
 }
 
-type bePresentMatcher struct{}
+type BePresentMatcher[T any] struct{}
 
-func (m *bePresentMatcher) Match(actual any) (bool, error) {
-	val := reflect.ValueOf(actual)
-	getMethod := val.MethodByName("Get")
-	if !getMethod.IsValid() {
-		return false, fmt.Errorf("BePresent matcher expects a type with a Get() method, but got %T", actual)
+func (m *BePresentMatcher[T]) Match(actual any) (bool, error) {
+	opt, ok := actual.(lazyoptional.LazyOptional[T])
+	if !ok {
+		return false, fmt.Errorf("BePresent matcher expects an lazyoptional.LazyOptional[%T]", *new(T))
 	}
-
-	results := getMethod.Call(nil)
-	if len(results) != 2 || results[1].Kind() != reflect.Bool {
-		return false, fmt.Errorf("Get() method must return a value and a boolean")
-	}
-
-	return results[1].Bool(), nil
+	_, isPresent := opt.Get()
+	return isPresent, nil
 }
 
-func (m *bePresentMatcher) FailureMessage(actual any) string {
+func (m *BePresentMatcher[T]) FailureMessage(actual any) string {
 	return format.Message(actual, "to be present")
 }
 
-func (m *bePresentMatcher) NegatedFailureMessage(actual any) string {
+func (m *BePresentMatcher[T]) NegatedFailureMessage(actual any) string {
 	return format.Message(actual, "not to be present")
 }
 
 // BeEmpty succeeds if the actual value is an optional that is empty.
-func BeEmpty() types.GomegaMatcher {
-	return &beEmptyMatcher{}
+func BeEmpty[T any]() types.GomegaMatcher {
+	return &BeEmptyMatcher[T]{}
 }
 
-type beEmptyMatcher struct{}
+type BeEmptyMatcher[T any] struct{}
 
-func (m *beEmptyMatcher) Match(actual any) (bool, error) {
-	val := reflect.ValueOf(actual)
-	getMethod := val.MethodByName("Get")
-	if !getMethod.IsValid() {
-		return false, fmt.Errorf("BeEmpty matcher expects a type with a Get() method, but got %T", actual)
+func (m *BeEmptyMatcher[T]) Match(actual any) (bool, error) {
+	opt, ok := actual.(lazyoptional.LazyOptional[T])
+	if !ok {
+		return false, fmt.Errorf("BeEmpty matcher expects an lazyoptional.LazyOptional[%T]", *new(T))
 	}
-
-	results := getMethod.Call(nil)
-	if len(results) != 2 || results[1].Kind() != reflect.Bool {
-		return false, fmt.Errorf("Get() method must return a value and a boolean")
-	}
-
-	return !results[1].Bool(), nil
+	_, isPresent := opt.Get()
+	return !isPresent, nil
 }
 
-func (m *beEmptyMatcher) FailureMessage(actual any) string {
+func (m *BeEmptyMatcher[T]) FailureMessage(actual any) string {
 	return format.Message(actual, "to be empty")
 }
 
-func (m *beEmptyMatcher) NegatedFailureMessage(actual any) string {
+func (m *BeEmptyMatcher[T]) NegatedFailureMessage(actual any) string {
 	return format.Message(actual, "not to be empty")
 }
 
 // HaveValue succeeds if the actual value is an optional that is present and
 // contains the expected value.
-func HaveValue(expected any) types.GomegaMatcher {
-	return &haveValueMatcher{
+func HaveValue[T any](expected T) types.GomegaMatcher {
+	return &HaveValueMatcher[T]{
 		expected: expected,
 	}
 }
 
-type haveValueMatcher struct {
-	expected any
+type HaveValueMatcher[T any] struct {
+	expected T
 }
 
-func (m *haveValueMatcher) Match(actual any) (bool, error) {
-	val := reflect.ValueOf(actual)
-	getMethod := val.MethodByName("Get")
-	if !getMethod.IsValid() {
-		return false, fmt.Errorf("HaveValue matcher expects a type with a Get() method, but got %T", actual)
+func (m *HaveValueMatcher[T]) Match(actual any) (bool, error) {
+	opt, ok := actual.(lazyoptional.LazyOptional[T])
+	if !ok {
+		return false, fmt.Errorf("HaveValue matcher expects an lazyoptional.LazyOptional[%T]", *new(T))
 	}
 
-	results := getMethod.Call(nil)
-	if len(results) != 2 || results[1].Kind() != reflect.Bool {
-		return false, fmt.Errorf("Get() method must return a value and a boolean")
-	}
-
-	// Check if the optional is present
-	if !results[1].Bool() {
+	val, ok := opt.Get()
+	if !ok {
 		return false, nil
 	}
 
-	// Check if the value matches the expected value
-	return reflect.DeepEqual(results[0].Interface(), m.expected), nil
+	return reflect.DeepEqual(val, m.expected), nil
 }
 
-func (m *haveValueMatcher) FailureMessage(actual any) string {
+func (m *HaveValueMatcher[T]) FailureMessage(actual any) string {
 	return format.Message(actual, "to have value", m.expected)
 }
 
-func (m *haveValueMatcher) NegatedFailureMessage(actual any) string {
+func (m *HaveValueMatcher[T]) NegatedFailureMessage(actual any) string {
 	return format.Message(actual, "not to have value", m.expected)
 }

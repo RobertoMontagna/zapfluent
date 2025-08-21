@@ -14,14 +14,14 @@ import (
 func TestOptional_Some(t *testing.T) {
 	g := NewWithT(t)
 	o := optional.Some("test")
-	g.Expect(o).To(matchers.BePresent())
+	g.Expect(o).To(matchers.BePresent[string]())
 	g.Expect(o).To(matchers.HaveValue("test"))
 }
 
 func TestOptional_Empty(t *testing.T) {
 	g := NewWithT(t)
 	o := optional.Empty[string]()
-	g.Expect(o).To(matchers.BeEmpty())
+	g.Expect(o).To(matchers.BeEmpty[string]())
 }
 
 func TestOptional_OfPtr(t *testing.T) {
@@ -29,13 +29,13 @@ func TestOptional_OfPtr(t *testing.T) {
 
 	t.Run("with nil pointer", func(t *testing.T) {
 		o := optional.OfPtr[int](nil)
-		g.Expect(o).To(matchers.BeEmpty())
+		g.Expect(o).To(matchers.BeEmpty[int]())
 	})
 
 	t.Run("with non-nil pointer", func(t *testing.T) {
 		v := 123
 		o := optional.OfPtr(&v)
-		g.Expect(o).To(matchers.BePresent())
+		g.Expect(o).To(matchers.BePresent[int]())
 		g.Expect(o).To(matchers.HaveValue(123))
 	})
 }
@@ -46,12 +46,12 @@ func TestOptional_OfError(t *testing.T) {
 
 	t.Run("with nil error", func(t *testing.T) {
 		o := optional.OfError(nil)
-		g.Expect(o).To(matchers.BeEmpty())
+		g.Expect(o).To(matchers.BeEmpty[error]())
 	})
 
 	t.Run("with non-nil error", func(t *testing.T) {
 		o := optional.OfError(testErr)
-		g.Expect(o).To(matchers.BePresent())
+		g.Expect(o).To(matchers.BePresent[error]())
 		g.Expect(o).To(matchers.HaveValue(testErr))
 	})
 }
@@ -62,14 +62,14 @@ func TestOptional_Map(t *testing.T) {
 	t.Run("with present value", func(t *testing.T) {
 		o := optional.Some(123)
 		mapped := optional.Map(o, strconv.Itoa)
-		g.Expect(mapped).To(matchers.BePresent())
+		g.Expect(mapped).To(matchers.BePresent[string]())
 		g.Expect(mapped).To(matchers.HaveValue("123"))
 	})
 
 	t.Run("with empty value", func(t *testing.T) {
 		o := optional.Empty[int]()
 		mapped := optional.Map(o, strconv.Itoa)
-		g.Expect(mapped).To(matchers.BeEmpty())
+		g.Expect(mapped).To(matchers.BeEmpty[string]())
 	})
 }
 
@@ -81,7 +81,7 @@ func TestOptional_FlatMap(t *testing.T) {
 		mapped := optional.FlatMap(o, func(i int) optional.Optional[string] {
 			return optional.Some(strconv.Itoa(i))
 		})
-		g.Expect(mapped).To(matchers.BePresent())
+		g.Expect(mapped).To(matchers.BePresent[string]())
 		g.Expect(mapped).To(matchers.HaveValue("123"))
 	})
 
@@ -90,7 +90,7 @@ func TestOptional_FlatMap(t *testing.T) {
 		mapped := optional.FlatMap(o, func(i int) optional.Optional[string] {
 			return optional.Empty[string]()
 		})
-		g.Expect(mapped).To(matchers.BeEmpty())
+		g.Expect(mapped).To(matchers.BeEmpty[string]())
 	})
 
 	t.Run("with empty value", func(t *testing.T) {
@@ -98,6 +98,6 @@ func TestOptional_FlatMap(t *testing.T) {
 		mapped := optional.FlatMap(o, func(i int) optional.Optional[string] {
 			return optional.Some(strconv.Itoa(i))
 		})
-		g.Expect(mapped).To(matchers.BeEmpty())
+		g.Expect(mapped).To(matchers.BeEmpty[string]())
 	})
 }
