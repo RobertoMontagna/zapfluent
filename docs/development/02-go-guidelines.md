@@ -74,6 +74,8 @@ The `context` package is essential for managing deadlines, cancellation, and req
     * Use generics for functions and data structures that work with a collection of some type, where the logic is identical for all supported types (e.g., a function that works on a slice of any type, or a generic graph data structure).
 * **When to Prefer Interfaces**
     * Prefer interfaces when you need to abstract behavior. If different types share a common method set (e.g., they all have a `Read()` method), an interface is usually the cleaner, more idiomatic solution. Do not use generics simply to avoid a small amount of boilerplate.
+* **Use `any` Instead of `interface{}`**
+    * For clarity and consistency, use the `any` alias instead of `interface{}` for the empty interface type. This is the modern, idiomatic approach in Go 1.18+ and makes the code easier to read.
 
 ## Testing
 

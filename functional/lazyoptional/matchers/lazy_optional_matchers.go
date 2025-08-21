@@ -15,7 +15,7 @@ func BePresent() types.GomegaMatcher {
 
 type bePresentMatcher struct{}
 
-func (m *bePresentMatcher) Match(actual interface{}) (bool, error) {
+func (m *bePresentMatcher) Match(actual any) (bool, error) {
 	val := reflect.ValueOf(actual)
 	getMethod := val.MethodByName("Get")
 	if !getMethod.IsValid() {
@@ -30,11 +30,11 @@ func (m *bePresentMatcher) Match(actual interface{}) (bool, error) {
 	return results[1].Bool(), nil
 }
 
-func (m *bePresentMatcher) FailureMessage(actual interface{}) string {
+func (m *bePresentMatcher) FailureMessage(actual any) string {
 	return format.Message(actual, "to be present")
 }
 
-func (m *bePresentMatcher) NegatedFailureMessage(actual interface{}) string {
+func (m *bePresentMatcher) NegatedFailureMessage(actual any) string {
 	return format.Message(actual, "not to be present")
 }
 
@@ -45,7 +45,7 @@ func BeEmpty() types.GomegaMatcher {
 
 type beEmptyMatcher struct{}
 
-func (m *beEmptyMatcher) Match(actual interface{}) (bool, error) {
+func (m *beEmptyMatcher) Match(actual any) (bool, error) {
 	val := reflect.ValueOf(actual)
 	getMethod := val.MethodByName("Get")
 	if !getMethod.IsValid() {
@@ -60,27 +60,27 @@ func (m *beEmptyMatcher) Match(actual interface{}) (bool, error) {
 	return !results[1].Bool(), nil
 }
 
-func (m *beEmptyMatcher) FailureMessage(actual interface{}) string {
+func (m *beEmptyMatcher) FailureMessage(actual any) string {
 	return format.Message(actual, "to be empty")
 }
 
-func (m *beEmptyMatcher) NegatedFailureMessage(actual interface{}) string {
+func (m *beEmptyMatcher) NegatedFailureMessage(actual any) string {
 	return format.Message(actual, "not to be empty")
 }
 
 // HaveValue succeeds if the actual value is an optional that is present and
 // contains the expected value.
-func HaveValue(expected interface{}) types.GomegaMatcher {
+func HaveValue(expected any) types.GomegaMatcher {
 	return &haveValueMatcher{
 		expected: expected,
 	}
 }
 
 type haveValueMatcher struct {
-	expected interface{}
+	expected any
 }
 
-func (m *haveValueMatcher) Match(actual interface{}) (bool, error) {
+func (m *haveValueMatcher) Match(actual any) (bool, error) {
 	val := reflect.ValueOf(actual)
 	getMethod := val.MethodByName("Get")
 	if !getMethod.IsValid() {
@@ -101,10 +101,10 @@ func (m *haveValueMatcher) Match(actual interface{}) (bool, error) {
 	return reflect.DeepEqual(results[0].Interface(), m.expected), nil
 }
 
-func (m *haveValueMatcher) FailureMessage(actual interface{}) string {
+func (m *haveValueMatcher) FailureMessage(actual any) string {
 	return format.Message(actual, "to have value", m.expected)
 }
 
-func (m *haveValueMatcher) NegatedFailureMessage(actual interface{}) string {
+func (m *haveValueMatcher) NegatedFailureMessage(actual any) string {
 	return format.Message(actual, "not to have value", m.expected)
 }
