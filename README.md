@@ -1,5 +1,9 @@
 # ✨ Zap Fluent Encoder
 
+<p align="center">
+  <img src="assets/images/fluentzap_logo.png" alt="Zap Fluent Encoder Logo" width="400"/>
+</p>
+
 [![CI](https://github.com/RobertoMontagna/zapfluent/actions/workflows/ci.yml/badge.svg)](https://github.com/RobertoMontagna/zapfluent/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/RobertoMontagna/zapfluent/graph/badge.svg)](https://codecov.io/gh/RobertoMontagna/zapfluent)
 [![Developed with Google Jules](https://img.shields.io/badge/Developed%20with-Google%20Jules-blue?logo=google)](https://jules.google/)
