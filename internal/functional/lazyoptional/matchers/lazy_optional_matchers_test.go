@@ -1,83 +1,172 @@
 package matchers_test
 
 import (
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
+	"testing"
 
 	"go.robertomontagna.dev/zapfluent/internal/functional/lazyoptional"
-	lazyoptionalmatchers "go.robertomontagna.dev/zapfluent/internal/functional/lazyoptional/matchers"
+	. "go.robertomontagna.dev/zapfluent/internal/functional/lazyoptional/matchers"
 )
 
-var _ = Describe("LazyOptional Matchers", func() {
-	Describe("BePresent", func() {
-		When("the lazy optional is present", func() {
-			It("succeeds", func() {
-				Expect(lazyoptional.Some("hello")).Should(lazyoptionalmatchers.BePresent[string]())
-			})
-		})
+func TestBePresent(t *testing.T) {
+	t.Parallel()
 
-		When("the lazy optional is empty", func() {
-			It("fails", func() {
-				Expect(lazyoptional.Empty[string]()).ShouldNot(lazyoptionalmatchers.BePresent[string]())
-			})
-		})
+	testCases := []struct {
+		name          string
+		input         any
+		shouldSucceed bool
+		shouldError   bool
+	}{
+		{
+			name:          "when the lazy optional is present",
+			input:         lazyoptional.Some("hello"),
+			shouldSucceed: true,
+			shouldError:   false,
+		},
+		{
+			name:          "when the lazy optional is empty",
+			input:         lazyoptional.Empty[string](),
+			shouldSucceed: false,
+			shouldError:   false,
+		},
+		{
+			name:          "when the actual is not a lazy optional",
+			input:         "not-a-lazy-optional",
+			shouldSucceed: false,
+			shouldError:   true,
+		},
+	}
 
-		When("the actual is not a lazy optional", func() {
-			It("returns an error", func() {
-				success, err := lazyoptionalmatchers.BePresent[string]().Match("not-a-lazy-optional")
-				Expect(success).To(BeFalse())
-				Expect(err).To(HaveOccurred())
-			})
-		})
-	})
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 
-	Describe("BeEmpty", func() {
-		When("the lazy optional is empty", func() {
-			It("succeeds", func() {
-				Expect(lazyoptional.Empty[string]()).Should(lazyoptionalmatchers.BeEmpty[string]())
-			})
-		})
+			matcher := BePresent[string]()
+			success, err := matcher.Match(tc.input)
 
-		When("the lazy optional is present", func() {
-			It("fails", func() {
-				Expect(lazyoptional.Some("hello")).ShouldNot(lazyoptionalmatchers.BeEmpty[string]())
-			})
-		})
+			if success != tc.shouldSucceed {
+				t.Errorf("expected success to be %v, but got %v", tc.shouldSucceed, success)
+			}
 
-		When("the actual is not a lazy optional", func() {
-			It("returns an error", func() {
-				success, err := lazyoptionalmatchers.BeEmpty[string]().Match("not-a-lazy-optional")
-				Expect(success).To(BeFalse())
-				Expect(err).To(HaveOccurred())
-			})
+			if tc.shouldError && err == nil {
+				t.Errorf("expected an error, but got none")
+			}
+			if !tc.shouldError && err != nil {
+				t.Errorf("did not expect an error, but got: %v", err)
+			}
 		})
-	})
+	}
+}
 
-	Describe("HaveValue", func() {
-		When("the lazy optional has the expected value", func() {
-			It("succeeds", func() {
-				Expect(lazyoptional.Some("hello")).Should(lazyoptionalmatchers.HaveValue("hello"))
-			})
-		})
+func TestBeEmpty(t *testing.T) {
+	t.Parallel()
 
-		When("the lazy optional has a different value", func() {
-			It("fails", func() {
-				Expect(lazyoptional.Some("world")).ShouldNot(lazyoptionalmatchers.HaveValue("hello"))
-			})
-		})
+	testCases := []struct {
+		name          string
+		input         any
+		shouldSucceed bool
+		shouldError   bool
+	}{
+		{
+			name:          "when the lazy optional is empty",
+			input:         lazyoptional.Empty[string](),
+			shouldSucceed: true,
+			shouldError:   false,
+		},
+		{
+			name:          "when the lazy optional is present",
+			input:         lazyoptional.Some("hello"),
+			shouldSucceed: false,
+			shouldError:   false,
+		},
+		{
+			name:          "when the actual is not a lazy optional",
+			input:         "not-a-lazy-optional",
+			shouldSucceed: false,
+			shouldError:   true,
+		},
+	}
 
-		When("the lazy optional is empty", func() {
-			It("fails", func() {
-				Expect(lazyoptional.Empty[string]()).ShouldNot(lazyoptionalmatchers.HaveValue("hello"))
-			})
-		})
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 
-		When("the actual is not a lazy optional", func() {
-			It("returns an error", func() {
-				success, err := lazyoptionalmatchers.HaveValue("hello").Match("not-a-lazy-optional")
-				Expect(success).To(BeFalse())
-				Expect(err).To(HaveOccurred())
-			})
+			matcher := BeEmpty[string]()
+			success, err := matcher.Match(tc.input)
+
+			if success != tc.shouldSucceed {
+				t.Errorf("expected success to be %v, but got %v", tc.shouldSucceed, success)
+			}
+
+			if tc.shouldError && err == nil {
+				t.Errorf("expected an error, but got none")
+			}
+			if !tc.shouldError && err != nil {
+				t.Errorf("did not expect an error, but got: %v", err)
+			}
 		})
-	})
-})
+	}
+}
+
+func TestHaveValue(t *testing.T) {
+	t.Parallel()
+
+	testCases := []struct {
+		name          string
+		input         any
+		expectedValue any
+		shouldSucceed bool
+		shouldError   bool
+	}{
+		{
+			name:          "when the lazy optional has the expected value",
+			input:         lazyoptional.Some("hello"),
+			expectedValue: "hello",
+			shouldSucceed: true,
+			shouldError:   false,
+		},
+		{
+			name:          "when the lazy optional has a different value",
+			input:         lazyoptional.Some("world"),
+			expectedValue: "hello",
+			shouldSucceed: false,
+			shouldError:   false,
+		},
+		{
+			name:          "when the lazy optional is empty",
+			input:         lazyoptional.Empty[string](),
+			expectedValue: "hello",
+			shouldSucceed: false,
+			shouldError:   false,
+		},
+		{
+			name:          "when the actual is not a lazy optional",
+			input:         "not-a-lazy-optional",
+			expectedValue: "hello",
+			shouldSucceed: false,
+			shouldError:   true,
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			matcher := HaveValue[string](tc.expectedValue.(string))
+			success, err := matcher.Match(tc.input)
+
+			if success != tc.shouldSucceed {
+				t.Errorf("expected success to be %v, but got %v", tc.shouldSucceed, success)
+			}
+
+			if tc.shouldError && err == nil {
+				t.Errorf("expected an error, but got none")
+			}
+			if !tc.shouldError && err != nil {
+				t.Errorf("did not expect an error, but got: %v", err)
+			}
+		})
+	}
+}
