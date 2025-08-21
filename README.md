@@ -1,14 +1,19 @@
 # ✨ Zap Fluent Encoder
 
-<p align="center">
-  <img src="assets/images/fluentzap_logo.png" alt="Zap Fluent Encoder Logo" width="400"/>
-</p>
-
 [![CI](https://github.com/RobertoMontagna/zapfluent/actions/workflows/ci.yml/badge.svg)](https://github.com/RobertoMontagna/zapfluent/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/RobertoMontagna/zapfluent/graph/badge.svg)](https://codecov.io/gh/RobertoMontagna/zapfluent)
 [![Developed with Google Jules](https://img.shields.io/badge/Developed%20with-Google%20Jules-blue?logo=google)](https://jules.google/)
 
-A fluent interface encoder for [Uber's Zap logging library](https://github.com/uber-go/zap) that provides a more intuitive and expressive way to add structured logging fields. Say goodbye to endless `zap.String("key", "value")` calls and hello to a cleaner, more readable logging style!
+<table>
+  <tr>
+    <td align="center" width="400">
+      <img src="assets/images/fluentzap_logo.png" alt="Zap Fluent Encoder Logo" width="400"/>
+    </td>
+    <td>
+      A fluent interface encoder for <a href="https://github.com/uber-go/zap">Uber's Zap logging library</a> that provides a more intuitive and expressive way to add structured logging fields. Say goodbye to endless <code>zap.String("key", "value")</code> calls and hello to a cleaner, more readable logging style!
+    </td>
+  </tr>
+</table>
 
 ## ⚠️ Work in Progress
 
