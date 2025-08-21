@@ -76,9 +76,8 @@
 
 * **AAA Unit Test Structure**
     * All unit tests must be structured following the **Arrange-Act-Assert** (AAA) pattern.
-    * The three sections of the test must be visually separated by a blank line.
-    * This separation makes the structure of the test immediately obvious to the reader.
-    * Comments like `// Arrange` are not necessary; the blank line is sufficient.
+    * **Visual Separation**: The three sections of the test (Arrange, Act, and Assert) should be visually separated by a blank line. This is the preferred method for making the structure of the test immediately obvious to the reader.
+    * **Use of Comments**: In most cases, the blank line is sufficient. However, for more complex tests where the separation might not be clear enough, it is acceptable to use comments (`// Arrange`, `// Act`, `// Assert`) to explicitly label the sections. They are not forbidden, but should be used judiciously when they add significant clarity.
 * **Complete Test Coverage**
     * All production code must be covered by at least one unit test.
 * **First-Class Tests**
