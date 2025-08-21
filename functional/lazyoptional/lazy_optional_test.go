@@ -4,10 +4,10 @@ import (
 	"strconv"
 	"testing"
 
-	. "github.com/onsi/gomega"
-
 	"go.robertomontagna.dev/zapfluent/functional/lazyoptional"
 	"go.robertomontagna.dev/zapfluent/functional/lazyoptional/matchers"
+
+	. "github.com/onsi/gomega"
 )
 
 func TestLazyOptional_Some(t *testing.T) {

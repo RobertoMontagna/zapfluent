@@ -3,8 +3,9 @@ package fluentfield
 import (
 	"testing"
 
-	. "github.com/onsi/gomega"
 	"go.uber.org/zap/zapcore"
+
+	. "github.com/onsi/gomega"
 )
 
 const (

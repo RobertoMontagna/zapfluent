@@ -4,13 +4,14 @@ import (
 	"errors"
 	"testing"
 
-	. "github.com/onsi/gomega"
 	"go.uber.org/zap/zapcore"
 
 	"go.robertomontagna.dev/zapfluent"
 	"go.robertomontagna.dev/zapfluent/config"
 	"go.robertomontagna.dev/zapfluent/fluentfield"
 	"go.robertomontagna.dev/zapfluent/testutil"
+
+	. "github.com/onsi/gomega"
 )
 
 const (

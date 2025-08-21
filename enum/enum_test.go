@@ -3,9 +3,9 @@ package enum_test
 import (
 	"testing"
 
-	. "github.com/onsi/gomega"
-
 	"go.robertomontagna.dev/zapfluent/enum"
+
+	. "github.com/onsi/gomega"
 )
 
 type testEnum int

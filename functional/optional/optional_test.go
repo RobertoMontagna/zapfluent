@@ -5,10 +5,10 @@ import (
 	"strconv"
 	"testing"
 
-	. "github.com/onsi/gomega"
-
 	"go.robertomontagna.dev/zapfluent/functional/optional"
 	"go.robertomontagna.dev/zapfluent/functional/optional/matchers"
+
+	. "github.com/onsi/gomega"
 )
 
 func TestOptional_Some(t *testing.T) {

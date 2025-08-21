@@ -4,9 +4,9 @@ import (
 	"errors"
 	"testing"
 
-	. "github.com/onsi/gomega"
-
 	"go.robertomontagna.dev/zapfluent/config"
+
+	. "github.com/onsi/gomega"
 )
 
 const (

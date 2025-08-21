@@ -19,9 +19,12 @@ linters-settings:
   gci:
     # The `sections` option defines the order of import blocks.
     sections:
-      - standard # Standard section: captures all standard packages.
-      - default # Default section: contains all imports that could not be matched to another section type.
-      - prefix(go.robertomontagna.dev/zapfluent) # Project section: groups all imports with the specified Prefix.
+      - standard
+      - default
+      - prefix(go.robertomontagna.dev)
+      - prefix(go.robertomontagna.dev/zapfluent)
+      - blank
+      - dot
     # The `custom-order` option makes the section order the same as the order of `sections`.
     custom-order: true
 

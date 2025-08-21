@@ -3,12 +3,13 @@ package zapfluent_test
 import (
 	"testing"
 
-	. "github.com/onsi/gomega"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
 	"go.robertomontagna.dev/zapfluent"
 	"go.robertomontagna.dev/zapfluent/config"
+
+	. "github.com/onsi/gomega"
 )
 
 func TestNewFluentEncoder(t *testing.T) {
