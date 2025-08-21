@@ -67,9 +67,7 @@ coverage: ## 📊 Generate test coverage report
 test-ci: tools ## 📜 Generate reports for CI
 	@echo ">> generating reports for CI..."
 	@go test -v -coverprofile=coverage.out ./... 2>&1 > test_output.log
-	@ls -la
 	@cat test_output.log | $(GO_JUNIT_REPORT) > report.xml
-	@ls -la
 
 .PHONY: coverage-html
 coverage-html: coverage ## 🌐 View coverage report in browser
