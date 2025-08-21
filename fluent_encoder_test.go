@@ -7,7 +7,7 @@ import (
 	"go.uber.org/zap/zapcore"
 
 	"go.robertomontagna.dev/zapfluent"
-	"go.robertomontagna.dev/zapfluent/config"
+	"go.robertomontagna.dev/zapfluent/pkg/core"
 
 	. "github.com/onsi/gomega"
 )
@@ -15,7 +15,7 @@ import (
 func TestNewFluentEncoder(t *testing.T) {
 	g := NewWithT(t)
 
-	cfg := config.NewConfiguration()
+	cfg := core.NewConfiguration()
 	enc := zapcore.NewJSONEncoder(zap.NewDevelopmentEncoderConfig())
 
 	fluentEncoder := zapfluent.NewFluentEncoder(enc, cfg)
@@ -26,7 +26,7 @@ func TestNewFluentEncoder(t *testing.T) {
 func TestFluentEncoder_Clone(t *testing.T) {
 	g := NewWithT(t)
 
-	cfg := config.NewConfiguration()
+	cfg := core.NewConfiguration()
 	enc := zapcore.NewJSONEncoder(zap.NewDevelopmentEncoderConfig())
 	fluentEncoder := zapfluent.NewFluentEncoder(enc, cfg)
 

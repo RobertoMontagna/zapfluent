@@ -4,19 +4,18 @@ import (
 	"go.uber.org/multierr"
 	"go.uber.org/zap/zapcore"
 
-	"go.robertomontagna.dev/zapfluent/config"
-	"go.robertomontagna.dev/zapfluent/fluentfield"
-	"go.robertomontagna.dev/zapfluent/functional/optional"
+	"go.robertomontagna.dev/zapfluent/internal/functional/optional"
+	"go.robertomontagna.dev/zapfluent/pkg/core"
 )
 
 type errorHandler struct {
-	cfg        config.ErrorHandlingConfiguration
+	cfg        *core.ErrorHandlingConfiguration
 	enc        zapcore.ObjectEncoder
 	totalError error
 }
 
 func newErrorHandler(
-	cfg config.ErrorHandlingConfiguration,
+	cfg *core.ErrorHandlingConfiguration,
 	enc zapcore.ObjectEncoder,
 ) *errorHandler {
 	return &errorHandler{
@@ -26,19 +25,19 @@ func newErrorHandler(
 }
 
 func (h *errorHandler) shouldSkip() bool {
-	return h.cfg.Mode() == config.ErrorHandlingModeEarlyFailing && h.totalError != nil
+	return h.cfg.Mode() == core.ErrorHandlingModeEarlyFailing && h.totalError != nil
 }
 
-func (h *errorHandler) handleError(field fluentfield.Field, err error) optional.Optional[fluentfield.Field] {
+func (h *errorHandler) handleError(field core.Field, err error) optional.Optional[core.Field] {
 	if err == nil {
-		return optional.Empty[fluentfield.Field]()
+		return optional.Empty[core.Field]()
 	}
 
 	h.aggregateError(err)
 
 	return optional.Map(
 		h.cfg.FallbackFactory(),
-		func(factory config.FallbackFieldFactory) fluentfield.Field {
+		func(factory core.FallbackFieldFactory) core.Field {
 			return factory(field.Name(), err)
 		},
 	)
@@ -46,7 +45,7 @@ func (h *errorHandler) handleError(field fluentfield.Field, err error) optional.
 
 type fieldEncodingErrorManager func()
 
-func (h *errorHandler) encodeField(field fluentfield.Field) fieldEncodingErrorManager {
+func (h *errorHandler) encodeField(field core.Field) fieldEncodingErrorManager {
 	if h.shouldSkip() {
 		return func() {}
 	}
@@ -54,14 +53,14 @@ func (h *errorHandler) encodeField(field fluentfield.Field) fieldEncodingErrorMa
 
 	return func() {
 		maybeEncodingError := optional.FlatMap(maybeFallbackField, h.encodeAndLift)
-		maybeFallbackFailed := optional.Map(maybeEncodingError, func(_ error) fluentfield.Field {
-			return fluentfield.String(field.Name(), h.cfg.FallbackErrorMessage)
+		maybeFallbackFailed := optional.Map(maybeEncodingError, func(_ error) core.Field {
+			return core.String(field.Name(), h.cfg.FallbackErrorMessage)
 		})
 		optional.FlatMap(maybeFallbackFailed, h.encodeAndLift)
 	}
 }
 
-func (h *errorHandler) encodeAndLift(field fluentfield.Field) optional.Optional[error] {
+func (h *errorHandler) encodeAndLift(field core.Field) optional.Optional[error] {
 	err := field.Encode(h.enc)
 	h.aggregateError(err)
 	return optional.OfError(err)

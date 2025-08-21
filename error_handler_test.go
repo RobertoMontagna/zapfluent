@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	"go.robertomontagna.dev/zapfluent/config"
+	"go.robertomontagna.dev/zapfluent/pkg/core"
 
 	. "github.com/onsi/gomega"
 )
@@ -17,8 +17,8 @@ const (
 func TestErrorHandler_Continue(t *testing.T) {
 	g := NewWithT(t)
 
-	cfg := config.NewErrorHandlingConfiguration(config.WithMode(config.ErrorHandlingModeContinue))
-	handler := newErrorHandler(cfg, nil)
+	cfg := core.NewErrorHandlingConfiguration(core.WithMode(core.ErrorHandlingModeContinue))
+	handler := newErrorHandler(&cfg, nil)
 	err1 := errors.New(testError1)
 	err2 := errors.New(testError2)
 
@@ -36,8 +36,8 @@ func TestErrorHandler_Continue(t *testing.T) {
 func TestErrorHandler_EarlyFailing(t *testing.T) {
 	g := NewWithT(t)
 
-	cfg := config.NewErrorHandlingConfiguration(config.WithMode(config.ErrorHandlingModeEarlyFailing))
-	handler := newErrorHandler(cfg, nil)
+	cfg := core.NewErrorHandlingConfiguration(core.WithMode(core.ErrorHandlingModeEarlyFailing))
+	handler := newErrorHandler(&cfg, nil)
 	err1 := errors.New(testError1)
 	err2 := errors.New(testError2)
 

@@ -1,15 +1,39 @@
-package fluentfield_test
+package zapfluent_test
 
 import (
+	"os"
 	"strings"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
 	"go.robertomontagna.dev/zapfluent"
-	"go.robertomontagna.dev/zapfluent/fluentfield"
-	"go.robertomontagna.dev/zapfluent/testutil"
+	"go.robertomontagna.dev/zapfluent/pkg/core"
 )
+
+// stdOutLogger creates a new zap.SugaredLogger that is configured to write
+// JSON-formatted logs to standard output.
+func stdOutLogger() *zap.SugaredLogger {
+	encoderCfg := zapcore.EncoderConfig{
+		MessageKey:     "msg",
+		LevelKey:       "level",
+		NameKey:        "logger",
+		EncodeLevel:    zapcore.LowercaseLevelEncoder,
+		EncodeTime:     zapcore.ISO8601TimeEncoder,
+		EncodeDuration: zapcore.StringDurationEncoder,
+	}
+	coreEncoder := zapcore.NewCore(
+		zapfluent.NewFluentEncoder(
+			zapcore.NewJSONEncoder(encoderCfg),
+			core.NewConfiguration(),
+		),
+		os.Stdout,
+		zap.DebugLevel,
+	)
+	logger := zap.New(coreEncoder)
+	zap.ReplaceGlobals(logger)
+	return zap.S()
+}
 
 // test structs
 type comparableObjectTestStruct struct {
@@ -19,8 +43,8 @@ type comparableObjectTestStruct struct {
 
 func (s comparableObjectTestStruct) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 	return zapfluent.AsFluent(enc).
-		Add(fluentfield.ComparableObject("field1", s.Field1).NonZero()).
-		Add(fluentfield.String("field2", s.Field2).NonZero()).
+		Add(zapfluent.ComparableObject("field1", s.Field1).NonZero()).
+		Add(zapfluent.String("field2", s.Field2).NonZero()).
 		Done()
 }
 
@@ -30,7 +54,7 @@ type int8TestStruct struct {
 
 func (s int8TestStruct) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 	return zapfluent.AsFluent(enc).
-		Add(fluentfield.Int8("field1", s.Field1).NonZero()).
+		Add(zapfluent.Int8("field1", s.Field1).NonZero()).
 		Done()
 }
 
@@ -40,7 +64,7 @@ type intTestStruct struct {
 
 func (s intTestStruct) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 	return zapfluent.AsFluent(enc).
-		Add(fluentfield.Int("field1", s.Field1).NonZero()).
+		Add(zapfluent.Int("field1", s.Field1).NonZero()).
 		Done()
 }
 
@@ -59,7 +83,7 @@ type objectTestStruct struct {
 
 func (s objectTestStruct) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 	return zapfluent.AsFluent(enc).
-		Add(fluentfield.Object("field1", s.Field1, fluentfield.ReflectiveIsNotNil).NonZero()).
+		Add(zapfluent.Object("field1", s.Field1, zapfluent.ReflectiveIsNotNil).NonZero()).
 		Done()
 }
 
@@ -69,14 +93,14 @@ type stringTestStruct struct {
 
 func (s stringTestStruct) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 	return zapfluent.AsFluent(enc).
-		Add(fluentfield.String("field1", s.Field1).NonZero()).
+		Add(zapfluent.String("field1", s.Field1).NonZero()).
 		Done()
 }
 
 // example tests
 
 func ExampleComparableObject_notEmpty() {
-	testutil.StdOutLogger().Infow(
+	stdOutLogger().Infow(
 		"test",
 		zap.Object("test_struct", comparableObjectTestStruct{Field1: intTestStruct{42}}),
 	)
@@ -84,7 +108,7 @@ func ExampleComparableObject_notEmpty() {
 }
 
 func ExampleComparableObject_empty() {
-	testutil.StdOutLogger().Infow(
+	stdOutLogger().Infow(
 		"test",
 		zap.Object("test_struct", comparableObjectTestStruct{Field1: intTestStruct{}}),
 	)
@@ -93,7 +117,7 @@ func ExampleComparableObject_empty() {
 }
 
 func ExampleInt8_notEmpty() {
-	testutil.StdOutLogger().Infow(
+	stdOutLogger().Infow(
 		"test",
 		zap.Object("test_struct", int8TestStruct{42}),
 	)
@@ -101,7 +125,7 @@ func ExampleInt8_notEmpty() {
 }
 
 func ExampleInt8_empty() {
-	testutil.StdOutLogger().Infow(
+	stdOutLogger().Infow(
 		"test",
 		zap.Object("test_struct", int8TestStruct{}),
 	)
@@ -109,7 +133,7 @@ func ExampleInt8_empty() {
 }
 
 func ExampleInt_notEmpty() {
-	testutil.StdOutLogger().Infow(
+	stdOutLogger().Infow(
 		"test",
 		zap.Object("test_struct", intTestStruct{42}),
 	)
@@ -117,7 +141,7 @@ func ExampleInt_notEmpty() {
 }
 
 func ExampleInt_empty() {
-	testutil.StdOutLogger().Infow(
+	stdOutLogger().Infow(
 		"test",
 		zap.Object("test_struct", intTestStruct{}),
 	)
@@ -133,12 +157,11 @@ func fpCurrying2to1[P1, P2, R1 any](f func(P1, P2) R1) func(P1) func(P2) R1 {
 }
 
 func ExampleInt_alternative() {
-	field := fluentfield.
-		Int("field1", 5).
+	field := zapfluent.Int("field1", 5).
 		NonZero().
 		Format(fpCurrying2to1(strings.Repeat)("."))
 
-	testutil.StdOutLogger().Infow(
+	stdOutLogger().Infow(
 		"test",
 		zap.Object("test_struct", zapcore.ObjectMarshalerFunc(field.Encode)),
 	)
@@ -146,7 +169,7 @@ func ExampleInt_alternative() {
 }
 
 func ExampleObject_notEmpty() {
-	testutil.StdOutLogger().Infow(
+	stdOutLogger().Infow(
 		"test",
 		zap.Object("test_struct", objectTestStruct{Field1: &testObject{"hello"}}),
 	)
@@ -154,7 +177,7 @@ func ExampleObject_notEmpty() {
 }
 
 func ExampleObject_empty() {
-	testutil.StdOutLogger().Infow(
+	stdOutLogger().Infow(
 		"test",
 		zap.Object("test_struct", objectTestStruct{Field1: nil}),
 	)
@@ -162,7 +185,7 @@ func ExampleObject_empty() {
 }
 
 func ExampleString_notEmpty() {
-	testutil.StdOutLogger().Infow(
+	stdOutLogger().Infow(
 		"test",
 		zap.Object("test_struct", stringTestStruct{"test"}),
 	)
@@ -170,7 +193,7 @@ func ExampleString_notEmpty() {
 }
 
 func ExampleString_empty() {
-	testutil.StdOutLogger().Infow(
+	stdOutLogger().Infow(
 		"test",
 		zap.Object("test_struct", stringTestStruct{}),
 	)

@@ -7,7 +7,7 @@ import (
 	"github.com/onsi/gomega/format"
 	"github.com/onsi/gomega/types"
 
-	"go.robertomontagna.dev/zapfluent/functional/optional"
+	"go.robertomontagna.dev/zapfluent/internal/functional/optional"
 )
 
 // BePresent succeeds if the actual value is an optional that is present.

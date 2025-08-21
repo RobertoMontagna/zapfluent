@@ -1,4 +1,4 @@
-package config
+package core
 
 // A ConfigurationOption is a function that applies a configuration to a
 // Configuration object.
@@ -31,11 +31,11 @@ type Configuration struct {
 }
 
 // ErrorHandling returns the error handling configuration.
-func (c Configuration) ErrorHandling() ErrorHandlingConfiguration {
-	return c.errorHandling
+func (c *Configuration) ErrorHandling() *ErrorHandlingConfiguration {
+	return &c.errorHandling
 }
 
 // Clone creates a shallow copy of the Configuration.
-func (c Configuration) Clone() Configuration {
-	return c
+func (c *Configuration) Clone() Configuration {
+	return *c
 }
