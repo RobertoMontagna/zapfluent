@@ -5,15 +5,14 @@ package zapfluent
 import (
 	"go.uber.org/zap/zapcore"
 
-	"go.robertomontagna.dev/zapfluent/config"
-	"go.robertomontagna.dev/zapfluent/fluentfield"
+	"go.robertomontagna.dev/zapfluent/pkg/core"
 )
 
 // Fluent provides a fluent interface for adding structured logging fields to a
 // Zap ObjectEncoder. It is designed to be used in a chainable manner.
 type Fluent struct {
 	enc          zapcore.ObjectEncoder
-	errorHandler *errorHandler
+	errorHandler *core.ErrorHandler
 }
 
 // NewFluent creates and returns a new Fluent instance.
@@ -21,24 +20,24 @@ type Fluent struct {
 // object to configure its behavior, such as error handling.
 func NewFluent(
 	enc zapcore.ObjectEncoder,
-	config config.Configuration,
+	config core.Configuration,
 ) *Fluent {
 	return &Fluent{
 		enc:          enc,
-		errorHandler: newErrorHandler(config.ErrorHandling(), enc),
+		errorHandler: core.NewErrorHandler(config.ErrorHandling(), enc),
 	}
 }
 
 // Add adds a field to the log entry.
-// It takes a fluentfield.Field, which is an interface that allows for custom
+// It takes a core.Field, which is an interface that allows for custom
 // field types and encoding logic.
 // The method returns the Fluent pointer, allowing for chained calls.
-func (z *Fluent) Add(field fluentfield.Field) *Fluent {
-	if z.errorHandler.shouldSkip() {
+func (z *Fluent) Add(field core.Field) *Fluent {
+	if z.errorHandler.ShouldSkip() {
 		return z
 	}
 
-	encodingErrorManager := z.errorHandler.encodeField(field)
+	encodingErrorManager := z.errorHandler.EncodeField(field)
 	encodingErrorManager()
 
 	return z
@@ -47,5 +46,18 @@ func (z *Fluent) Add(field fluentfield.Field) *Fluent {
 // Done completes the fluent chain and returns any aggregated errors that
 // occurred during the process. This should be the final call in the chain.
 func (z *Fluent) Done() error {
-	return z.errorHandler.aggregatedError()
+	return z.errorHandler.AggregatedError()
+}
+
+// AsFluent returns a new Fluent instance from a zapcore.ObjectEncoder.
+//
+// If the provided encoder is a `*FluentEncoder`, it uses the encoder's
+// existing configuration. Otherwise, it creates a new Fluent instance with a
+// default configuration. This is useful for integrating with libraries like
+// Zap that provide an encoder.
+func AsFluent(encoder zapcore.ObjectEncoder) *Fluent {
+	if fEnc, ok := encoder.(*core.FluentEncoder); ok {
+		return NewFluent(fEnc, fEnc.Config)
+	}
+	return NewFluent(encoder, core.NewConfiguration())
 }

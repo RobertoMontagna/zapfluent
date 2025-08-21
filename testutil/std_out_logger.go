@@ -6,14 +6,11 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
-	"go.robertomontagna.dev/zapfluent"
-	"go.robertomontagna.dev/zapfluent/config"
+	"go.robertomontagna.dev/zapfluent/pkg/core"
 )
 
 // StdOutLogger creates a new zap.SugaredLogger that is configured to write
 // JSON-formatted logs to standard output.
-//
-// This is useful for debugging and running examples.
 func StdOutLogger() *zap.SugaredLogger {
 	encoderCfg := zapcore.EncoderConfig{
 		MessageKey:     "msg",
@@ -23,17 +20,15 @@ func StdOutLogger() *zap.SugaredLogger {
 		EncodeTime:     zapcore.ISO8601TimeEncoder,
 		EncodeDuration: zapcore.StringDurationEncoder,
 	}
-	core := zapcore.NewCore(
-		zapfluent.NewFluentEncoder(
+	coreEncoder := zapcore.NewCore(
+		core.NewFluentEncoder(
 			zapcore.NewJSONEncoder(encoderCfg),
-			config.NewConfiguration(),
+			core.NewConfiguration(),
 		),
 		os.Stdout,
 		zap.DebugLevel,
 	)
-	logger := zap.New(core)
-
+	logger := zap.New(coreEncoder)
 	zap.ReplaceGlobals(logger)
-
 	return zap.S()
 }

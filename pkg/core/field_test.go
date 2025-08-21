@@ -1,4 +1,4 @@
-package fluentfield
+package core
 
 import (
 	"testing"
@@ -8,20 +8,16 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-const (
-	testFieldName = "test-field"
-)
-
 func TestLazyTypedField_Encode(t *testing.T) {
 	g := NewWithT(t)
 
 	t.Run("when value is present, it encodes the value", func(t *testing.T) {
 		functions := typeFieldFunctions[string]{
-			EncodeFunc: func(enc zapcore.ObjectEncoder, name string, value string) error {
+			encodeFunc: func(enc zapcore.ObjectEncoder, name string, value string) error {
 				enc.AddString(name, value)
 				return nil
 			},
-			IsNonZero: func(s string) bool { return s != "" },
+			isNonZero: func(s string) bool { return s != "" },
 		}
 		field := newTypedField(functions, testFieldName, "test-value")
 		enc := zapcore.NewMapObjectEncoder()
@@ -34,11 +30,11 @@ func TestLazyTypedField_Encode(t *testing.T) {
 
 	t.Run("when value is not present, it does not encode anything", func(t *testing.T) {
 		functions := typeFieldFunctions[string]{
-			EncodeFunc: func(enc zapcore.ObjectEncoder, name string, value string) error {
+			encodeFunc: func(enc zapcore.ObjectEncoder, name string, value string) error {
 				enc.AddString(name, value)
 				return nil
 			},
-			IsNonZero: func(s string) bool { return s != "" },
+			isNonZero: func(s string) bool { return s != "" },
 		}
 		field := newTypedField(functions, testFieldName, "test-value").
 			Filter(func(s string) bool { return false }) // This will make the value not present
@@ -64,11 +60,11 @@ func TestLazyTypedField_Filter(t *testing.T) {
 	g := NewWithT(t)
 
 	functions := typeFieldFunctions[string]{
-		EncodeFunc: func(enc zapcore.ObjectEncoder, name string, value string) error {
+		encodeFunc: func(enc zapcore.ObjectEncoder, name string, value string) error {
 			enc.AddString(name, value)
 			return nil
 		},
-		IsNonZero: func(s string) bool { return s != "" },
+		isNonZero: func(s string) bool { return s != "" },
 	}
 	field := newTypedField(functions, testFieldName, "test-value")
 
@@ -93,11 +89,11 @@ func TestLazyTypedField_NonZero(t *testing.T) {
 	g := NewWithT(t)
 
 	functions := typeFieldFunctions[string]{
-		EncodeFunc: func(enc zapcore.ObjectEncoder, name string, value string) error {
+		encodeFunc: func(enc zapcore.ObjectEncoder, name string, value string) error {
 			enc.AddString(name, value)
 			return nil
 		},
-		IsNonZero: func(s string) bool { return s != "" },
+		isNonZero: func(s string) bool { return s != "" },
 	}
 
 	t.Run("when value is not zero, it keeps the value", func(t *testing.T) {
@@ -123,7 +119,7 @@ func TestLazyTypedField_Format(t *testing.T) {
 	g := NewWithT(t)
 
 	functions := typeFieldFunctions[int]{
-		EncodeFunc: func(enc zapcore.ObjectEncoder, name string, value int) error {
+		encodeFunc: func(enc zapcore.ObjectEncoder, name string, value int) error {
 			enc.AddInt(name, value)
 			return nil
 		},

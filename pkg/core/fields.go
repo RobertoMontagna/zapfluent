@@ -1,4 +1,4 @@
-package fluentfield
+package core
 
 import "go.uber.org/zap/zapcore"
 
@@ -41,7 +41,7 @@ func Object[T zapcore.ObjectMarshaler](name string, value T, isNonZero func(T) b
 	)
 }
 
-type comparableObject interface {
+type Comparable interface {
 	zapcore.ObjectMarshaler
 	comparable
 }
@@ -49,9 +49,9 @@ type comparableObject interface {
 // ComparableObject returns a new field with a value that implements both
 // zapcore.ObjectMarshaler and the comparable constraint.
 //
-// The `IsNonZero` function for this field performs a simple comparison to the
+// The `isNonZero` function for this field performs a simple comparison to the
 // zero value of the type (e.g., `v != *new(T)`).
-func ComparableObject[T comparableObject](name string, value T) TypedField[T] {
+func ComparableObject[T Comparable](name string, value T) TypedField[T] {
 	return Object(name, value, func(v T) bool {
 		var x T
 		return v != x
@@ -61,11 +61,11 @@ func ComparableObject[T comparableObject](name string, value T) TypedField[T] {
 // unexported helpers that were in the original files
 func stringTypeFns() typeFieldFunctions[string] {
 	return typeFieldFunctions[string]{
-		EncodeFunc: func(encoder zapcore.ObjectEncoder, name string, value string) error {
+		encodeFunc: func(encoder zapcore.ObjectEncoder, name string, value string) error {
 			encoder.AddString(name, value)
 			return nil
 		},
-		IsNonZero: func(s string) bool {
+		isNonZero: func(s string) bool {
 			return s != ""
 		},
 	}
@@ -73,11 +73,11 @@ func stringTypeFns() typeFieldFunctions[string] {
 
 func intTypeFns() typeFieldFunctions[int] {
 	return typeFieldFunctions[int]{
-		EncodeFunc: func(encoder zapcore.ObjectEncoder, name string, value int) error {
+		encodeFunc: func(encoder zapcore.ObjectEncoder, name string, value int) error {
 			encoder.AddInt(name, value)
 			return nil
 		},
-		IsNonZero: func(i int) bool {
+		isNonZero: func(i int) bool {
 			return i != 0
 		},
 	}
@@ -85,11 +85,11 @@ func intTypeFns() typeFieldFunctions[int] {
 
 func int8TypeFns() typeFieldFunctions[int8] {
 	return typeFieldFunctions[int8]{
-		EncodeFunc: func(encoder zapcore.ObjectEncoder, name string, value int8) error {
+		encodeFunc: func(encoder zapcore.ObjectEncoder, name string, value int8) error {
 			encoder.AddInt8(name, value)
 			return nil
 		},
-		IsNonZero: func(i int8) bool {
+		isNonZero: func(i int8) bool {
 			return i != 0
 		},
 	}
@@ -97,9 +97,9 @@ func int8TypeFns() typeFieldFunctions[int8] {
 
 func objectTypeFns[T zapcore.ObjectMarshaler](isNonZero func(T) bool) typeFieldFunctions[T] {
 	return typeFieldFunctions[T]{
-		EncodeFunc: func(encoder zapcore.ObjectEncoder, name string, value T) error {
+		encodeFunc: func(encoder zapcore.ObjectEncoder, name string, value T) error {
 			return encoder.AddObject(name, value)
 		},
-		IsNonZero: isNonZero,
+		isNonZero: isNonZero,
 	}
 }

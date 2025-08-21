@@ -1,16 +1,14 @@
-package zapfluent
+package core
 
 import (
 	"go.uber.org/zap/zapcore"
-
-	"go.robertomontagna.dev/zapfluent/config"
 )
 
 // A FluentEncoder is a zapcore.Encoder that is aware of the zapfluent
 // configuration. It wraps a standard zapcore.Encoder and is used to pass
 // configuration details implicitly.
 type FluentEncoder struct {
-	config config.Configuration
+	Config Configuration
 	zapcore.Encoder
 }
 
@@ -18,11 +16,11 @@ type FluentEncoder struct {
 // zapcore.Encoder and holds the provided configuration.
 func NewFluentEncoder(
 	encoder zapcore.Encoder,
-	config config.Configuration,
+	config Configuration,
 ) *FluentEncoder {
 	return &FluentEncoder{
 		Encoder: encoder,
-		config:  config,
+		Config:  config,
 	}
 }
 
@@ -31,6 +29,6 @@ func NewFluentEncoder(
 func (e *FluentEncoder) Clone() zapcore.Encoder {
 	return &FluentEncoder{
 		Encoder: e.Encoder.Clone(),
-		config:  e.config.Clone(),
+		Config:  e.Config.Clone(),
 	}
 }

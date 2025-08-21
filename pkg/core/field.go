@@ -1,11 +1,11 @@
-package fluentfield
+package core
 
 import (
 	"reflect"
 
 	"go.uber.org/zap/zapcore"
 
-	"go.robertomontagna.dev/zapfluent/functional/lazyoptional"
+	"go.robertomontagna.dev/zapfluent/internal/functional/lazyoptional"
 )
 
 // Field is the interface that all concrete field types must implement. It
@@ -37,8 +37,8 @@ type TypedField[T any] interface {
 type encodeFunc[T any] func(zapcore.ObjectEncoder, string, T) error
 
 type typeFieldFunctions[T any] struct {
-	EncodeFunc encodeFunc[T]
-	IsNonZero  func(T) bool
+	encodeFunc encodeFunc[T]
+	isNonZero  func(T) bool
 }
 
 type lazyTypedField[T any] struct {
@@ -68,7 +68,7 @@ func (f *lazyTypedField[T]) Encode(encoder zapcore.ObjectEncoder) error {
 	if !ok {
 		return nil
 	}
-	return f.functions.EncodeFunc(encoder, f.name, val)
+	return f.functions.encodeFunc(encoder, f.name, val)
 }
 
 func (f *lazyTypedField[T]) Filter(condition func(T) bool) TypedField[T] {
@@ -80,7 +80,7 @@ func (f *lazyTypedField[T]) Filter(condition func(T) bool) TypedField[T] {
 }
 
 func (f *lazyTypedField[T]) NonZero() TypedField[T] {
-	return f.Filter(f.functions.IsNonZero)
+	return f.Filter(f.functions.isNonZero)
 }
 
 func (f *lazyTypedField[T]) Format(formatter func(T) string) TypedField[string] {

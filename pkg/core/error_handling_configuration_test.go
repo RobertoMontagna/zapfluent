@@ -1,12 +1,10 @@
-package config_test
+package core
 
 import (
 	"errors"
 	"testing"
 
 	"go.uber.org/zap/zapcore"
-
-	"go.robertomontagna.dev/zapfluent/config"
 
 	. "github.com/onsi/gomega"
 )
@@ -20,24 +18,24 @@ func TestNewErrorHandlingConfiguration(t *testing.T) {
 	g := NewWithT(t)
 
 	t.Run("with default options", func(t *testing.T) {
-		cfg := config.NewErrorHandlingConfiguration()
+		cfg := NewErrorHandlingConfiguration()
 
-		g.Expect(cfg.Mode()).To(Equal(config.ErrorHandlingModeContinue))
+		g.Expect(cfg.Mode()).To(Equal(ErrorHandlingModeContinue))
 	})
 
 	t.Run("with WithMode option", func(t *testing.T) {
-		opt := config.WithMode(config.ErrorHandlingModeEarlyFailing)
+		opt := WithMode(ErrorHandlingModeEarlyFailing)
 
-		cfg := config.NewErrorHandlingConfiguration(opt)
+		cfg := NewErrorHandlingConfiguration(opt)
 
-		g.Expect(cfg.Mode()).To(Equal(config.ErrorHandlingModeEarlyFailing))
+		g.Expect(cfg.Mode()).To(Equal(ErrorHandlingModeEarlyFailing))
 	})
 
 	t.Run("with WithFallbackErrorMessage option", func(t *testing.T) {
 		const message = "test-message"
-		opt := config.WithFallbackErrorMessage(message)
+		opt := WithFallbackErrorMessage(message)
 
-		cfg := config.NewErrorHandlingConfiguration(opt)
+		cfg := NewErrorHandlingConfiguration(opt)
 
 		g.Expect(cfg.FallbackErrorMessage).To(Equal(message))
 	})
@@ -47,13 +45,13 @@ func TestErrorHandlingMode_String(t *testing.T) {
 	g := NewWithT(t)
 
 	testCases := []struct {
-		mode     config.ErrorHandlingMode
+		mode     ErrorHandlingMode
 		expected string
 	}{
-		{config.ErrorHandlingModeUnknown, config.ErrorHandlingModeUnknownString},
-		{config.ErrorHandlingModeEarlyFailing, config.ErrorHandlingModeEarlyFailingString},
-		{config.ErrorHandlingModeContinue, config.ErrorHandlingModeContinueString},
-		{config.ErrorHandlingMode(99), "Unknown(99)"},
+		{ErrorHandlingModeUnknown, ErrorHandlingModeUnknownString},
+		{ErrorHandlingModeEarlyFailing, ErrorHandlingModeEarlyFailingString},
+		{ErrorHandlingModeContinue, ErrorHandlingModeContinueString},
+		{ErrorHandlingMode(99), "Unknown(99)"},
 	}
 
 	for _, tc := range testCases {
@@ -71,17 +69,17 @@ func TestIntToErrorHandlingMode(t *testing.T) {
 	testCases := []struct {
 		name     string
 		value    int
-		expected config.ErrorHandlingMode
+		expected ErrorHandlingMode
 	}{
-		{config.ErrorHandlingModeUnknownString, 0, config.ErrorHandlingModeUnknown},
-		{config.ErrorHandlingModeEarlyFailingString, 1, config.ErrorHandlingModeEarlyFailing},
-		{config.ErrorHandlingModeContinueString, 2, config.ErrorHandlingModeContinue},
-		{"Invalid", 99, config.ErrorHandlingModeUnknown},
+		{ErrorHandlingModeUnknownString, 0, ErrorHandlingModeUnknown},
+		{ErrorHandlingModeEarlyFailingString, 1, ErrorHandlingModeEarlyFailing},
+		{ErrorHandlingModeContinueString, 2, ErrorHandlingModeContinue},
+		{"Invalid", 99, ErrorHandlingModeUnknown},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			mode := config.IntToErrorHandlingMode(tc.value)
+			mode := IntToErrorHandlingMode(tc.value)
 
 			g.Expect(mode).To(Equal(tc.expected))
 		})
@@ -91,7 +89,7 @@ func TestIntToErrorHandlingMode(t *testing.T) {
 func TestFixedStringFallback(t *testing.T) {
 	g := NewWithT(t)
 	const fallbackValue = "fixed-value"
-	factory := config.FixedStringFallback(fallbackValue)
+	factory := FixedStringFallback(fallbackValue)
 
 	field := factory(testFieldName, errors.New(testErrorMessage))
 
@@ -104,7 +102,7 @@ func TestFixedStringFallback(t *testing.T) {
 func TestErrorStringFallback(t *testing.T) {
 	g := NewWithT(t)
 	const errorMsg = "this is the error message"
-	factory := config.ErrorStringFallback()
+	factory := ErrorStringFallback()
 
 	field := factory(testFieldName, errors.New(errorMsg))
 

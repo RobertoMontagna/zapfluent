@@ -4,8 +4,8 @@ import (
 	"strconv"
 	"testing"
 
-	"go.robertomontagna.dev/zapfluent/functional/lazyoptional"
-	"go.robertomontagna.dev/zapfluent/functional/lazyoptional/matchers"
+	"go.robertomontagna.dev/zapfluent/internal/functional/lazyoptional"
+	"go.robertomontagna.dev/zapfluent/internal/functional/lazyoptional/matchers"
 
 	. "github.com/onsi/gomega"
 )

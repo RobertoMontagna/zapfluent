@@ -4,8 +4,8 @@ import (
 	"errors"
 	"testing"
 
-	"go.robertomontagna.dev/zapfluent/functional/optional"
-	"go.robertomontagna.dev/zapfluent/functional/optional/matchers"
+	"go.robertomontagna.dev/zapfluent/internal/functional/optional"
+	"go.robertomontagna.dev/zapfluent/internal/functional/optional/matchers"
 
 	. "github.com/onsi/gomega"
 )

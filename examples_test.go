@@ -1,4 +1,4 @@
-package fluentfield_test
+package zapfluent_test
 
 import (
 	"strings"
@@ -7,7 +7,7 @@ import (
 	"go.uber.org/zap/zapcore"
 
 	"go.robertomontagna.dev/zapfluent"
-	"go.robertomontagna.dev/zapfluent/fluentfield"
+	"go.robertomontagna.dev/zapfluent/pkg/core"
 	"go.robertomontagna.dev/zapfluent/testutil"
 )
 
@@ -19,8 +19,8 @@ type comparableObjectTestStruct struct {
 
 func (s comparableObjectTestStruct) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 	return zapfluent.AsFluent(enc).
-		Add(fluentfield.ComparableObject("field1", s.Field1).NonZero()).
-		Add(fluentfield.String("field2", s.Field2).NonZero()).
+		Add(zapfluent.ComparableObject("field1", s.Field1).NonZero()).
+		Add(zapfluent.String("field2", s.Field2).NonZero()).
 		Done()
 }
 
@@ -30,7 +30,7 @@ type int8TestStruct struct {
 
 func (s int8TestStruct) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 	return zapfluent.AsFluent(enc).
-		Add(fluentfield.Int8("field1", s.Field1).NonZero()).
+		Add(zapfluent.Int8("field1", s.Field1).NonZero()).
 		Done()
 }
 
@@ -40,7 +40,7 @@ type intTestStruct struct {
 
 func (s intTestStruct) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 	return zapfluent.AsFluent(enc).
-		Add(fluentfield.Int("field1", s.Field1).NonZero()).
+		Add(zapfluent.Int("field1", s.Field1).NonZero()).
 		Done()
 }
 
@@ -59,7 +59,7 @@ type objectTestStruct struct {
 
 func (s objectTestStruct) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 	return zapfluent.AsFluent(enc).
-		Add(fluentfield.Object("field1", s.Field1, fluentfield.ReflectiveIsNotNil).NonZero()).
+		Add(zapfluent.Object("field1", s.Field1, core.ReflectiveIsNotNil).NonZero()).
 		Done()
 }
 
@@ -69,7 +69,7 @@ type stringTestStruct struct {
 
 func (s stringTestStruct) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 	return zapfluent.AsFluent(enc).
-		Add(fluentfield.String("field1", s.Field1).NonZero()).
+		Add(zapfluent.String("field1", s.Field1).NonZero()).
 		Done()
 }
 
@@ -133,8 +133,7 @@ func fpCurrying2to1[P1, P2, R1 any](f func(P1, P2) R1) func(P1) func(P2) R1 {
 }
 
 func ExampleInt_alternative() {
-	field := fluentfield.
-		Int("field1", 5).
+	field := zapfluent.Int("field1", 5).
 		NonZero().
 		Format(fpCurrying2to1(strings.Repeat)("."))
 

@@ -3,7 +3,7 @@ package enum_test
 import (
 	"testing"
 
-	"go.robertomontagna.dev/zapfluent/enum"
+	"go.robertomontagna.dev/zapfluent/internal/enum"
 
 	. "github.com/onsi/gomega"
 )
