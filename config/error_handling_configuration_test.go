@@ -4,10 +4,11 @@ import (
 	"errors"
 	"testing"
 
-	. "github.com/onsi/gomega"
 	"go.uber.org/zap/zapcore"
 
 	"go.robertomontagna.dev/zapfluent/config"
+
+	. "github.com/onsi/gomega"
 )
 
 const (
@@ -30,6 +31,15 @@ func TestNewErrorHandlingConfiguration(t *testing.T) {
 		cfg := config.NewErrorHandlingConfiguration(opt)
 
 		g.Expect(cfg.Mode()).To(Equal(config.ErrorHandlingModeEarlyFailing))
+	})
+
+	t.Run("with WithFallbackErrorMessage option", func(t *testing.T) {
+		const message = "test-message"
+		opt := config.WithFallbackErrorMessage(message)
+
+		cfg := config.NewErrorHandlingConfiguration(opt)
+
+		g.Expect(cfg.FallbackErrorMessage).To(Equal(message))
 	})
 }
 
@@ -88,7 +98,6 @@ func TestFixedStringFallback(t *testing.T) {
 	enc := zapcore.NewMapObjectEncoder()
 	err := field.Encode(enc)
 	g.Expect(err).ToNot(HaveOccurred())
-
 	g.Expect(enc.Fields).To(HaveKeyWithValue(testFieldName, fallbackValue))
 }
 
@@ -102,6 +111,5 @@ func TestErrorStringFallback(t *testing.T) {
 	enc := zapcore.NewMapObjectEncoder()
 	err := field.Encode(enc)
 	g.Expect(err).ToNot(HaveOccurred())
-
 	g.Expect(enc.Fields).To(HaveKeyWithValue(testFieldName, errorMsg))
 }

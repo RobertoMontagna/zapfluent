@@ -1,5 +1,7 @@
 # Development Guidelines
 
+> This project is actively developed with the assistance of Google Jules, an AI-powered software engineer.
+
 These principles are language-agnostic and form the core philosophy of writing clean, maintainable code.
 
 This document serves as a table of contents for our development guidelines. Please read these documents to understand the coding standards and best practices for this project.

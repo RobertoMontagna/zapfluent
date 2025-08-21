@@ -55,7 +55,7 @@ func (h *errorHandler) encodeField(field fluentfield.Field) fieldEncodingErrorMa
 	return func() {
 		maybeEncodingError := optional.FlatMap(maybeFallbackField, h.encodeAndLift)
 		maybeFallbackFailed := optional.Map(maybeEncodingError, func(_ error) fluentfield.Field {
-			return fluentfield.String(field.Name(), "failed to encode fallback field")
+			return fluentfield.String(field.Name(), h.cfg.FallbackErrorMessage)
 		})
 		optional.FlatMap(maybeFallbackFailed, h.encodeAndLift)
 	}

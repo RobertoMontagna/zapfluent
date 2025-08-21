@@ -30,6 +30,15 @@ func WithFallbackFieldFactory(factory FallbackFieldFactory) ErrorHandlingConfigu
 	}
 }
 
+// WithFallbackErrorMessage is an ErrorHandlingConfigurationOption that sets the
+// string to be used when a field cannot be encoded and no fallback factory is
+// configured.
+func WithFallbackErrorMessage(message string) ErrorHandlingConfigurationOption {
+	return func(c *ErrorHandlingConfiguration) {
+		c.FallbackErrorMessage = message
+	}
+}
+
 // NewErrorHandlingConfiguration creates a new ErrorHandlingConfiguration with
 // the given options.
 //
@@ -37,8 +46,9 @@ func WithFallbackFieldFactory(factory FallbackFieldFactory) ErrorHandlingConfigu
 // on error and does not use a fallback factory.
 func NewErrorHandlingConfiguration(opts ...ErrorHandlingConfigurationOption) ErrorHandlingConfiguration {
 	config := ErrorHandlingConfiguration{
-		mode:            ErrorHandlingModeContinue,
-		fallbackFactory: optional.Empty[FallbackFieldFactory](),
+		mode:                 ErrorHandlingModeContinue,
+		fallbackFactory:      optional.Empty[FallbackFieldFactory](),
+		FallbackErrorMessage: "failed to encode fallback field",
 	}
 	for _, opt := range opts {
 		opt(&config)
@@ -49,8 +59,9 @@ func NewErrorHandlingConfiguration(opts ...ErrorHandlingConfigurationOption) Err
 // ErrorHandlingConfiguration holds the settings that define how errors are
 // handled during field encoding.
 type ErrorHandlingConfiguration struct {
-	mode            ErrorHandlingMode
-	fallbackFactory optional.Optional[FallbackFieldFactory]
+	mode                 ErrorHandlingMode
+	fallbackFactory      optional.Optional[FallbackFieldFactory]
+	FallbackErrorMessage string
 }
 
 // Mode returns the configured error handling mode.

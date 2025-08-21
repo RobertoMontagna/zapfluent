@@ -3,9 +3,9 @@ package config_test
 import (
 	"testing"
 
-	. "github.com/onsi/gomega"
-
 	"go.robertomontagna.dev/zapfluent/config"
+
+	. "github.com/onsi/gomega"
 )
 
 func TestNewConfiguration(t *testing.T) {
