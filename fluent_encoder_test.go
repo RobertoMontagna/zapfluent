@@ -14,6 +14,7 @@ import (
 
 func TestNewFluentEncoder(t *testing.T) {
 	g := NewWithT(t)
+
 	cfg := config.NewConfiguration()
 	enc := zapcore.NewJSONEncoder(zap.NewDevelopmentEncoderConfig())
 
@@ -24,6 +25,7 @@ func TestNewFluentEncoder(t *testing.T) {
 
 func TestFluentEncoder_Clone(t *testing.T) {
 	g := NewWithT(t)
+
 	cfg := config.NewConfiguration()
 	enc := zapcore.NewJSONEncoder(zap.NewDevelopmentEncoderConfig())
 	fluentEncoder := zapfluent.NewFluentEncoder(enc, cfg)

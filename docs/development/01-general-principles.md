@@ -75,7 +75,10 @@
 ## Testing
 
 * **AAA Unit Test Structure**
-    * All unit tests must be implicitly structured following the **Arrange-Act-Assert** (AAA) pattern.
+    * All unit tests must be structured following the **Arrange-Act-Assert** (AAA) pattern.
+    * The three sections of the test must be visually separated by a blank line.
+    * This separation makes the structure of the test immediately obvious to the reader.
+    * Comments like `// Arrange` are not necessary; the blank line is sufficient.
 * **Complete Test Coverage**
     * All production code must be covered by at least one unit test.
 * **First-Class Tests**

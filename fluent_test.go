@@ -131,11 +131,14 @@ func TestFluent(t *testing.T) {
 	for _, s := range scenarios {
 		t.Run(s.name, func(t *testing.T) {
 			g := NewWithT(t)
+
 			fluent, enc := newFluentWithConfig(s.cfg)
 			for _, f := range s.fields {
 				fluent.Add(f)
 			}
+
 			err := fluent.Done()
+
 			s.assertions(g, err, enc)
 		})
 	}

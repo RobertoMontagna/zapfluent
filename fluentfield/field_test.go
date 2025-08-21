@@ -53,6 +53,7 @@ func TestLazyTypedField_Encode(t *testing.T) {
 
 func TestLazyTypedField_Name(t *testing.T) {
 	g := NewWithT(t)
+
 	functions := typeFieldFunctions[string]{}
 	field := newTypedField(functions, testFieldName, "test-value")
 
@@ -61,6 +62,7 @@ func TestLazyTypedField_Name(t *testing.T) {
 
 func TestLazyTypedField_Filter(t *testing.T) {
 	g := NewWithT(t)
+
 	functions := typeFieldFunctions[string]{
 		EncodeFunc: func(enc zapcore.ObjectEncoder, name string, value string) error {
 			enc.AddString(name, value)
@@ -72,6 +74,7 @@ func TestLazyTypedField_Filter(t *testing.T) {
 
 	t.Run("when condition is met, it keeps the value", func(t *testing.T) {
 		filteredField := field.Filter(func(s string) bool { return true })
+
 		enc := zapcore.NewMapObjectEncoder()
 		_ = filteredField.Encode(enc)
 		g.Expect(enc.Fields).ToNot(BeEmpty())
@@ -79,6 +82,7 @@ func TestLazyTypedField_Filter(t *testing.T) {
 
 	t.Run("when condition is not met, it removes the value", func(t *testing.T) {
 		filteredField := field.Filter(func(s string) bool { return false })
+
 		enc := zapcore.NewMapObjectEncoder()
 		_ = filteredField.Encode(enc)
 		g.Expect(enc.Fields).To(BeEmpty())
@@ -87,6 +91,7 @@ func TestLazyTypedField_Filter(t *testing.T) {
 
 func TestLazyTypedField_NonZero(t *testing.T) {
 	g := NewWithT(t)
+
 	functions := typeFieldFunctions[string]{
 		EncodeFunc: func(enc zapcore.ObjectEncoder, name string, value string) error {
 			enc.AddString(name, value)
@@ -98,20 +103,25 @@ func TestLazyTypedField_NonZero(t *testing.T) {
 	t.Run("when value is not zero, it keeps the value", func(t *testing.T) {
 		field := newTypedField(functions, testFieldName, "test-value").NonZero()
 		enc := zapcore.NewMapObjectEncoder()
+
 		_ = field.Encode(enc)
+
 		g.Expect(enc.Fields).ToNot(BeEmpty())
 	})
 
 	t.Run("when value is zero, it removes the value", func(t *testing.T) {
 		field := newTypedField(functions, testFieldName, "").NonZero()
 		enc := zapcore.NewMapObjectEncoder()
+
 		_ = field.Encode(enc)
+
 		g.Expect(enc.Fields).To(BeEmpty())
 	})
 }
 
 func TestLazyTypedField_Format(t *testing.T) {
 	g := NewWithT(t)
+
 	functions := typeFieldFunctions[int]{
 		EncodeFunc: func(enc zapcore.ObjectEncoder, name string, value int) error {
 			enc.AddInt(name, value)
@@ -130,6 +140,7 @@ func TestLazyTypedField_Format(t *testing.T) {
 
 func TestIsNotNil_WithUntypedNil(t *testing.T) {
 	g := NewWithT(t)
+
 	var input any
 
 	actual := ReflectiveIsNotNil(input)

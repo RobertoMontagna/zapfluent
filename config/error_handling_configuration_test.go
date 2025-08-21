@@ -98,7 +98,6 @@ func TestFixedStringFallback(t *testing.T) {
 	enc := zapcore.NewMapObjectEncoder()
 	err := field.Encode(enc)
 	g.Expect(err).ToNot(HaveOccurred())
-
 	g.Expect(enc.Fields).To(HaveKeyWithValue(testFieldName, fallbackValue))
 }
 
@@ -112,6 +111,5 @@ func TestErrorStringFallback(t *testing.T) {
 	enc := zapcore.NewMapObjectEncoder()
 	err := field.Encode(enc)
 	g.Expect(err).ToNot(HaveOccurred())
-
 	g.Expect(enc.Fields).To(HaveKeyWithValue(testFieldName, errorMsg))
 }

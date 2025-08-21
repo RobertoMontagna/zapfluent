@@ -16,6 +16,7 @@ const (
 
 func TestErrorHandler_Continue(t *testing.T) {
 	g := NewWithT(t)
+
 	cfg := config.NewErrorHandlingConfiguration(config.WithMode(config.ErrorHandlingModeContinue))
 	handler := newErrorHandler(cfg, nil)
 	err1 := errors.New(testError1)
@@ -34,6 +35,7 @@ func TestErrorHandler_Continue(t *testing.T) {
 
 func TestErrorHandler_EarlyFailing(t *testing.T) {
 	g := NewWithT(t)
+
 	cfg := config.NewErrorHandlingConfiguration(config.WithMode(config.ErrorHandlingModeEarlyFailing))
 	handler := newErrorHandler(cfg, nil)
 	err1 := errors.New(testError1)
