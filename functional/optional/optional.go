@@ -23,6 +23,26 @@ func Empty[T any]() Optional[T] {
 	return Optional[T]{}
 }
 
+// OfPtr creates an Optional from a pointer.
+// If the pointer is nil, an empty Optional is returned.
+// Otherwise, an Optional containing the dereferenced value is returned.
+func OfPtr[T any](ptr *T) Optional[T] {
+	if ptr == nil {
+		return Empty[T]()
+	}
+	return Some(*ptr)
+}
+
+// OfError creates an Optional from an error.
+// If the error is nil, an empty Optional is returned.
+// Otherwise, an Optional containing the error is returned.
+func OfError(err error) Optional[error] {
+	if err == nil {
+		return Empty[error]()
+	}
+	return Some(err)
+}
+
 // Get returns the value if present, and `true`. Otherwise, it returns the
 // zero value of the type and `false`.
 func (o Optional[T]) Get() (T, bool) {
@@ -36,13 +56,6 @@ func (o Optional[T]) Get() (T, bool) {
 // IsPresent returns `true` if there is a value present, otherwise `false`.
 func (o Optional[T]) IsPresent() bool {
 	return o.hasValue
-}
-
-// ForEach performs the given action with the value, but only if a value is present.
-func (o Optional[T]) ForEach(f func(T)) {
-	if o.IsPresent() {
-		f(o.value)
-	}
 }
 
 // Map applies the given mapping function to the value if it is present.

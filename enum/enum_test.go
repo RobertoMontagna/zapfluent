@@ -1,10 +1,11 @@
-package enum_util_test
+package enum_test
 
 import (
 	"testing"
 
 	. "github.com/onsi/gomega"
-	"go.robertomontagna.dev/zapfluent/util/enum_util"
+
+	"go.robertomontagna.dev/zapfluent/enum"
 )
 
 type testEnum int
@@ -15,7 +16,7 @@ const (
 	testEnumValue2
 )
 
-var testEnumHelper = enum_util.NewUtilEnum(
+var testEnumSpec = enum.New(
 	map[testEnum]string{
 		testEnumUnknown: "Unknown",
 		testEnumValue1:  "Value1",
@@ -24,34 +25,34 @@ var testEnumHelper = enum_util.NewUtilEnum(
 	testEnumUnknown,
 )
 
-func TestUtilEnum_String(t *testing.T) {
+func TestEnum_String(t *testing.T) {
 	g := NewWithT(t)
 
 	t.Run("with known value", func(t *testing.T) {
 		val := testEnumValue1
-		s := testEnumHelper.String(val)
+		s := testEnumSpec.String(val)
 		g.Expect(s).To(Equal("Value1"))
 	})
 
 	t.Run("with unknown value", func(t *testing.T) {
 		val := testEnum(99)
-		s := testEnumHelper.String(val)
+		s := testEnumSpec.String(val)
 		g.Expect(s).To(Equal("Unknown(99)"))
 	})
 }
 
-func TestUtilEnum_FromInt(t *testing.T) {
+func TestEnum_FromInt(t *testing.T) {
 	g := NewWithT(t)
 
 	t.Run("with valid int", func(t *testing.T) {
 		i := 1
-		val := testEnumHelper.FromInt(i)
+		val := testEnumSpec.FromInt(i)
 		g.Expect(val).To(Equal(testEnumValue1))
 	})
 
 	t.Run("with invalid int", func(t *testing.T) {
 		i := 99
-		val := testEnumHelper.FromInt(i)
+		val := testEnumSpec.FromInt(i)
 		g.Expect(val).To(Equal(testEnumUnknown))
 	})
 }

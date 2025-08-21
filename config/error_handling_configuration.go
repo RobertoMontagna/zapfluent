@@ -1,9 +1,9 @@
 package config
 
 import (
+	"go.robertomontagna.dev/zapfluent/enum"
 	"go.robertomontagna.dev/zapfluent/fluentfield"
 	"go.robertomontagna.dev/zapfluent/functional/optional"
-	"go.robertomontagna.dev/zapfluent/util/enum_util"
 )
 
 // FallbackFieldFactory is a function that creates a fallback field.
@@ -87,7 +87,7 @@ const (
 	ErrorHandlingModeContinueString     = "Continue"
 )
 
-var errorHandlingModeEnum = enum_util.NewUtilEnum(
+var errorHandlingModeEnum = enum.New(
 	map[ErrorHandlingMode]string{
 		ErrorHandlingModeUnknown:      ErrorHandlingModeUnknownString,
 		ErrorHandlingModeEarlyFailing: ErrorHandlingModeEarlyFailingString,
@@ -111,7 +111,7 @@ func IntToErrorHandlingMode(value int) ErrorHandlingMode {
 // FixedStringFallback returns a FallbackFieldFactory that creates a field with a
 // predefined, fixed string value.
 func FixedStringFallback(value string) FallbackFieldFactory {
-	return func(name string, err error) fluentfield.Field {
+	return func(name string, _ error) fluentfield.Field {
 		return fluentfield.String(name, value)
 	}
 }

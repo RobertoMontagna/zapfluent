@@ -1,10 +1,12 @@
 package optional_test
 
 import (
+	"errors"
 	"strconv"
 	"testing"
 
 	. "github.com/onsi/gomega"
+
 	"go.robertomontagna.dev/zapfluent/functional/optional"
 )
 
@@ -26,25 +28,37 @@ func TestOptional_Empty(t *testing.T) {
 	g.Expect(val).To(Equal("")) // Zero value
 }
 
-func TestOptional_ForEach(t *testing.T) {
+func TestOptional_OfPtr(t *testing.T) {
 	g := NewWithT(t)
 
-	t.Run("with present value", func(t *testing.T) {
-		o := optional.Some("test")
-		var result string
-		o.ForEach(func(s string) {
-			result = s
-		})
-		g.Expect(result).To(Equal("test"))
+	t.Run("with nil pointer", func(t *testing.T) {
+		o := optional.OfPtr[int](nil)
+		g.Expect(o.IsPresent()).To(BeFalse())
 	})
 
-	t.Run("with empty value", func(t *testing.T) {
-		o := optional.Empty[string]()
-		var result string
-		o.ForEach(func(s string) {
-			result = "should not be called"
-		})
-		g.Expect(result).To(BeEmpty())
+	t.Run("with non-nil pointer", func(t *testing.T) {
+		v := 123
+		o := optional.OfPtr(&v)
+		g.Expect(o.IsPresent()).To(BeTrue())
+		val, _ := o.Get()
+		g.Expect(val).To(Equal(123))
+	})
+}
+
+func TestOptional_OfError(t *testing.T) {
+	g := NewWithT(t)
+	testErr := errors.New("test error")
+
+	t.Run("with nil error", func(t *testing.T) {
+		o := optional.OfError(nil)
+		g.Expect(o.IsPresent()).To(BeFalse())
+	})
+
+	t.Run("with non-nil error", func(t *testing.T) {
+		o := optional.OfError(testErr)
+		g.Expect(o.IsPresent()).To(BeTrue())
+		val, _ := o.Get()
+		g.Expect(val).To(MatchError(testErr))
 	})
 }
 

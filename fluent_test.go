@@ -10,7 +10,7 @@ import (
 	"go.robertomontagna.dev/zapfluent"
 	"go.robertomontagna.dev/zapfluent/config"
 	"go.robertomontagna.dev/zapfluent/fluentfield"
-	"go.robertomontagna.dev/zapfluent/util/testing_util"
+	"go.robertomontagna.dev/zapfluent/testutil"
 )
 
 const (
@@ -45,7 +45,7 @@ func TestFluent(t *testing.T) {
 		{
 			name:   "Done_WithMultipleErrors_AggregatesErrors",
 			cfg:    config.NewConfiguration(),
-			fields: []fluentfield.Field{testing_util.FailingField{Err: err1}, testing_util.FailingField{Err: err2}},
+			fields: []fluentfield.Field{testutil.FailingField{Err: err1}, testutil.FailingField{Err: err2}},
 			assertions: func(g *GomegaWithT, err error, enc *zapcore.MapObjectEncoder) {
 				g.Expect(err).To(HaveOccurred())
 				g.Expect(err.Error()).To(ContainSubstring(testError1))
@@ -62,8 +62,8 @@ func TestFluent(t *testing.T) {
 				),
 			),
 			fields: []fluentfield.Field{
-				testing_util.FailingField{Err: err1, NameValue: testFieldName1},
-				testing_util.FailingField{Err: err2, NameValue: testFieldName2},
+				testutil.FailingField{Err: err1, NameValue: testFieldName1},
+				testutil.FailingField{Err: err2, NameValue: testFieldName2},
 			},
 			assertions: func(g *GomegaWithT, err error, enc *zapcore.MapObjectEncoder) {
 				g.Expect(err).To(MatchError(err1)) // Should only return the first error
@@ -79,7 +79,7 @@ func TestFluent(t *testing.T) {
 				),
 			),
 			fields: []fluentfield.Field{
-				testing_util.FailingField{Err: originalErr, NameValue: testFailingField},
+				testutil.FailingField{Err: originalErr, NameValue: testFailingField},
 			},
 			assertions: func(g *GomegaWithT, err error, enc *zapcore.MapObjectEncoder) {
 				g.Expect(err).To(MatchError(originalErr))
@@ -87,24 +87,22 @@ func TestFluent(t *testing.T) {
 			},
 		},
 		{
-			name: "WithFallback_aggregates_errors_from_the_fallback_field_itself",
+			name: "WithFailingFallback_logs_a_predefined_error_field",
 			cfg: config.NewConfiguration(
 				config.WithErrorHandling(
 					config.NewErrorHandlingConfiguration(
 						config.WithFallbackFieldFactory(func(name string, err error) fluentfield.Field {
-							return testing_util.FailingField{NameValue: name, Err: fallbackErr}
+							return testutil.FailingField{NameValue: name, Err: fallbackErr}
 						}),
 					),
 				),
 			),
 			fields: []fluentfield.Field{
-				testing_util.FailingField{Err: originalErr, NameValue: testFailingField},
+				testutil.FailingField{Err: originalErr, NameValue: testFailingField},
 			},
 			assertions: func(g *GomegaWithT, err error, enc *zapcore.MapObjectEncoder) {
-				g.Expect(err).To(HaveOccurred())
-				g.Expect(err.Error()).To(ContainSubstring(originalErr.Error()))
-				g.Expect(err.Error()).To(ContainSubstring(fallbackErr.Error()))
-				g.Expect(enc.Fields).To(BeEmpty())
+				g.Expect(err).To(MatchError(originalErr))
+				g.Expect(enc.Fields).To(HaveKeyWithValue("fluent_error", "failed to encode fallback field"))
 			},
 		},
 	}

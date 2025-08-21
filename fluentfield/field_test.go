@@ -129,7 +129,7 @@ func TestLazyTypedField_Format(t *testing.T) {
 
 func TestIsNotNil_WithUntypedNil(t *testing.T) {
 	g := NewWithT(t)
-	var input any = nil
+	var input any
 
 	actual := ReflectiveIsNotNil(input)
 
