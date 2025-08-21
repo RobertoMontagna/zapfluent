@@ -26,8 +26,8 @@ jobs:
       - name: Lint
         run: make lint
 
-      - name: Run tests and generate coverage
-        run: make coverage
+      - name: Run tests and generate reports for CI
+        run: make test-ci
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4

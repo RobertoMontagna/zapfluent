@@ -61,7 +61,15 @@ check-fmt: ## 🧐 Check if all Go files are formatted
 .PHONY: coverage
 coverage: tools ## 📊 Generate test coverage and JUnit reports
 	@echo ">> generating test reports..."
-	@go test -v -coverprofile=coverage.out ./... | tee /dev/tty | $(GO_JUNIT_REPORT) > report.xml
+	@go test -v -coverprofile=coverage.out ./... 2>&1 > test_output.log
+	@cat test_output.log
+	@cat test_output.log | $(GO_JUNIT_REPORT) > report.xml
+
+.PHONY: test-ci
+test-ci: tools ## 📜 Generate reports for CI
+	@echo ">> generating reports for CI..."
+	@go test -v -coverprofile=coverage.out ./... 2>&1 > test_output.log
+	@cat test_output.log | $(GO_JUNIT_REPORT) > report.xml
 
 .PHONY: coverage-html
 coverage-html: coverage ## 🌐 View coverage report in browser
@@ -94,7 +102,7 @@ $(GO_JUNIT_REPORT):
 .PHONY: clean
 clean: ## 🧹 Clean build artifacts
 	@echo ">> cleaning up..."
-	@rm -f coverage.out
+	@rm -f coverage.out report.xml test_output.log
 	@# This project is a library, so there are no other build artifacts to clean by default.
 	@# This target is here for convention.
 
