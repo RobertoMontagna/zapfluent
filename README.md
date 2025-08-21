@@ -80,6 +80,18 @@ func main() {
 }
 ```
 
+## 🚧 TODO
+
+This is a non-exhaustive list of planned features and improvements, in no particular order.
+
+- [ ] Add a configuration option to automatically sort logging fields in lexicographical order.
+- [ ] Implement an error handling configuration to control the placement of field-specific error messages (e.g., in-place or at the end of the field list).
+- [ ] Add a global configuration setting to automatically omit all zero-value fields from the log output.
+- [ ] Expand field support to include all remaining primitive types (non-pointer, non-slice, non-array, non-map).
+- [ ] Add support for logging pointer fields, automatically handling `nil` values.
+- [ ] Implement support for logging slice fields.
+- [ ] [Optional] Implement support for logging map fields.
+
 ## 🤝 Contributing
 
 Contributions are welcome! This project is open to improvements and new features.
