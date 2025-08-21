@@ -12,7 +12,7 @@ import (
 // Zap ObjectEncoder. It is designed to be used in a chainable manner.
 type Fluent struct {
 	enc          zapcore.ObjectEncoder
-	errorHandler *errorHandler
+	errorHandler *core.ErrorHandler
 }
 
 // NewFluent creates and returns a new Fluent instance.
@@ -24,7 +24,7 @@ func NewFluent(
 ) *Fluent {
 	return &Fluent{
 		enc:          enc,
-		errorHandler: newErrorHandler(config.ErrorHandling(), enc),
+		errorHandler: core.NewErrorHandler(config.ErrorHandling(), enc),
 	}
 }
 
@@ -33,11 +33,11 @@ func NewFluent(
 // field types and encoding logic.
 // The method returns the Fluent pointer, allowing for chained calls.
 func (z *Fluent) Add(field core.Field) *Fluent {
-	if z.errorHandler.shouldSkip() {
+	if z.errorHandler.ShouldSkip() {
 		return z
 	}
 
-	encodingErrorManager := z.errorHandler.encodeField(field)
+	encodingErrorManager := z.errorHandler.EncodeField(field)
 	encodingErrorManager()
 
 	return z
@@ -46,7 +46,7 @@ func (z *Fluent) Add(field core.Field) *Fluent {
 // Done completes the fluent chain and returns any aggregated errors that
 // occurred during the process. This should be the final call in the chain.
 func (z *Fluent) Done() error {
-	return z.errorHandler.aggregatedError()
+	return z.errorHandler.AggregatedError()
 }
 
 // AsFluent returns a new Fluent instance from a zapcore.ObjectEncoder.

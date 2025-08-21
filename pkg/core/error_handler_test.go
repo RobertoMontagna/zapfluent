@@ -1,10 +1,8 @@
-package zapfluent
+package core
 
 import (
 	"errors"
 	"testing"
-
-	"go.robertomontagna.dev/zapfluent/pkg/core"
 
 	. "github.com/onsi/gomega"
 )
@@ -17,15 +15,15 @@ const (
 func TestErrorHandler_Continue(t *testing.T) {
 	g := NewWithT(t)
 
-	cfg := core.NewErrorHandlingConfiguration(core.WithMode(core.ErrorHandlingModeContinue))
-	handler := newErrorHandler(&cfg, nil)
+	cfg := NewErrorHandlingConfiguration(WithMode(ErrorHandlingModeContinue))
+	handler := NewErrorHandler(&cfg, nil)
 	err1 := errors.New(testError1)
 	err2 := errors.New(testError2)
 
 	handler.aggregateError(err1)
-	skip := handler.shouldSkip()
+	skip := handler.ShouldSkip()
 	handler.aggregateError(err2)
-	finalErr := handler.aggregatedError()
+	finalErr := handler.AggregatedError()
 
 	g.Expect(skip).To(BeFalse())
 	g.Expect(finalErr).To(HaveOccurred())
@@ -36,15 +34,15 @@ func TestErrorHandler_Continue(t *testing.T) {
 func TestErrorHandler_EarlyFailing(t *testing.T) {
 	g := NewWithT(t)
 
-	cfg := core.NewErrorHandlingConfiguration(core.WithMode(core.ErrorHandlingModeEarlyFailing))
-	handler := newErrorHandler(&cfg, nil)
+	cfg := NewErrorHandlingConfiguration(WithMode(ErrorHandlingModeEarlyFailing))
+	handler := NewErrorHandler(&cfg, nil)
 	err1 := errors.New(testError1)
 	err2 := errors.New(testError2)
 
 	handler.aggregateError(err1)
-	skip := handler.shouldSkip()
+	skip := handler.ShouldSkip()
 	handler.aggregateError(err2)
-	finalErr := handler.aggregatedError()
+	finalErr := handler.AggregatedError()
 
 	g.Expect(skip).To(BeTrue())
 	g.Expect(finalErr).To(HaveOccurred())
