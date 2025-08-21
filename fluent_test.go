@@ -105,6 +105,26 @@ func TestFluent(t *testing.T) {
 				g.Expect(enc.Fields).To(HaveKeyWithValue(testFailingField, "failed to encode fallback field"))
 			},
 		},
+		{
+			name: "WithFailingFallback_and_custom_message_logs_the_custom_message",
+			cfg: config.NewConfiguration(
+				config.WithErrorHandling(
+					config.NewErrorHandlingConfiguration(
+						config.WithFallbackFieldFactory(func(name string, err error) fluentfield.Field {
+							return testutil.FailingField{NameValue: name, Err: fallbackErr}
+						}),
+						config.WithFallbackErrorMessage("custom message"),
+					),
+				),
+			),
+			fields: []fluentfield.Field{
+				testutil.FailingField{Err: originalErr, NameValue: testFailingField},
+			},
+			assertions: func(g *GomegaWithT, err error, enc *zapcore.MapObjectEncoder) {
+				g.Expect(err).To(MatchError(originalErr))
+				g.Expect(enc.Fields).To(HaveKeyWithValue(testFailingField, "custom message"))
+			},
+		},
 	}
 
 	for _, s := range scenarios {

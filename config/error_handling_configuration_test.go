@@ -31,6 +31,15 @@ func TestNewErrorHandlingConfiguration(t *testing.T) {
 
 		g.Expect(cfg.Mode()).To(Equal(config.ErrorHandlingModeEarlyFailing))
 	})
+
+	t.Run("with WithFallbackErrorMessage option", func(t *testing.T) {
+		const message = "test-message"
+		opt := config.WithFallbackErrorMessage(message)
+
+		cfg := config.NewErrorHandlingConfiguration(opt)
+
+		g.Expect(cfg.FallbackErrorMessage).To(Equal(message))
+	})
 }
 
 func TestErrorHandlingMode_String(t *testing.T) {
