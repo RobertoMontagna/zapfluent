@@ -23,6 +23,11 @@ Proper error handling is critical for writing robust Go code.
 * **Error Wrapping**
     * When propagating an error from a downstream function, add context using `fmt.Errorf` with the `%w` verb. This allows callers to inspect the underlying error chain with `errors.Is` and `errors.As`.
     * Keep the context concise. Avoid phrases like "failed to", which are redundant.
+* **Use Sentinel Errors for Programmatic Checks**
+    * When callers need to check for a specific error condition, provide a sentinel error.
+    * Declare sentinel errors as exported variables (e.g., `var ErrNotFound = errors.New("not found")`).
+    * **Wrap sentinel errors** to add dynamic context, using `fmt.Errorf` and the `%w` verb.
+    * Callers should use `errors.Is` to check for the underlying sentinel error, which is more robust than comparing error strings.
 * **Error Naming**
     * Error variables should be prefixed with `Err` (e.g., `ErrNotFound`).
     * Custom error types should be suffixed with `Error` (e.g., `NotFoundError`).
@@ -120,6 +125,8 @@ To ensure code quality and consistency, use a standard set of linters. We recomm
     * All Go code in the repository must be formatted with `gofmt`.
 * **Import Grouping**
     * All import blocks must be grouped into four categories in a specific order: standard library, third-party, shared internal modules, and intra-module dependencies.
+* **Avoid Unnecessary Import Aliases**
+    * Do not use an alias for an import if the package's default name is clear and does not cause a collision. Aliases should only be used when strictly necessary to resolve a name conflict.
 * **Reduce Nesting**
     * Avoid deep nesting by handling error cases and special conditions first and returning early.
 * **Function Grouping**

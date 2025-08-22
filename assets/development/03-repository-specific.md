@@ -10,3 +10,9 @@ This document contains guidelines and conventions that are specific to this repo
 * **Functional Programming**
     * **Rule**: While Go is not a functional language, this project encourages the use of functional programming concepts where they improve code clarity and expressiveness. This includes the use of higher-order functions, immutable data structures, and constructs like `Optional` types to handle the absence of a value.
     * **Guideline**: When using these patterns, ensure that the code remains readable and maintainable. The goal is to leverage functional concepts to write more robust and predictable code, not to obscure logic with overly complex abstractions.
+
+## Testing
+
+* **Test Style**
+    * **Rule**: All tests in this repository must be written in the standard XUnit style, using the built-in `testing` package. BDD-style frameworks like Ginkgo are not permitted.
+    * **Guideline**: Prefer table-driven tests for their clarity and ease of extension. Use Gomega for assertions to improve readability, but do not use the Ginkgo test runner.
