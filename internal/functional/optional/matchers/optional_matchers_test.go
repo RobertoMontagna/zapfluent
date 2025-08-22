@@ -1,173 +1,195 @@
 package matchers_test
 
 import (
+	"strings"
 	"testing"
 
-	"go.robertomontagna.dev/zapfluent/internal/functional/optional"
+	"github.com/onsi/gomega/types"
 
-	. "go.robertomontagna.dev/zapfluent/internal/functional/optional/matchers"
+	"go.robertomontagna.dev/zapfluent/internal/functional/optional"
+	"go.robertomontagna.dev/zapfluent/internal/functional/optional/matchers"
+	"go.robertomontagna.dev/zapfluent/testutil"
+
+	. "github.com/onsi/gomega"
 )
 
-func TestBePresent(t *testing.T) {
+func TestMatchers(t *testing.T) {
 	t.Parallel()
 
-	testCases := []struct {
-		name          string
-		input         any
-		shouldSucceed bool
-		shouldError   bool
+	matchTestCases := []struct {
+		name        string
+		input       any
+		matcher     types.GomegaMatcher
+		shouldFail  bool
+		expectedMsg string
 	}{
+		// BePresent
 		{
-			name:          "when the optional is present",
-			input:         optional.Some("hello"),
-			shouldSucceed: true,
-			shouldError:   false,
+			name:       "BePresent succeeds for present optional",
+			input:      optional.Some("hello"),
+			matcher:    matchers.BePresent[string](),
+			shouldFail: false,
 		},
 		{
-			name:          "when the optional is empty",
-			input:         optional.Empty[string](),
-			shouldSucceed: false,
-			shouldError:   false,
+			name:        "BePresent fails for empty optional",
+			input:       optional.Empty[string](),
+			matcher:     matchers.BePresent[string](),
+			shouldFail:  true,
+			expectedMsg: matchers.BePresentFailureMessage,
 		},
 		{
-			name:          "when the actual is not an optional",
-			input:         "not-an-optional",
-			shouldSucceed: false,
-			shouldError:   true,
+			name:       "Not(BePresent) succeeds for empty optional",
+			input:      optional.Empty[string](),
+			matcher:    Not(matchers.BePresent[string]()),
+			shouldFail: false,
+		},
+		{
+			name:        "Not(BePresent) fails for present optional",
+			input:       optional.Some("hello"),
+			matcher:     Not(matchers.BePresent[string]()),
+			shouldFail:  true,
+			expectedMsg: matchers.NotBePresentFailureMessage,
+		},
+		// BeEmpty
+		{
+			name:       "BeEmpty succeeds for empty optional",
+			input:      optional.Empty[string](),
+			matcher:    matchers.BeEmpty[string](),
+			shouldFail: false,
+		},
+		{
+			name:        "BeEmpty fails for present optional",
+			input:       optional.Some("hello"),
+			matcher:     matchers.BeEmpty[string](),
+			shouldFail:  true,
+			expectedMsg: matchers.BeEmptyFailureMessage,
+		},
+		{
+			name:       "Not(BeEmpty) succeeds for present optional",
+			input:      optional.Some("hello"),
+			matcher:    Not(matchers.BeEmpty[string]()),
+			shouldFail: false,
+		},
+		{
+			name:        "Not(BeEmpty) fails for empty optional",
+			input:       optional.Empty[string](),
+			matcher:     Not(matchers.BeEmpty[string]()),
+			shouldFail:  true,
+			expectedMsg: matchers.NotBeEmptyFailureMessage,
+		},
+		// HaveValue
+		{
+			name:       "HaveValue succeeds for optional with the same value",
+			input:      optional.Some("hello"),
+			matcher:    matchers.HaveValue("hello"),
+			shouldFail: false,
+		},
+		{
+			name:        "HaveValue fails for optional with a different value",
+			input:       optional.Some("world"),
+			matcher:     matchers.HaveValue("hello"),
+			shouldFail:  true,
+			expectedMsg: matchers.HaveValueFailureMessage,
+		},
+		{
+			name:        "HaveValue fails for an empty optional",
+			input:       optional.Empty[string](),
+			matcher:     matchers.HaveValue("hello"),
+			shouldFail:  true,
+			expectedMsg: matchers.HaveValueFailureMessage,
+		},
+		{
+			name:       "Not(HaveValue) succeeds for optional with a different value",
+			input:      optional.Some("world"),
+			matcher:    Not(matchers.HaveValue("hello")),
+			shouldFail: false,
+		},
+		{
+			name:        "Not(HaveValue) fails for optional with the same value",
+			input:       optional.Some("hello"),
+			matcher:     Not(matchers.HaveValue("hello")),
+			shouldFail:  true,
+			expectedMsg: matchers.NotHaveValueFailureMessage,
 		},
 	}
 
-	for _, tc := range testCases {
+	for _, tc := range matchTestCases {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
+			g := NewGomegaWithT(t)
 
-			matcher := BePresent[string]()
-			success, err := matcher.Match(tc.input)
+			if tc.shouldFail {
+				failures := testutil.InterceptGomegaFailures(g, func() {
+					g.Expect(tc.input).To(tc.matcher)
+				})
 
-			if success != tc.shouldSucceed {
-				t.Errorf("expected success to be %v, but got %v", tc.shouldSucceed, success)
+				g.Expect(failures).To(HaveLen(1))
+				g.Expect(failures[0]).To(ContainSubstring(tc.expectedMsg))
+			} else {
+				g.Expect(tc.input).To(tc.matcher)
 			}
+		})
+	}
 
-			if tc.shouldError && err == nil {
-				t.Errorf("expected an error, but got none")
-			}
-			if !tc.shouldError && err != nil {
-				t.Errorf("did not expect an error, but got: %v", err)
-			}
+	errorTestCases := []struct {
+		name        string
+		matcher     types.GomegaMatcher
+		input       any
+		expectedErr error
+	}{
+		{
+			name:        "BePresent returns error for non-optional",
+			matcher:     matchers.BePresent[string](),
+			input:       "not-an-optional",
+			expectedErr: matchers.ErrMatcherWrongType,
+		},
+		{
+			name:        "BeEmpty returns error for non-optional",
+			matcher:     matchers.BeEmpty[string](),
+			input:       "not-an-optional",
+			expectedErr: matchers.ErrMatcherWrongType,
+		},
+		{
+			name:        "HaveValue returns error for non-optional",
+			matcher:     matchers.HaveValue("hello"),
+			input:       "not-an-optional",
+			expectedErr: matchers.ErrMatcherWrongType,
+		},
+	}
+
+	for _, tc := range errorTestCases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			g := NewGomegaWithT(t)
+
+			_, err := tc.matcher.Match(tc.input)
+
+			g.Expect(err).To(MatchError(tc.expectedErr))
 		})
 	}
 }
 
-func TestBeEmpty(t *testing.T) {
+func TestFailureMessages(t *testing.T) {
 	t.Parallel()
+	g := NewGomegaWithT(t)
 
-	testCases := []struct {
-		name          string
-		input         any
-		shouldSucceed bool
-		shouldError   bool
-	}{
-		{
-			name:          "when the optional is empty",
-			input:         optional.Empty[string](),
-			shouldSucceed: true,
-			shouldError:   false,
-		},
-		{
-			name:          "when the optional is present",
-			input:         optional.Some("hello"),
-			shouldSucceed: false,
-			shouldError:   false,
-		},
-		{
-			name:          "when the actual is not an optional",
-			input:         "not-an-optional",
-			shouldSucceed: false,
-			shouldError:   true,
-		},
+	messages := []string{
+		matchers.BePresentFailureMessage,
+		matchers.NotBePresentFailureMessage,
+		matchers.BeEmptyFailureMessage,
+		matchers.NotBeEmptyFailureMessage,
+		matchers.HaveValueFailureMessage,
+		matchers.NotHaveValueFailureMessage,
 	}
 
-	for _, tc := range testCases {
-		tc := tc
-		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
-
-			matcher := BeEmpty[string]()
-			success, err := matcher.Match(tc.input)
-
-			if success != tc.shouldSucceed {
-				t.Errorf("expected success to be %v, but got %v", tc.shouldSucceed, success)
+	for i, msg1 := range messages {
+		for j, msg2 := range messages {
+			if i == j {
+				continue
 			}
-
-			if tc.shouldError && err == nil {
-				t.Errorf("expected an error, but got none")
-			}
-			if !tc.shouldError && err != nil {
-				t.Errorf("did not expect an error, but got: %v", err)
-			}
-		})
-	}
-}
-
-func TestHaveValue(t *testing.T) {
-	t.Parallel()
-
-	testCases := []struct {
-		name          string
-		input         any
-		expectedValue any
-		shouldSucceed bool
-		shouldError   bool
-	}{
-		{
-			name:          "when the optional has the expected value",
-			input:         optional.Some("hello"),
-			expectedValue: "hello",
-			shouldSucceed: true,
-			shouldError:   false,
-		},
-		{
-			name:          "when the optional has a different value",
-			input:         optional.Some("world"),
-			expectedValue: "hello",
-			shouldSucceed: false,
-			shouldError:   false,
-		},
-		{
-			name:          "when the optional is empty",
-			input:         optional.Empty[string](),
-			expectedValue: "hello",
-			shouldSucceed: false,
-			shouldError:   false,
-		},
-		{
-			name:          "when the actual is not an optional",
-			input:         "not-an-optional",
-			expectedValue: "hello",
-			shouldSucceed: false,
-			shouldError:   true,
-		},
-	}
-
-	for _, tc := range testCases {
-		tc := tc
-		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
-
-			matcher := HaveValue[string](tc.expectedValue.(string))
-			success, err := matcher.Match(tc.input)
-
-			if success != tc.shouldSucceed {
-				t.Errorf("expected success to be %v, but got %v", tc.shouldSucceed, success)
-			}
-
-			if tc.shouldError && err == nil {
-				t.Errorf("expected an error, but got none")
-			}
-			if !tc.shouldError && err != nil {
-				t.Errorf("did not expect an error, but got: %v", err)
-			}
-		})
+			g.Expect(strings.Contains(msg1, msg2)).To(BeFalse(), "failure messages should not be substrings of each other: '%s' contains '%s'", msg1, msg2)
+		}
 	}
 }
