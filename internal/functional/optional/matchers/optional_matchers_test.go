@@ -23,6 +23,7 @@ func TestMatchers(t *testing.T) {
 		shouldFail  bool
 		expectedMsg string
 	}{
+		// BePresent
 		{
 			name:       "BePresent succeeds for present optional",
 			input:      optional.Some("hello"),
@@ -49,6 +50,7 @@ func TestMatchers(t *testing.T) {
 			shouldFail:  true,
 			expectedMsg: matchers.NotBePresentFailureMessage,
 		},
+		// BeEmpty
 		{
 			name:       "BeEmpty succeeds for empty optional",
 			input:      optional.Empty[string](),
@@ -75,6 +77,7 @@ func TestMatchers(t *testing.T) {
 			shouldFail:  true,
 			expectedMsg: matchers.NotBeEmptyFailureMessage,
 		},
+		// HaveValue
 		{
 			name:       "HaveValue succeeds for optional with the same value",
 			input:      optional.Some("hello"),
