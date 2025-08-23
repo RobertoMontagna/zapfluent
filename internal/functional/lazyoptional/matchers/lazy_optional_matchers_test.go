@@ -23,7 +23,6 @@ func TestMatchers(t *testing.T) {
 		shouldFail  bool
 		expectedMsg string
 	}{
-		// BePresent
 		{
 			name:       "BePresent succeeds for present lazy optional",
 			input:      lazyoptional.Some("hello"),
@@ -50,7 +49,6 @@ func TestMatchers(t *testing.T) {
 			shouldFail:  true,
 			expectedMsg: matchers.NotBePresentFailureMessage,
 		},
-		// BeEmpty
 		{
 			name:       "BeEmpty succeeds for empty lazy optional",
 			input:      lazyoptional.Empty[string](),
@@ -77,7 +75,6 @@ func TestMatchers(t *testing.T) {
 			shouldFail:  true,
 			expectedMsg: matchers.NotBeEmptyFailureMessage,
 		},
-		// HaveValue
 		{
 			name:       "HaveValue succeeds for lazy optional with the same value",
 			input:      lazyoptional.Some("hello"),

@@ -67,7 +67,6 @@ func Bool(name string, value bool) TypedField[bool] {
 	)
 }
 
-// unexported helpers that were in the original files
 func boolTypeFns() typeFieldFunctions[bool] {
 	return typeFieldFunctions[bool]{
 		encodeFunc: func(encoder zapcore.ObjectEncoder, name string, value bool) error {

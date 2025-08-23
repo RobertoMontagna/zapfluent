@@ -10,9 +10,6 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-// MARK: Test Structs
-// =============================================================================
-
 type testObject struct {
 	value string
 }
@@ -31,227 +28,324 @@ func (t testComparableObject) MarshalLogObject(enc zapcore.ObjectEncoder) error 
 	return nil
 }
 
-// MARK: Tests
-// =============================================================================
-
 func TestString(t *testing.T) {
 	t.Parallel()
-	g := NewWithT(t)
 
-	t.Run("it creates a string field correctly", func(t *testing.T) {
-		// Arrange
-		field := core.String("my-key", "my-value")
-		enc := zapcore.NewMapObjectEncoder()
+	testCases := []struct {
+		name          string
+		field         core.TypedField[string]
+		expectedKey   string
+		expectedValue string
+		shouldBeEmpty bool
+	}{
+		{
+			name:          "it creates a string field correctly",
+			field:         core.String("my-key", "my-value"),
+			expectedKey:   "my-key",
+			expectedValue: "my-value",
+			shouldBeEmpty: false,
+		},
+		{
+			name:          "NonZero filter works correctly with non-zero value",
+			field:         core.String("non-zero-key", "value").NonZero(),
+			expectedKey:   "non-zero-key",
+			expectedValue: "value",
+			shouldBeEmpty: false,
+		},
+		{
+			name:          "NonZero filter works correctly with zero value",
+			field:         core.String("zero-key", "").NonZero(),
+			expectedKey:   "zero-key",
+			shouldBeEmpty: true,
+		},
+	}
 
-		// Act
-		err := field.Encode(enc)
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			g := NewWithT(t)
 
-		// Assert
-		g.Expect(err).ToNot(HaveOccurred())
-		g.Expect(enc.Fields).To(HaveKeyWithValue("my-key", "my-value"))
-		g.Expect(field.Name()).To(Equal("my-key"))
-	})
+			enc := zapcore.NewMapObjectEncoder()
+			err := tc.field.Encode(enc)
+			g.Expect(err).ToNot(HaveOccurred())
 
-	t.Run("NonZero filter works correctly", func(t *testing.T) {
-		// Arrange
-		zeroField := core.String("zero-key", "").NonZero()
-		nonZeroField := core.String("non-zero-key", "value").NonZero()
-		enc := zapcore.NewMapObjectEncoder()
-
-		// Act
-		err1 := zeroField.Encode(enc)
-		err2 := nonZeroField.Encode(enc)
-
-		// Assert
-		g.Expect(err1).ToNot(HaveOccurred())
-		g.Expect(err2).ToNot(HaveOccurred())
-		g.Expect(enc.Fields).ToNot(HaveKey("zero-key"))
-		g.Expect(enc.Fields).To(HaveKeyWithValue("non-zero-key", "value"))
-	})
+			if tc.shouldBeEmpty {
+				g.Expect(enc.Fields).ToNot(HaveKey(tc.expectedKey))
+			} else {
+				g.Expect(enc.Fields).To(HaveKeyWithValue(tc.expectedKey, tc.expectedValue))
+				g.Expect(tc.field.Name()).To(Equal(tc.expectedKey))
+			}
+		})
+	}
 }
 
 func TestInt(t *testing.T) {
 	t.Parallel()
-	g := NewWithT(t)
 
-	t.Run("it creates an int field correctly", func(t *testing.T) {
-		// Arrange
-		field := core.Int("my-key", 123)
-		enc := zapcore.NewMapObjectEncoder()
+	testCases := []struct {
+		name          string
+		field         core.TypedField[int]
+		expectedKey   string
+		expectedValue int
+		shouldBeEmpty bool
+	}{
+		{
+			name:          "it creates an int field correctly",
+			field:         core.Int("my-key", 123),
+			expectedKey:   "my-key",
+			expectedValue: 123,
+			shouldBeEmpty: false,
+		},
+		{
+			name:          "NonZero filter works correctly with non-zero value",
+			field:         core.Int("non-zero-key", 42).NonZero(),
+			expectedKey:   "non-zero-key",
+			expectedValue: 42,
+			shouldBeEmpty: false,
+		},
+		{
+			name:          "NonZero filter works correctly with zero value",
+			field:         core.Int("zero-key", 0).NonZero(),
+			expectedKey:   "zero-key",
+			shouldBeEmpty: true,
+		},
+	}
 
-		// Act
-		err := field.Encode(enc)
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			g := NewWithT(t)
 
-		// Assert
-		g.Expect(err).ToNot(HaveOccurred())
-		g.Expect(enc.Fields).To(HaveKeyWithValue("my-key", 123))
-		g.Expect(field.Name()).To(Equal("my-key"))
-	})
+			enc := zapcore.NewMapObjectEncoder()
+			err := tc.field.Encode(enc)
+			g.Expect(err).ToNot(HaveOccurred())
 
-	t.Run("NonZero filter works correctly", func(t *testing.T) {
-		// Arrange
-		zeroField := core.Int("zero-key", 0).NonZero()
-		nonZeroField := core.Int("non-zero-key", 42).NonZero()
-		enc := zapcore.NewMapObjectEncoder()
-
-		// Act
-		err1 := zeroField.Encode(enc)
-		err2 := nonZeroField.Encode(enc)
-
-		// Assert
-		g.Expect(err1).ToNot(HaveOccurred())
-		g.Expect(err2).ToNot(HaveOccurred())
-		g.Expect(enc.Fields).ToNot(HaveKey("zero-key"))
-		g.Expect(enc.Fields).To(HaveKeyWithValue("non-zero-key", 42))
-	})
+			if tc.shouldBeEmpty {
+				g.Expect(enc.Fields).ToNot(HaveKey(tc.expectedKey))
+			} else {
+				g.Expect(enc.Fields).To(HaveKeyWithValue(tc.expectedKey, tc.expectedValue))
+				g.Expect(tc.field.Name()).To(Equal(tc.expectedKey))
+			}
+		})
+	}
 }
 
 func TestInt8(t *testing.T) {
 	t.Parallel()
-	g := NewWithT(t)
 
-	t.Run("it creates an int8 field correctly", func(t *testing.T) {
-		// Arrange
-		field := core.Int8("my-key", 12)
-		enc := zapcore.NewMapObjectEncoder()
+	testCases := []struct {
+		name          string
+		field         core.TypedField[int8]
+		expectedKey   string
+		expectedValue int8
+		shouldBeEmpty bool
+	}{
+		{
+			name:          "it creates an int8 field correctly",
+			field:         core.Int8("my-key", 12),
+			expectedKey:   "my-key",
+			expectedValue: 12,
+			shouldBeEmpty: false,
+		},
+		{
+			name:          "NonZero filter works correctly with non-zero value",
+			field:         core.Int8("non-zero-key", 4).NonZero(),
+			expectedKey:   "non-zero-key",
+			expectedValue: 4,
+			shouldBeEmpty: false,
+		},
+		{
+			name:          "NonZero filter works correctly with zero value",
+			field:         core.Int8("zero-key", 0).NonZero(),
+			expectedKey:   "zero-key",
+			shouldBeEmpty: true,
+		},
+	}
 
-		// Act
-		err := field.Encode(enc)
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			g := NewWithT(t)
 
-		// Assert
-		g.Expect(err).ToNot(HaveOccurred())
-		g.Expect(enc.Fields).To(HaveKeyWithValue("my-key", int8(12)))
-		g.Expect(field.Name()).To(Equal("my-key"))
-	})
+			enc := zapcore.NewMapObjectEncoder()
+			err := tc.field.Encode(enc)
+			g.Expect(err).ToNot(HaveOccurred())
 
-	t.Run("NonZero filter works correctly", func(t *testing.T) {
-		// Arrange
-		zeroField := core.Int8("zero-key", 0).NonZero()
-		nonZeroField := core.Int8("non-zero-key", 4).NonZero()
-		enc := zapcore.NewMapObjectEncoder()
-
-		// Act
-		err1 := zeroField.Encode(enc)
-		err2 := nonZeroField.Encode(enc)
-
-		// Assert
-		g.Expect(err1).ToNot(HaveOccurred())
-		g.Expect(err2).ToNot(HaveOccurred())
-		g.Expect(enc.Fields).ToNot(HaveKey("zero-key"))
-		g.Expect(enc.Fields).To(HaveKeyWithValue("non-zero-key", int8(4)))
-	})
+			if tc.shouldBeEmpty {
+				g.Expect(enc.Fields).ToNot(HaveKey(tc.expectedKey))
+			} else {
+				g.Expect(enc.Fields).To(HaveKeyWithValue(tc.expectedKey, tc.expectedValue))
+				g.Expect(tc.field.Name()).To(Equal(tc.expectedKey))
+			}
+		})
+	}
 }
 
 func TestObject(t *testing.T) {
 	t.Parallel()
-	g := NewWithT(t)
 
-	t.Run("it creates an object field correctly", func(t *testing.T) {
-		// Arrange
-		obj := &testObject{value: "test"}
-		field := core.Object("my-key", obj, func(o *testObject) bool { return o != nil && o.value != "" })
-		enc := zapcore.NewMapObjectEncoder()
+	isNonZero := func(o *testObject) bool { return o != nil && o.value != "" }
 
-		// Act
-		err := field.Encode(enc)
+	testCases := []struct {
+		name          string
+		field         core.TypedField[*testObject]
+		expectedKey   string
+		expectedValue any
+		shouldBeEmpty bool
+	}{
+		{
+			name:        "it creates an object field correctly",
+			field:       core.Object("my-key", &testObject{value: "test"}, isNonZero),
+			expectedKey: "my-key",
+			expectedValue: map[string]interface{}{
+				"value": "test",
+			},
+			shouldBeEmpty: false,
+		},
+		{
+			name:        "NonZero filter works correctly with non-zero value",
+			field:       core.Object("non-zero-key", &testObject{value: "value"}, isNonZero).NonZero(),
+			expectedKey: "non-zero-key",
+			expectedValue: map[string]interface{}{
+				"value": "value",
+			},
+			shouldBeEmpty: false,
+		},
+		{
+			name:          "NonZero filter works correctly with zero value",
+			field:         core.Object("zero-key", &testObject{value: ""}, isNonZero).NonZero(),
+			expectedKey:   "zero-key",
+			shouldBeEmpty: true,
+		},
+	}
 
-		// Assert
-		g.Expect(err).ToNot(HaveOccurred())
-		g.Expect(enc.Fields).To(HaveKey("my-key"))
-		g.Expect(enc.Fields["my-key"]).To(Equal(map[string]interface{}{"value": "test"}))
-		g.Expect(field.Name()).To(Equal("my-key"))
-	})
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			g := NewWithT(t)
 
-	t.Run("NonZero filter works correctly", func(t *testing.T) {
-		// Arrange
-		isNonZero := func(o *testObject) bool { return o != nil && o.value != "" }
-		zeroField := core.Object("zero-key", &testObject{value: ""}, isNonZero).NonZero()
-		nonZeroField := core.Object("non-zero-key", &testObject{value: "value"}, isNonZero).NonZero()
-		enc := zapcore.NewMapObjectEncoder()
+			enc := zapcore.NewMapObjectEncoder()
+			err := tc.field.Encode(enc)
+			g.Expect(err).ToNot(HaveOccurred())
 
-		// Act
-		err1 := zeroField.Encode(enc)
-		err2 := nonZeroField.Encode(enc)
-
-		// Assert
-		g.Expect(err1).ToNot(HaveOccurred())
-		g.Expect(err2).ToNot(HaveOccurred())
-		g.Expect(enc.Fields).ToNot(HaveKey("zero-key"))
-		g.Expect(enc.Fields).To(HaveKey("non-zero-key"))
-	})
+			if tc.shouldBeEmpty {
+				g.Expect(enc.Fields).ToNot(HaveKey(tc.expectedKey))
+			} else {
+				g.Expect(enc.Fields).To(HaveKeyWithValue(tc.expectedKey, tc.expectedValue))
+				g.Expect(tc.field.Name()).To(Equal(tc.expectedKey))
+			}
+		})
+	}
 }
 
 func TestBool(t *testing.T) {
 	t.Parallel()
-	g := NewWithT(t)
 
-	t.Run("it creates a bool field correctly", func(t *testing.T) {
-		// Arrange
-		field := core.Bool("my-key", true)
-		enc := zapcore.NewMapObjectEncoder()
+	testCases := []struct {
+		name          string
+		field         core.TypedField[bool]
+		expectedKey   string
+		expectedValue bool
+		shouldBeEmpty bool
+	}{
+		{
+			name:          "it creates a bool field correctly",
+			field:         core.Bool("my-key", true),
+			expectedKey:   "my-key",
+			expectedValue: true,
+			shouldBeEmpty: false,
+		},
+		{
+			name:          "NonZero filter works correctly with non-zero value",
+			field:         core.Bool("non-zero-key", true).NonZero(),
+			expectedKey:   "non-zero-key",
+			expectedValue: true,
+			shouldBeEmpty: false,
+		},
+		{
+			name:          "NonZero filter works correctly with zero value",
+			field:         core.Bool("zero-key", false).NonZero(),
+			expectedKey:   "zero-key",
+			shouldBeEmpty: true,
+		},
+	}
 
-		// Act
-		err := field.Encode(enc)
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			g := NewWithT(t)
 
-		// Assert
-		g.Expect(err).ToNot(HaveOccurred())
-		g.Expect(enc.Fields).To(HaveKeyWithValue("my-key", true))
-		g.Expect(field.Name()).To(Equal("my-key"))
-	})
+			enc := zapcore.NewMapObjectEncoder()
+			err := tc.field.Encode(enc)
+			g.Expect(err).ToNot(HaveOccurred())
 
-	t.Run("NonZero filter works correctly", func(t *testing.T) {
-		// Arrange
-		zeroField := core.Bool("zero-key", false).NonZero()
-		nonZeroField := core.Bool("non-zero-key", true).NonZero()
-		enc := zapcore.NewMapObjectEncoder()
-
-		// Act
-		err1 := zeroField.Encode(enc)
-		err2 := nonZeroField.Encode(enc)
-
-		// Assert
-		g.Expect(err1).ToNot(HaveOccurred())
-		g.Expect(err2).ToNot(HaveOccurred())
-		g.Expect(enc.Fields).ToNot(HaveKey("zero-key"))
-		g.Expect(enc.Fields).To(HaveKeyWithValue("non-zero-key", true))
-	})
+			if tc.shouldBeEmpty {
+				g.Expect(enc.Fields).ToNot(HaveKey(tc.expectedKey))
+			} else {
+				g.Expect(enc.Fields).To(HaveKeyWithValue(tc.expectedKey, tc.expectedValue))
+				g.Expect(tc.field.Name()).To(Equal(tc.expectedKey))
+			}
+		})
+	}
 }
 
 func TestComparableObject(t *testing.T) {
 	t.Parallel()
-	g := NewWithT(t)
 
-	t.Run("it creates a comparable object field correctly", func(t *testing.T) {
-		// Arrange
-		obj := testComparableObject{value: "test"}
-		field := core.ComparableObject("my-key", obj)
-		enc := zapcore.NewMapObjectEncoder()
+	testCases := []struct {
+		name          string
+		field         core.TypedField[testComparableObject]
+		expectedKey   string
+		expectedValue any
+		shouldBeEmpty bool
+	}{
+		{
+			name:        "it creates a comparable object field correctly",
+			field:       core.ComparableObject("my-key", testComparableObject{value: "test"}),
+			expectedKey: "my-key",
+			expectedValue: map[string]interface{}{
+				"value": "test",
+			},
+			shouldBeEmpty: false,
+		},
+		{
+			name:        "NonZero filter works correctly with non-zero value",
+			field:       core.ComparableObject("non-zero-key", testComparableObject{value: "value"}).NonZero(),
+			expectedKey: "non-zero-key",
+			expectedValue: map[string]interface{}{
+				"value": "value",
+			},
+			shouldBeEmpty: false,
+		},
+		{
+			name:          "NonZero filter works correctly with zero value",
+			field:         core.ComparableObject("zero-key", testComparableObject{}).NonZero(),
+			expectedKey:   "zero-key",
+			shouldBeEmpty: true,
+		},
+	}
 
-		// Act
-		err := field.Encode(enc)
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			g := NewWithT(t)
 
-		// Assert
-		g.Expect(err).ToNot(HaveOccurred())
-		g.Expect(enc.Fields).To(HaveKey("my-key"))
-		g.Expect(enc.Fields["my-key"]).To(Equal(map[string]interface{}{"value": "test"}))
-		g.Expect(field.Name()).To(Equal("my-key"))
-	})
+			enc := zapcore.NewMapObjectEncoder()
+			err := tc.field.Encode(enc)
+			g.Expect(err).ToNot(HaveOccurred())
 
-	t.Run("NonZero filter works correctly", func(t *testing.T) {
-		// Arrange
-		var zeroValue testComparableObject
-		zeroField := core.ComparableObject("zero-key", zeroValue).NonZero()
-		nonZeroField := core.ComparableObject("non-zero-key", testComparableObject{value: "value"}).NonZero()
-		enc := zapcore.NewMapObjectEncoder()
-
-		// Act
-		err1 := zeroField.Encode(enc)
-		err2 := nonZeroField.Encode(enc)
-
-		// Assert
-		g.Expect(err1).ToNot(HaveOccurred())
-		g.Expect(err2).ToNot(HaveOccurred())
-		g.Expect(enc.Fields).ToNot(HaveKey("zero-key"))
-		g.Expect(enc.Fields).To(HaveKey("non-zero-key"))
-	})
+			if tc.shouldBeEmpty {
+				g.Expect(enc.Fields).ToNot(HaveKey(tc.expectedKey))
+			} else {
+				g.Expect(enc.Fields).To(HaveKeyWithValue(tc.expectedKey, tc.expectedValue))
+				g.Expect(tc.field.Name()).To(Equal(tc.expectedKey))
+			}
+		})
+	}
 }

@@ -1,8 +1,4 @@
-// Package optional provides a generic, eager implementation of an Optional type.
 package optional
-
-// This file contains lifting functions that convert functions returning pointers
-// or errors into functions that return an Optional.
 
 // LiftToOptional converts a function that returns a pointer into a function
 // that returns an Optional. If the pointer is nil, the optional is empty.
