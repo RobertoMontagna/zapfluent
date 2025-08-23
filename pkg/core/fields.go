@@ -58,7 +58,27 @@ func ComparableObject[T Comparable](name string, value T) TypedField[T] {
 	})
 }
 
-// unexported helpers that were in the original files
+// Bool returns a new field with a bool value.
+func Bool(name string, value bool) TypedField[bool] {
+	return newTypedField(
+		boolTypeFns(),
+		name,
+		value,
+	)
+}
+
+func boolTypeFns() typeFieldFunctions[bool] {
+	return typeFieldFunctions[bool]{
+		encodeFunc: func(encoder zapcore.ObjectEncoder, name string, value bool) error {
+			encoder.AddBool(name, value)
+			return nil
+		},
+		isNonZero: func(b bool) bool {
+			return b
+		},
+	}
+}
+
 func stringTypeFns() typeFieldFunctions[string] {
 	return typeFieldFunctions[string]{
 		encodeFunc: func(encoder zapcore.ObjectEncoder, name string, value string) error {

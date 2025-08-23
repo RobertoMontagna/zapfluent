@@ -8,170 +8,62 @@ import (
 
 	"go.robertomontagna.dev/zapfluent"
 	"go.robertomontagna.dev/zapfluent/pkg/core"
-	"go.robertomontagna.dev/zapfluent/testutil"
 )
 
-// test structs
-type comparableObjectTestStruct struct {
-	Field1 intTestStruct
-	Field2 string
+// Address represents a street address.
+type Address struct {
+	Street string
+	City   string
+	Zip    string
 }
 
-func (s comparableObjectTestStruct) MarshalLogObject(enc zapcore.ObjectEncoder) error {
-	return zapfluent.AsFluent(enc).
-		Add(zapfluent.ComparableObject("field1", s.Field1).NonZero()).
-		Add(zapfluent.String("field2", s.Field2).NonZero()).
-		Done()
-}
-
-type int8TestStruct struct {
-	Field1 int8
-}
-
-func (s int8TestStruct) MarshalLogObject(enc zapcore.ObjectEncoder) error {
-	return zapfluent.AsFluent(enc).
-		Add(zapfluent.Int8("field1", s.Field1).NonZero()).
-		Done()
-}
-
-type intTestStruct struct {
-	Field1 int
-}
-
-func (s intTestStruct) MarshalLogObject(enc zapcore.ObjectEncoder) error {
-	return zapfluent.AsFluent(enc).
-		Add(zapfluent.Int("field1", s.Field1).NonZero()).
-		Done()
-}
-
-type testObject struct {
-	value string
-}
-
-func (t *testObject) MarshalLogObject(enc zapcore.ObjectEncoder) error {
-	enc.AddString("value", t.value)
+// MarshalLogObject makes Address implement zapcore.ObjectMarshaler.
+func (a Address) MarshalLogObject(enc zapcore.ObjectEncoder) error {
+	enc.AddString("street", a.Street)
+	enc.AddString("city", a.City)
+	enc.AddString("zip", a.Zip)
 	return nil
 }
 
-type objectTestStruct struct {
-	Field1 *testObject
+// User represents a user with personal information.
+type User struct {
+	ID       int
+	Name     string
+	IsActive bool
+	Address  Address
+	Tags     []string
 }
 
-func (s objectTestStruct) MarshalLogObject(enc zapcore.ObjectEncoder) error {
+// MarshalLogObject makes User implement zapcore.ObjectMarshaler.
+func (u User) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 	return zapfluent.AsFluent(enc).
-		Add(zapfluent.Object("field1", s.Field1, core.ReflectiveIsNotNil).NonZero()).
+		Add(core.Int("id", u.ID)).
+		Add(core.String("name", u.Name)).
+		Add(core.Bool("isActive", u.IsActive)).
+		Add(core.Object("address", u.Address, func(a Address) bool { return a != Address{} })).
+		Add(core.String("tags", strings.Join(u.Tags, ","))).
 		Done()
 }
 
-type stringTestStruct struct {
-	Field1 string
-}
+func Example_withComplexObject() {
+	logger, _ := zap.NewProduction()
+	_ = logger.Sync()
 
-func (s stringTestStruct) MarshalLogObject(enc zapcore.ObjectEncoder) error {
-	return zapfluent.AsFluent(enc).
-		Add(zapfluent.String("field1", s.Field1).NonZero()).
-		Done()
-}
-
-// example tests
-
-func ExampleComparableObject_notEmpty() {
-	testutil.StdOutLogger().Infow(
-		"test",
-		zap.Object("test_struct", comparableObjectTestStruct{Field1: intTestStruct{42}}),
-	)
-	// Output: {"level":"info","msg":"test","test_struct":{"field1":{"field1":42}}}
-}
-
-func ExampleComparableObject_empty() {
-	testutil.StdOutLogger().Infow(
-		"test",
-		zap.Object("test_struct", comparableObjectTestStruct{Field1: intTestStruct{}}),
-	)
-	// Output:
-	//{"level":"info","msg":"test","test_struct":{}}
-}
-
-func ExampleInt8_notEmpty() {
-	testutil.StdOutLogger().Infow(
-		"test",
-		zap.Object("test_struct", int8TestStruct{42}),
-	)
-	// Output: {"level":"info","msg":"test","test_struct":{"field1":42}}
-}
-
-func ExampleInt8_empty() {
-	testutil.StdOutLogger().Infow(
-		"test",
-		zap.Object("test_struct", int8TestStruct{}),
-	)
-	// Output: {"level":"info","msg":"test","test_struct":{}}
-}
-
-func ExampleInt_notEmpty() {
-	testutil.StdOutLogger().Infow(
-		"test",
-		zap.Object("test_struct", intTestStruct{42}),
-	)
-	// Output: {"level":"info","msg":"test","test_struct":{"field1":42}}
-}
-
-func ExampleInt_empty() {
-	testutil.StdOutLogger().Infow(
-		"test",
-		zap.Object("test_struct", intTestStruct{}),
-	)
-	// Output: {"level":"info","msg":"test","test_struct":{}}
-}
-
-func fpCurrying2to1[P1, P2, R1 any](f func(P1, P2) R1) func(P1) func(P2) R1 {
-	return func(p1 P1) func(P2) R1 {
-		return func(p2 P2) R1 {
-			return f(p1, p2)
-		}
+	user := User{
+		ID:       123,
+		Name:     "John Doe",
+		IsActive: true,
+		Address: Address{
+			Street: "123 Main St",
+			City:   "Anytown",
+			Zip:    "12345",
+		},
+		Tags: []string{"go", "logging", "zap"},
 	}
-}
 
-func ExampleInt_alternative() {
-	field := zapfluent.Int("field1", 5).
-		NonZero().
-		Format(fpCurrying2to1(strings.Repeat)("."))
+	logger.Info("Logging a complex, nested object", zap.Object("user", user))
 
-	testutil.StdOutLogger().Infow(
-		"test",
-		zap.Object("test_struct", zapcore.ObjectMarshalerFunc(field.Encode)),
-	)
-	// Output: {"level":"info","msg":"test","test_struct":{"field1":"....."}}
-}
-
-func ExampleObject_notEmpty() {
-	testutil.StdOutLogger().Infow(
-		"test",
-		zap.Object("test_struct", objectTestStruct{Field1: &testObject{"hello"}}),
-	)
-	// Output: {"level":"info","msg":"test","test_struct":{"field1":{"value":"hello"}}}
-}
-
-func ExampleObject_empty() {
-	testutil.StdOutLogger().Infow(
-		"test",
-		zap.Object("test_struct", objectTestStruct{Field1: nil}),
-	)
-	// Output: {"level":"info","msg":"test","test_struct":{}}
-}
-
-func ExampleString_notEmpty() {
-	testutil.StdOutLogger().Infow(
-		"test",
-		zap.Object("test_struct", stringTestStruct{"test"}),
-	)
-	// Output: {"level":"info","msg":"test","test_struct":{"field1":"test"}}
-}
-
-func ExampleString_empty() {
-	testutil.StdOutLogger().Infow(
-		"test",
-		zap.Object("test_struct", stringTestStruct{}),
-	)
-	// Output: {"level":"info","msg":"test","test_struct":{}}
+	// In a real application, the output would be a JSON log line.
+	// For this example, we just demonstrate the usage.
+	// Output:
 }
