@@ -67,9 +67,10 @@ func TestString(t *testing.T) {
 			g := NewWithT(t)
 
 			enc := zapcore.NewMapObjectEncoder()
-			err := tc.field.Encode(enc)
-			g.Expect(err).ToNot(HaveOccurred())
 
+			err := tc.field.Encode(enc)
+
+			g.Expect(err).ToNot(HaveOccurred())
 			if tc.shouldBeEmpty {
 				g.Expect(enc.Fields).ToNot(HaveKey(tc.expectedKey))
 			} else {
@@ -119,9 +120,10 @@ func TestInt(t *testing.T) {
 			g := NewWithT(t)
 
 			enc := zapcore.NewMapObjectEncoder()
-			err := tc.field.Encode(enc)
-			g.Expect(err).ToNot(HaveOccurred())
 
+			err := tc.field.Encode(enc)
+
+			g.Expect(err).ToNot(HaveOccurred())
 			if tc.shouldBeEmpty {
 				g.Expect(enc.Fields).ToNot(HaveKey(tc.expectedKey))
 			} else {
@@ -171,9 +173,10 @@ func TestInt8(t *testing.T) {
 			g := NewWithT(t)
 
 			enc := zapcore.NewMapObjectEncoder()
-			err := tc.field.Encode(enc)
-			g.Expect(err).ToNot(HaveOccurred())
 
+			err := tc.field.Encode(enc)
+
+			g.Expect(err).ToNot(HaveOccurred())
 			if tc.shouldBeEmpty {
 				g.Expect(enc.Fields).ToNot(HaveKey(tc.expectedKey))
 			} else {
@@ -229,9 +232,10 @@ func TestObject(t *testing.T) {
 			g := NewWithT(t)
 
 			enc := zapcore.NewMapObjectEncoder()
-			err := tc.field.Encode(enc)
-			g.Expect(err).ToNot(HaveOccurred())
 
+			err := tc.field.Encode(enc)
+
+			g.Expect(err).ToNot(HaveOccurred())
 			if tc.shouldBeEmpty {
 				g.Expect(enc.Fields).ToNot(HaveKey(tc.expectedKey))
 			} else {
@@ -281,9 +285,10 @@ func TestBool(t *testing.T) {
 			g := NewWithT(t)
 
 			enc := zapcore.NewMapObjectEncoder()
-			err := tc.field.Encode(enc)
-			g.Expect(err).ToNot(HaveOccurred())
 
+			err := tc.field.Encode(enc)
+
+			g.Expect(err).ToNot(HaveOccurred())
 			if tc.shouldBeEmpty {
 				g.Expect(enc.Fields).ToNot(HaveKey(tc.expectedKey))
 			} else {
@@ -337,9 +342,10 @@ func TestComparableObject(t *testing.T) {
 			g := NewWithT(t)
 
 			enc := zapcore.NewMapObjectEncoder()
-			err := tc.field.Encode(enc)
-			g.Expect(err).ToNot(HaveOccurred())
 
+			err := tc.field.Encode(enc)
+
+			g.Expect(err).ToNot(HaveOccurred())
 			if tc.shouldBeEmpty {
 				g.Expect(enc.Fields).ToNot(HaveKey(tc.expectedKey))
 			} else {
