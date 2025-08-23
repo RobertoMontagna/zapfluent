@@ -13,6 +13,9 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v4
+        with:
+          # Disabling shallow clone is recommended for improving the accuracy of SonarQube analysis
+          fetch-depth: 0
 
       - name: Set up Go
         uses: actions/setup-go@v5
@@ -40,3 +43,14 @@ jobs:
         uses: codecov/test-results-action@v1
         with:
           files: ./report.xml
+
+      # We recommend to only run the SonarQube analysis on the main branch.
+      # For more details, see: https://docs.sonarsource.com/sonarqube/latest/devops-platform-integration/github-integration/
+      - name: SonarQube Scan
+        if: ${{ github.ref == 'refs/heads/main' }}
+        uses: SonarSource/sonarqube-scan-action@v4
+        env:
+          # You need to create these secrets in your repository settings.
+          # SONAR_HOST_URL should be set to https://sonarcloud.io for SonarCloud.
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
