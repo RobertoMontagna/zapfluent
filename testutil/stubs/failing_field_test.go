@@ -15,19 +15,49 @@ var (
 	errTest = errors.New("test error")
 )
 
-func TestFailingField_NewFailingField(t *testing.T) {
+func TestFailingField_NewFailingField_ShouldReturnFieldWithDefaultValues(t *testing.T) {
+	g := NewWithT(t)
+	sut := stubs.NewFailingFieldForTest()
+
+	g.Expect(sut.Name()).To(Equal("error"))
+	g.Expect(sut.Encode(zapcore.NewMapObjectEncoder())).To(MatchError("unspecified error"))
+}
+
+func TestFailingField_NewFailingField_ShouldReturnFieldWithSpecifiedValues(t *testing.T) {
 	g := NewWithT(t)
 	fieldName := "test-field"
 
-	result := stubs.NewFailingFieldForTest(fieldName, errTest)
+	sut := stubs.NewFailingFieldForTest(
+		stubs.WithName(fieldName),
+		stubs.WithError(errTest),
+	)
 
-	g.Expect(result.FieldName).To(Equal(fieldName))
-	g.Expect(result.Err).To(MatchError(errTest))
+	g.Expect(sut.Name()).To(Equal(fieldName))
+	g.Expect(sut.Encode(zapcore.NewMapObjectEncoder())).To(MatchError(errTest))
+}
+
+func TestFailingField_WithName_ShouldPanicIfNameIsEmpty(t *testing.T) {
+	g := NewWithT(t)
+
+	g.Expect(func() {
+		stubs.NewFailingFieldForTest(stubs.WithName(""))
+	}).To(PanicWith("name cannot be empty"))
+}
+
+func TestFailingField_WithError_ShouldPanicIfErrorIsNil(t *testing.T) {
+	g := NewWithT(t)
+
+	g.Expect(func() {
+		stubs.NewFailingFieldForTest(stubs.WithError(nil))
+	}).To(PanicWith("error cannot be nil"))
 }
 
 func TestFailingField_Encode(t *testing.T) {
 	g := NewWithT(t)
-	sut := stubs.NewFailingFieldForTest("test-field", errTest)
+	sut := stubs.NewFailingFieldForTest(
+		stubs.WithName("test-field"),
+		stubs.WithError(errTest),
+	)
 
 	result := sut.Encode(zapcore.NewMapObjectEncoder())
 
@@ -37,28 +67,12 @@ func TestFailingField_Encode(t *testing.T) {
 func TestFailingField_Name(t *testing.T) {
 	g := NewWithT(t)
 
-	tests := []struct {
-		name         string
-		sut          stubs.FailingFieldForTest
-		expectedName string
-	}{
-		{
-			name:         "should return the configured name",
-			sut:          stubs.NewFailingFieldForTest("test-field", nil),
-			expectedName: "test-field",
-		},
-		{
-			name:         "should return 'error' if the name is empty",
-			sut:          stubs.NewFailingFieldForTest("", nil),
-			expectedName: "error",
-		},
-	}
+	sut := stubs.NewFailingFieldForTest(
+		stubs.WithName("test-field"),
+		stubs.WithError(errTest),
+	)
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			result := tt.sut.Name()
+	result := sut.Name()
 
-			g.Expect(result).To(Equal(tt.expectedName))
-		})
-	}
+	g.Expect(result).To(Equal("test-field"))
 }

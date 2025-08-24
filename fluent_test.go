@@ -24,6 +24,19 @@ var (
 	testFieldName2    = "field2"
 	testFailingField  = "failing_field"
 	testFallbackValue = "fallback-value"
+
+	failingField1 = stubs.NewFailingFieldForTest(
+		stubs.WithName(testFieldName1),
+		stubs.WithError(errTest1),
+	)
+	failingField2 = stubs.NewFailingFieldForTest(
+		stubs.WithName(testFieldName2),
+		stubs.WithError(errTest2),
+	)
+	originalFailingField = stubs.NewFailingFieldForTest(
+		stubs.WithName(testFailingField),
+		stubs.WithError(errOriginal),
+	)
 )
 
 func TestFluent_Done_WithMultipleErrors_AggregatesErrors(t *testing.T) {
@@ -34,8 +47,8 @@ func TestFluent_Done_WithMultipleErrors_AggregatesErrors(t *testing.T) {
 	))
 
 	err := fluent.
-		Add(stubs.NewFailingFieldForTest(testFieldName1, errTest1)).
-		Add(stubs.NewFailingFieldForTest(testFieldName2, errTest2)).
+		Add(failingField1).
+		Add(failingField2).
 		Done()
 
 	g.Expect(err).To(MatchError(errTest1))
@@ -57,8 +70,8 @@ func TestFluent_ErrorHandling_EarlyFailing(t *testing.T) {
 	))
 
 	err := fluent.
-		Add(stubs.NewFailingFieldForTest(testFieldName1, errTest1)).
-		Add(stubs.NewFailingFieldForTest(testFieldName2, errTest2)).
+		Add(failingField1).
+		Add(failingField2).
 		Done()
 
 	g.Expect(err).To(MatchError(errTest1))
@@ -81,7 +94,7 @@ func TestFluent_WithFallback_ReplacesFailingFieldAndAggregatesError(t *testing.T
 	))
 
 	err := fluent.
-		Add(stubs.NewFailingFieldForTest(testFailingField, errOriginal)).
+		Add(originalFailingField).
 		Done()
 
 	g.Expect(err).To(MatchError(errOriginal))
@@ -94,7 +107,7 @@ func TestFluent_WithFailingFallback_LogsPredefinedErrorField(t *testing.T) {
 		core.WithErrorHandling(
 			core.NewErrorHandlingConfiguration(
 				core.WithFallbackFieldFactory(func(name string, err error) core.Field {
-					return stubs.NewFailingFieldForTest(name, errFallback)
+					return stubs.NewFailingFieldForTest(stubs.WithName(name), stubs.WithError(errFallback))
 				}),
 			),
 		),
@@ -106,7 +119,7 @@ func TestFluent_WithFailingFallback_LogsPredefinedErrorField(t *testing.T) {
 	))
 
 	err := fluent.
-		Add(stubs.NewFailingFieldForTest(testFailingField, errOriginal)).
+		Add(originalFailingField).
 		Done()
 
 	g.Expect(err).To(MatchError(errOriginal))
@@ -120,7 +133,7 @@ func TestFluent_WithFailingFallbackAndCustomMessage_LogsCustomMessage(t *testing
 		core.WithErrorHandling(
 			core.NewErrorHandlingConfiguration(
 				core.WithFallbackFieldFactory(func(name string, err error) core.Field {
-					return stubs.NewFailingFieldForTest(name, errFallback)
+					return stubs.NewFailingFieldForTest(stubs.WithName(name), stubs.WithError(errFallback))
 				}),
 				core.WithFallbackErrorMessage("custom message"),
 			),
@@ -133,7 +146,7 @@ func TestFluent_WithFailingFallbackAndCustomMessage_LogsCustomMessage(t *testing
 	))
 
 	err := fluent.
-		Add(stubs.NewFailingFieldForTest(testFailingField, errOriginal)).
+		Add(originalFailingField).
 		Done()
 
 	g.Expect(err).To(MatchError(errOriginal))
