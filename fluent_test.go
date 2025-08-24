@@ -39,8 +39,8 @@ func TestFluent_Done_WithMultipleErrors_AggregatesErrors(t *testing.T) {
 		Done()
 
 	g.Expect(err).To(HaveOccurred())
-	g.Expect(err.Error()).To(ContainSubstring(errTest1.Error()))
-	g.Expect(err.Error()).To(ContainSubstring(errTest2.Error()))
+	g.Expect(err).To(MatchError(errTest1))
+	g.Expect(err).To(MatchError(errTest2))
 }
 
 func TestFluent_ErrorHandling_EarlyFailing(t *testing.T) {
@@ -110,8 +110,8 @@ func TestFluent_WithFailingFallback_LogsPredefinedErrorField(t *testing.T) {
 		Done()
 
 	g.Expect(err).To(HaveOccurred())
-	g.Expect(err.Error()).To(ContainSubstring(errOriginal.Error()))
-	g.Expect(err.Error()).To(ContainSubstring(errFallback.Error()))
+	g.Expect(err).To(MatchError(errOriginal))
+	g.Expect(err).To(MatchError(errFallback))
 	g.Expect(enc.Fields).To(HaveKeyWithValue(testFailingField, "failed to encode fallback field"))
 }
 
@@ -138,8 +138,8 @@ func TestFluent_WithFailingFallbackAndCustomMessage_LogsCustomMessage(t *testing
 		Done()
 
 	g.Expect(err).To(HaveOccurred())
-	g.Expect(err.Error()).To(ContainSubstring(errOriginal.Error()))
-	g.Expect(err.Error()).To(ContainSubstring(errFallback.Error()))
+	g.Expect(err).To(MatchError(errOriginal))
+	g.Expect(err).To(MatchError(errFallback))
 	g.Expect(enc.Fields).To(HaveKeyWithValue(testFailingField, "custom message"))
 }
 

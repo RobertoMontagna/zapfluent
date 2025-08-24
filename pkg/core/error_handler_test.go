@@ -113,12 +113,9 @@ func TestErrorHandler_EncodeField_FallbackFails(t *testing.T) {
 
 	handler.EncodeField(stubs.NewFailingField("test", errInitial))()
 
-	// Can't use MatchError for aggregated errors as the message is combined.
-	// errors.Is is also not ideal if we want to check for all errors.
-	// Falling back to string checking for aggregated errors.
 	g.Expect(handler.AggregatedError()).To(HaveOccurred())
-	g.Expect(handler.AggregatedError().Error()).To(ContainSubstring(errInitial.Error()))
-	g.Expect(handler.AggregatedError().Error()).To(ContainSubstring(errFallback.Error()))
+	g.Expect(handler.AggregatedError()).To(MatchError(errInitial))
+	g.Expect(handler.AggregatedError()).To(MatchError(errFallback))
 	g.Expect(enc.Fields).To(HaveKeyWithValue("test", "failed to encode fallback field"))
 }
 
