@@ -18,28 +18,33 @@ var (
 
 func TestErrorHandler_ShouldSkip_ContinueMode(t *testing.T) {
 	g := NewWithT(t)
+
 	cfg := core.NewErrorHandlingConfiguration(core.WithMode(core.ErrorHandlingModeContinue))
 	handler := core.NewErrorHandler(&cfg, zapcore.NewMapObjectEncoder())
-
 	handler.EncodeField(stubs.NewFailingField("test", errTest1))()
 
-	g.Expect(handler.ShouldSkip()).To(BeFalse())
+	skip := handler.ShouldSkip()
+
+	g.Expect(skip).To(BeFalse())
 	g.Expect(handler.AggregatedError()).To(HaveOccurred())
 }
 
 func TestErrorHandler_ShouldSkip_EarlyFailingMode(t *testing.T) {
 	g := NewWithT(t)
+
 	cfg := core.NewErrorHandlingConfiguration(core.WithMode(core.ErrorHandlingModeEarlyFailing))
 	handler := core.NewErrorHandler(&cfg, zapcore.NewMapObjectEncoder())
-
 	handler.EncodeField(stubs.NewFailingField("test", errTest1))()
 
-	g.Expect(handler.ShouldSkip()).To(BeTrue())
+	skip := handler.ShouldSkip()
+
+	g.Expect(skip).To(BeTrue())
 	g.Expect(handler.AggregatedError()).To(HaveOccurred())
 }
 
 func TestErrorHandler_EncodeField_Success(t *testing.T) {
 	g := NewWithT(t)
+
 	cfg := core.NewErrorHandlingConfiguration()
 	handler := core.NewErrorHandler(&cfg, zapcore.NewMapObjectEncoder())
 
@@ -50,6 +55,7 @@ func TestErrorHandler_EncodeField_Success(t *testing.T) {
 
 func TestErrorHandler_EncodeField_FallbackSuccess(t *testing.T) {
 	g := NewWithT(t)
+
 	cfg := core.NewErrorHandlingConfiguration(core.WithFallbackFieldFactory(core.FixedStringFallback("fallback")))
 	enc := zapcore.NewMapObjectEncoder()
 	handler := core.NewErrorHandler(&cfg, enc)
@@ -63,6 +69,7 @@ func TestErrorHandler_EncodeField_FallbackSuccess(t *testing.T) {
 
 func TestErrorHandler_EncodeField_FallbackFails(t *testing.T) {
 	g := NewWithT(t)
+
 	errInitial := errors.New("initial encode error")
 	errFallback := errors.New("fallback encode error")
 	fallbackFactory := func(name string, err error) core.Field {
@@ -81,6 +88,7 @@ func TestErrorHandler_EncodeField_FallbackFails(t *testing.T) {
 
 func TestErrorHandler_EncodeField_EarlyFailingSkip(t *testing.T) {
 	g := NewWithT(t)
+
 	cfg := core.NewErrorHandlingConfiguration(core.WithMode(core.ErrorHandlingModeEarlyFailing))
 	enc := zapcore.NewMapObjectEncoder()
 	handler := core.NewErrorHandler(&cfg, enc)

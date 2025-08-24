@@ -28,6 +28,7 @@ var (
 
 func TestFluent_Done_WithMultipleErrors_AggregatesErrors(t *testing.T) {
 	g := NewWithT(t)
+
 	fluent := zapfluent.AsFluent(core.NewFluentEncoder(
 		testutil.NewDoNotEncodeEncoder(zapcore.NewMapObjectEncoder()),
 		core.NewConfiguration(),
@@ -44,6 +45,7 @@ func TestFluent_Done_WithMultipleErrors_AggregatesErrors(t *testing.T) {
 
 func TestFluent_ErrorHandling_EarlyFailing(t *testing.T) {
 	g := NewWithT(t)
+
 	cfg := core.NewConfiguration(
 		core.WithErrorHandling(
 			core.NewErrorHandlingConfiguration(
@@ -67,6 +69,7 @@ func TestFluent_ErrorHandling_EarlyFailing(t *testing.T) {
 
 func TestFluent_WithFallback_ReplacesFailingFieldAndAggregatesError(t *testing.T) {
 	g := NewWithT(t)
+
 	cfg := core.NewConfiguration(
 		core.WithErrorHandling(
 			core.NewErrorHandlingConfiguration(
@@ -90,6 +93,7 @@ func TestFluent_WithFallback_ReplacesFailingFieldAndAggregatesError(t *testing.T
 
 func TestFluent_WithFailingFallback_LogsPredefinedErrorField(t *testing.T) {
 	g := NewWithT(t)
+
 	cfg := core.NewConfiguration(
 		core.WithErrorHandling(
 			core.NewErrorHandlingConfiguration(
@@ -116,6 +120,7 @@ func TestFluent_WithFailingFallback_LogsPredefinedErrorField(t *testing.T) {
 
 func TestFluent_WithFailingFallbackAndCustomMessage_LogsCustomMessage(t *testing.T) {
 	g := NewWithT(t)
+
 	cfg := core.NewConfiguration(
 		core.WithErrorHandling(
 			core.NewErrorHandlingConfiguration(
@@ -143,6 +148,7 @@ func TestFluent_WithFailingFallbackAndCustomMessage_LogsCustomMessage(t *testing
 
 func TestAsFluent_WithFluentEncoder(t *testing.T) {
 	g := NewWithT(t)
+
 	fluentEncoder := core.NewFluentEncoder(
 		zapcore.NewJSONEncoder(zap.NewDevelopmentEncoderConfig()),
 		core.NewConfiguration(),
@@ -155,6 +161,10 @@ func TestAsFluent_WithFluentEncoder(t *testing.T) {
 
 func TestAsFluent_WithOtherEncoder(t *testing.T) {
 	g := NewWithT(t)
-	fluent := zapfluent.AsFluent(zapcore.NewJSONEncoder(zap.NewDevelopmentEncoderConfig()))
+
+	enc := zapcore.NewJSONEncoder(zap.NewDevelopmentEncoderConfig())
+
+	fluent := zapfluent.AsFluent(enc)
+
 	g.Expect(fluent).ToNot(BeNil())
 }
