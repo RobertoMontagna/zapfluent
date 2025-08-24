@@ -56,3 +56,4 @@ jobs:
             -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
             -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}
             -Dsonar.go.coverage.reportPaths=coverage.out
+            -Dsonar.test.inclusions=**/*_test.go
