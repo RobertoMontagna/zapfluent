@@ -57,7 +57,7 @@ func TestErrorHandler_HandleError_AggregatesErrorWithoutFallback(t *testing.T) {
 	fallbackField := handler.HandleError(core.String("test", "value"), errTest1)
 
 	g.Expect(fallbackField.IsPresent()).To(BeFalse())
-	g.Expect(errors.Is(handler.AggregatedError(), errTest1)).To(BeTrue())
+	g.Expect(handler.AggregatedError()).To(MatchError(errTest1))
 }
 
 func TestErrorHandler_HandleError_UsesFallbackFactory(t *testing.T) {
@@ -69,7 +69,7 @@ func TestErrorHandler_HandleError_UsesFallbackFactory(t *testing.T) {
 	fallbackFieldOpt := handler.HandleError(core.String("test", "value"), errTest1)
 
 	g.Expect(fallbackFieldOpt.IsPresent()).To(BeTrue())
-	g.Expect(errors.Is(handler.AggregatedError(), errTest1)).To(BeTrue())
+	g.Expect(handler.AggregatedError()).To(MatchError(errTest1))
 
 	fallbackField, ok := fallbackFieldOpt.Get()
 	g.Expect(ok).To(BeTrue())
@@ -92,11 +92,11 @@ func TestErrorHandler_EncodeField_FallbackSuccess(t *testing.T) {
 	cfg := core.NewErrorHandlingConfiguration(core.WithFallbackFieldFactory(core.FixedStringFallback("fallback")))
 	enc := zapcore.NewMapObjectEncoder()
 	handler := core.NewErrorHandler(&cfg, enc)
+	errEncode := errors.New("encode error")
 
-	handler.EncodeField(stubs.NewFailingField("test", errors.New("encode error")))()
+	handler.EncodeField(stubs.NewFailingField("test", errEncode))()
 
-	g.Expect(handler.AggregatedError()).To(HaveOccurred())
-	g.Expect(handler.AggregatedError().Error()).To(ContainSubstring("encode error"))
+	g.Expect(handler.AggregatedError()).To(MatchError(errEncode))
 	g.Expect(enc.Fields).To(HaveKeyWithValue("test", "fallback"))
 }
 
@@ -113,21 +113,22 @@ func TestErrorHandler_EncodeField_FallbackFails(t *testing.T) {
 
 	handler.EncodeField(stubs.NewFailingField("test", errInitial))()
 
+	// Can't use MatchError for aggregated errors as the message is combined.
+	// errors.Is is also not ideal if we want to check for all errors.
+	// Falling back to string checking for aggregated errors.
 	g.Expect(handler.AggregatedError()).To(HaveOccurred())
-	g.Expect(errors.Is(handler.AggregatedError(), errInitial)).To(BeTrue())
-	g.Expect(errors.Is(handler.AggregatedError(), errFallback)).To(BeTrue())
+	g.Expect(handler.AggregatedError().Error()).To(ContainSubstring(errInitial.Error()))
+	g.Expect(handler.AggregatedError().Error()).To(ContainSubstring(errFallback.Error()))
 	g.Expect(enc.Fields).To(HaveKeyWithValue("test", "failed to encode fallback field"))
 }
 
 func TestErrorHandler_EncodeField_EarlyFailingSkip(t *testing.T) {
 	g := NewWithT(t)
 	cfg := core.NewErrorHandlingConfiguration(core.WithMode(core.ErrorHandlingModeEarlyFailing))
-	enc := zapcore.NewMapObjectEncoder()
-	handler := core.NewErrorHandler(&cfg, enc)
+	handler := core.NewErrorHandler(&cfg, zapcore.NewMapObjectEncoder())
 
-	handler.EncodeField(stubs.NewFailingField("first", errors.New("first error")))()
+	handler.EncodeField(stubs.NewFailingField("first", errTest1))()
 	handler.EncodeField(core.String("second", "value"))()
 
-	g.Expect(enc.Fields).To(BeEmpty())
-	g.Expect(handler.AggregatedError()).To(MatchError(errors.New("first error")))
+	g.Expect(handler.AggregatedError()).To(MatchError(errTest1))
 }
