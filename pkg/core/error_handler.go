@@ -27,7 +27,7 @@ func (h *ErrorHandler) ShouldSkip() bool {
 	return h.cfg.Mode() == ErrorHandlingModeEarlyFailing && h.totalError != nil
 }
 
-func (h *ErrorHandler) HandleError(field Field, err error) optional.Optional[Field] {
+func (h *ErrorHandler) handleError(field Field, err error) optional.Optional[Field] {
 	if err == nil {
 		return optional.Empty[Field]()
 	}
@@ -46,9 +46,14 @@ type FieldEncodingErrorManager func()
 
 func (h *ErrorHandler) EncodeField(field Field) FieldEncodingErrorManager {
 	if h.ShouldSkip() {
-		return func() {}
+		return func() {
+			// This function is intentionally left empty.
+			// When the ErrorHandler is in EarlyFailing mode and an error has already occurred,
+			// subsequent field encoding operations should be skipped entirely.
+			// Returning a no-op function is the most efficient way to achieve this.
+		}
 	}
-	maybeFallbackField := h.HandleError(field, field.Encode(h.enc))
+	maybeFallbackField := h.handleError(field, field.Encode(h.enc))
 
 	return func() {
 		maybeEncodingError := optional.FlatMap(maybeFallbackField, h.encodeAndLift)

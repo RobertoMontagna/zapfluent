@@ -30,6 +30,7 @@ Once a plan is approved, I will follow this cycle for **each step** in the plan.
 *   **My Action:** I will write or modify the code as described in the current plan step.
 
 ### 2.2. Quality & Verification
+*   **My Action:** I will check for existing utilities or helpers before creating new ones to ensure code reusability and maintainability.
 *   **My Action:** After implementing the changes, I will run all required quality checks to ensure the code is correct and adheres to our standards. This always includes:
     *   `make test`
     *   `make lint-fix`
@@ -61,3 +62,9 @@ If your request is specifically to audit and refactor the entire codebase (as op
 > **Your Input:** Please choose how to proceed based on the report.
 > *   **(T)ackle <Area #>:** Tell me to start working on a specific area (e.g., `T 1` to tackle Testing). I will then begin at **Phase 1 (Task Intake & Planning)** for that specific area.
 > *   **(S)top:** End the audit process.
+
+---
+
+## Content Style Guide
+
+*   Always use lists (unordered or ordered) to define a rule.
