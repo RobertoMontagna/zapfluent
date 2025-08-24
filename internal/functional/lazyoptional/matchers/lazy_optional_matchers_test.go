@@ -120,7 +120,7 @@ func TestMatchers(t *testing.T) {
 			g := NewGomegaWithT(t)
 
 			if tc.shouldFail {
-				failures := testutil.InterceptGomegaFailures(g, func() {
+				failures := testutil.InterceptGomegaFailuresForTest(g, func() {
 					g.Expect(tc.input).To(tc.matcher)
 				})
 

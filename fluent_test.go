@@ -29,13 +29,13 @@ var (
 func TestFluent_Done_WithMultipleErrors_AggregatesErrors(t *testing.T) {
 	g := NewWithT(t)
 	fluent := zapfluent.AsFluent(core.NewFluentEncoder(
-		testutil.NewDoNotEncodeEncoder(zapcore.NewMapObjectEncoder()),
+		testutil.NewDoNotEncodeEncoderForTest(zapcore.NewMapObjectEncoder()),
 		core.NewConfiguration(),
 	))
 
 	err := fluent.
-		Add(stubs.NewFailingField(testFieldName1, errTest1)).
-		Add(stubs.NewFailingField(testFieldName2, errTest2)).
+		Add(stubs.NewFailingFieldForTest(testFieldName1, errTest1)).
+		Add(stubs.NewFailingFieldForTest(testFieldName2, errTest2)).
 		Done()
 
 	g.Expect(err).To(MatchError(errTest1))
@@ -52,13 +52,13 @@ func TestFluent_ErrorHandling_EarlyFailing(t *testing.T) {
 		),
 	)
 	fluent := zapfluent.AsFluent(core.NewFluentEncoder(
-		testutil.NewDoNotEncodeEncoder(zapcore.NewMapObjectEncoder()),
+		testutil.NewDoNotEncodeEncoderForTest(zapcore.NewMapObjectEncoder()),
 		cfg,
 	))
 
 	err := fluent.
-		Add(stubs.NewFailingField(testFieldName1, errTest1)).
-		Add(stubs.NewFailingField(testFieldName2, errTest2)).
+		Add(stubs.NewFailingFieldForTest(testFieldName1, errTest1)).
+		Add(stubs.NewFailingFieldForTest(testFieldName2, errTest2)).
 		Done()
 
 	g.Expect(err).To(MatchError(errTest1))
@@ -76,12 +76,12 @@ func TestFluent_WithFallback_ReplacesFailingFieldAndAggregatesError(t *testing.T
 	)
 	enc := zapcore.NewMapObjectEncoder()
 	fluent := zapfluent.AsFluent(core.NewFluentEncoder(
-		testutil.NewDoNotEncodeEncoder(enc),
+		testutil.NewDoNotEncodeEncoderForTest(enc),
 		cfg,
 	))
 
 	err := fluent.
-		Add(stubs.NewFailingField(testFailingField, errOriginal)).
+		Add(stubs.NewFailingFieldForTest(testFailingField, errOriginal)).
 		Done()
 
 	g.Expect(err).To(MatchError(errOriginal))
@@ -94,19 +94,19 @@ func TestFluent_WithFailingFallback_LogsPredefinedErrorField(t *testing.T) {
 		core.WithErrorHandling(
 			core.NewErrorHandlingConfiguration(
 				core.WithFallbackFieldFactory(func(name string, err error) core.Field {
-					return stubs.NewFailingField(name, errFallback)
+					return stubs.NewFailingFieldForTest(name, errFallback)
 				}),
 			),
 		),
 	)
 	enc := zapcore.NewMapObjectEncoder()
 	fluent := zapfluent.AsFluent(core.NewFluentEncoder(
-		testutil.NewDoNotEncodeEncoder(enc),
+		testutil.NewDoNotEncodeEncoderForTest(enc),
 		cfg,
 	))
 
 	err := fluent.
-		Add(stubs.NewFailingField(testFailingField, errOriginal)).
+		Add(stubs.NewFailingFieldForTest(testFailingField, errOriginal)).
 		Done()
 
 	g.Expect(err).To(MatchError(errOriginal))
@@ -120,7 +120,7 @@ func TestFluent_WithFailingFallbackAndCustomMessage_LogsCustomMessage(t *testing
 		core.WithErrorHandling(
 			core.NewErrorHandlingConfiguration(
 				core.WithFallbackFieldFactory(func(name string, err error) core.Field {
-					return stubs.NewFailingField(name, errFallback)
+					return stubs.NewFailingFieldForTest(name, errFallback)
 				}),
 				core.WithFallbackErrorMessage("custom message"),
 			),
@@ -128,12 +128,12 @@ func TestFluent_WithFailingFallbackAndCustomMessage_LogsCustomMessage(t *testing
 	)
 	enc := zapcore.NewMapObjectEncoder()
 	fluent := zapfluent.AsFluent(core.NewFluentEncoder(
-		testutil.NewDoNotEncodeEncoder(enc),
+		testutil.NewDoNotEncodeEncoderForTest(enc),
 		cfg,
 	))
 
 	err := fluent.
-		Add(stubs.NewFailingField(testFailingField, errOriginal)).
+		Add(stubs.NewFailingFieldForTest(testFailingField, errOriginal)).
 		Done()
 
 	g.Expect(err).To(MatchError(errOriginal))

@@ -77,7 +77,6 @@
 
 ## Testing
 
-*   **Use Semantic Assertions**: Strive to use the most semantically expressive assertion or matcher available for any given check. This makes the test's intent clearer at a glance and often leads to more robust tests. For example, when checking an error, `Expect(err).To(MatchError("..."))` is semantically richer than `Expect(err).To(Equal(someErrVar))`.
 * **AAA Unit Test Structure**
     * All unit tests must be structured following the **Arrange-Act-Assert** (AAA) pattern.
     * **Visual Separation**: The three sections of the test (Arrange, Act, and Assert) should be visually separated by a blank line. This is the preferred method for making the structure of the test immediately obvious to the reader.

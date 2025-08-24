@@ -14,14 +14,14 @@ func TestDoNotEncodeEncoder_NewDoNotEncodeEncoder(t *testing.T) {
 	g := NewWithT(t)
 	enc := zapcore.NewMapObjectEncoder()
 
-	result := testutil.NewDoNotEncodeEncoder(enc)
+	result := testutil.NewDoNotEncodeEncoderForTest(enc)
 
 	g.Expect(result.ObjectEncoder).To(Equal(enc))
 }
 
 func TestDoNotEncodeEncoder_Clone(t *testing.T) {
 	g := NewWithT(t)
-	sut := testutil.NewDoNotEncodeEncoder(zapcore.NewMapObjectEncoder())
+	sut := testutil.NewDoNotEncodeEncoderForTest(zapcore.NewMapObjectEncoder())
 
 	clone := sut.Clone()
 
@@ -30,7 +30,7 @@ func TestDoNotEncodeEncoder_Clone(t *testing.T) {
 
 func TestDoNotEncodeEncoder_EncodeEntry(t *testing.T) {
 	g := NewWithT(t)
-	sut := testutil.NewDoNotEncodeEncoder(zapcore.NewMapObjectEncoder())
+	sut := testutil.NewDoNotEncodeEncoderForTest(zapcore.NewMapObjectEncoder())
 
 	buffer, err := sut.EncodeEntry(zapcore.Entry{}, nil)
 

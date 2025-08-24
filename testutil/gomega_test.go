@@ -46,7 +46,7 @@ func TestInterceptGomegaFailures(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			failures := testutil.InterceptGomegaFailures(g, func() {
+			failures := testutil.InterceptGomegaFailuresForTest(g, func() {
 				tt.f(g)
 			})
 
@@ -66,7 +66,7 @@ func TestInterceptGomegaFailures_RestoresFailHandler(t *testing.T) {
 		g.Expect(true).To(BeFalse())
 	}
 
-	_ = testutil.InterceptGomegaFailures(g, f)
+	_ = testutil.InterceptGomegaFailuresForTest(g, f)
 
 	originalFailHandlerPtr := reflect.ValueOf(originalFailHandler).Pointer()
 	restoredFailHandlerPtr := reflect.ValueOf(g.Fail).Pointer()

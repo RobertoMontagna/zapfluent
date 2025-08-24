@@ -19,7 +19,7 @@ func TestFailingField_NewFailingField(t *testing.T) {
 	g := NewWithT(t)
 	fieldName := "test-field"
 
-	result := stubs.NewFailingField(fieldName, errTest)
+	result := stubs.NewFailingFieldForTest(fieldName, errTest)
 
 	g.Expect(result.FieldName).To(Equal(fieldName))
 	g.Expect(result.Err).To(MatchError(errTest))
@@ -27,7 +27,7 @@ func TestFailingField_NewFailingField(t *testing.T) {
 
 func TestFailingField_Encode(t *testing.T) {
 	g := NewWithT(t)
-	sut := stubs.NewFailingField("test-field", errTest)
+	sut := stubs.NewFailingFieldForTest("test-field", errTest)
 
 	result := sut.Encode(zapcore.NewMapObjectEncoder())
 
@@ -39,17 +39,17 @@ func TestFailingField_Name(t *testing.T) {
 
 	tests := []struct {
 		name         string
-		sut          stubs.FailingField
+		sut          stubs.FailingFieldForTest
 		expectedName string
 	}{
 		{
 			name:         "should return the configured name",
-			sut:          stubs.NewFailingField("test-field", nil),
+			sut:          stubs.NewFailingFieldForTest("test-field", nil),
 			expectedName: "test-field",
 		},
 		{
 			name:         "should return 'error' if the name is empty",
-			sut:          stubs.NewFailingField("", nil),
+			sut:          stubs.NewFailingFieldForTest("", nil),
 			expectedName: "error",
 		},
 	}
