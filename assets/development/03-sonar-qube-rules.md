@@ -11,26 +11,31 @@
 *   **Severity:** Minor
 *   **Effort:** 5 min
 *   **Tags:** `convention`
+*   **Tool:** Sonar (Go)
+*   **Type:** Code Smell
 
-### Why is this an issue?
+### Description
 
-Shared naming conventions allow teams to collaborate efficiently. This rule raises an issue when a function name does not match a provided regular expression.
+Shared naming conventions allow teams to collaborate efficiently. This rule raises an issue when a function name does not match the provided regular expression.
 
-For example, with the default provided regular expression `^(_|[a-zA-Z0-9]+)$`, the function:
+The required format is `camelCase` for unexported functions and `PascalCase` for exported functions. The regular expression used to enforce this is:
+
+`^(_|[a-zA-Z0-9]+)$`
+
+### Example
+
+With the default regular expression, a function like this:
 
 ```go
-func execute_all() {
+func execute_all() { // Noncompliant
 ...
 }
 ```
-should be renamed to
+
+should be renamed to:
 
 ```go
-func executeAll() {
+func executeAll() { // Compliant
 ...
 }
 ```
-
-### Parameters
-* **format**: Regular expression used to check the function names against.
-* **Default Value**: `^(_|[a-zA-Z0-9]+)$`
