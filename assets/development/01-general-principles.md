@@ -39,6 +39,9 @@
     * Functions should either do something or answer something, but not both. For example, a `set()` function shouldn't also return a status code; its success should be implied unless an error is reported.
 * **Don't Repeat Yourself (DRY)**
     * Avoid duplicating code. If you find yourself writing the same logic in multiple places, extract it into a function.
+* **Avoid Temporary Variables for Arguments**
+    * If a variable is created only to be immediately passed to a function, and its creation is simple, inline it directly into the function call. This reduces vertical space and keeps the logic concise.
+    * **Exception**: A variable is acceptable if its creation is complex or if assigning it a descriptive name significantly improves the readability of the code.
 
 ## Comments
 
@@ -102,6 +105,8 @@
             * SQL scripts or other large text dumps.
         * **External Test Data**
             * When externalizing, store the data in a `testdata/` directory within the same package.
+* **Testing Strategy**
+    * Black-box testing is preferred except in very extreme corner cases. Tests should be written in a separate `_test` package and should only interact with the public API of the package under test.
 
 ## System Boundaries
 
