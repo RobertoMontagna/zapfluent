@@ -38,45 +38,6 @@ func TestErrorHandler_ShouldSkip_EarlyFailingMode(t *testing.T) {
 	g.Expect(handler.AggregatedError()).To(HaveOccurred())
 }
 
-func TestErrorHandler_HandleError_ReturnsEmptyOptionalForNilError(t *testing.T) {
-	g := NewWithT(t)
-	cfg := core.NewErrorHandlingConfiguration()
-	handler := core.NewErrorHandler(&cfg, nil)
-
-	fallbackField := handler.HandleError(core.String("test", "value"), nil)
-
-	g.Expect(fallbackField.IsPresent()).To(BeFalse())
-	g.Expect(handler.AggregatedError()).ToNot(HaveOccurred())
-}
-
-func TestErrorHandler_HandleError_AggregatesErrorWithoutFallback(t *testing.T) {
-	g := NewWithT(t)
-	cfg := core.NewErrorHandlingConfiguration()
-	handler := core.NewErrorHandler(&cfg, nil)
-
-	fallbackField := handler.HandleError(core.String("test", "value"), errTest1)
-
-	g.Expect(fallbackField.IsPresent()).To(BeFalse())
-	g.Expect(handler.AggregatedError()).To(MatchError(errTest1))
-}
-
-func TestErrorHandler_HandleError_UsesFallbackFactory(t *testing.T) {
-	g := NewWithT(t)
-	cfg := core.NewErrorHandlingConfiguration(core.WithFallbackFieldFactory(core.FixedStringFallback("fallback")))
-	handler := core.NewErrorHandler(&cfg, nil)
-	enc := zapcore.NewMapObjectEncoder()
-
-	fallbackFieldOpt := handler.HandleError(core.String("test", "value"), errTest1)
-
-	g.Expect(fallbackFieldOpt.IsPresent()).To(BeTrue())
-	g.Expect(handler.AggregatedError()).To(MatchError(errTest1))
-
-	fallbackField, ok := fallbackFieldOpt.Get()
-	g.Expect(ok).To(BeTrue())
-	g.Expect(fallbackField.Encode(enc)).To(Succeed())
-	g.Expect(enc.Fields).To(HaveKeyWithValue("test", "fallback"))
-}
-
 func TestErrorHandler_EncodeField_Success(t *testing.T) {
 	g := NewWithT(t)
 	cfg := core.NewErrorHandlingConfiguration()
@@ -113,7 +74,6 @@ func TestErrorHandler_EncodeField_FallbackFails(t *testing.T) {
 
 	handler.EncodeField(stubs.NewFailingField("test", errInitial))()
 
-	g.Expect(handler.AggregatedError()).To(HaveOccurred())
 	g.Expect(handler.AggregatedError()).To(MatchError(errInitial))
 	g.Expect(handler.AggregatedError()).To(MatchError(errFallback))
 	g.Expect(enc.Fields).To(HaveKeyWithValue("test", "failed to encode fallback field"))
