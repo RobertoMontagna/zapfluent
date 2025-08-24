@@ -7,34 +7,30 @@
 ## `go:S100`: Function names should comply with a naming convention
 
 *   **Rule ID:** `go:S100`
-*   **Repository:** Sonar (Go)
-*   **Type:** Code Smell
+*   **Software qualities impacted:** Maintainability
 *   **Severity:** Minor
 *   **Effort:** 5 min
 *   **Tags:** `convention`
 
 ### Why is this an issue?
 
-Shared naming conventions allow teams to collaborate efficiently. This rule helps to ensure that all function names within the project are consistent by raising an issue when a function name does not match a provided regular expression.
+Shared naming conventions allow teams to collaborate efficiently. This rule raises an issue when a function name does not match a provided regular expression.
 
-By default, the convention for Go is to use `camelCase` for internal functions and `PascalCase` for exported functions. This rule enforces that standard.
-
-#### Noncompliant Code Example
+For example, with the default provided regular expression `^(_|[a-zA-Z0-9]+)$`, the function:
 
 ```go
-func My_function() { // Noncompliant; contains an underscore
-  // ...
+func execute_all() {
+...
+}
+```
+should be renamed to
+
+```go
+func executeAll() {
+...
 }
 ```
 
-#### Compliant Code Example
-
-```go
-func MyFunction() { // Compliant
-  // ...
-}
-
-func myPrivateFunction() { // Compliant
-  // ...
-}
-```
+### Parameters
+* **format**: Regular expression used to check the function names against.
+* **Default Value**: `^(_|[a-zA-Z0-9]+)$`
