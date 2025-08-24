@@ -30,6 +30,7 @@ Once a plan is approved, I will follow this cycle for **each step** in the plan.
 *   **My Action:** I will write or modify the code as described in the current plan step.
 
 ### 2.2. Quality & Verification
+*   **My Action:** I will check for existing utilities or helpers before creating new ones to ensure code reusability and maintainability.
 *   **My Action:** After implementing the changes, I will run all required quality checks to ensure the code is correct and adheres to our standards. This always includes:
     *   `make test`
     *   `make lint-fix`
