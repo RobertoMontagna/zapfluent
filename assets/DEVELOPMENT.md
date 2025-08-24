@@ -10,4 +10,5 @@ This document serves as a table of contents for our development guidelines. Plea
 
 1.  [General Principles](./development/01-general-principles.md)
 2.  [Go-Specific Guidelines](./development/02-go-guidelines.md)
-3.  [Repository-Specific Guidelines](./development/03-repository-specific.md)
+3.  [SonarQube Rules](./development/03-sonar-qube-rules.md)
+4.  [Repository-Specific Guidelines](./development/04-repository-specific.md)
