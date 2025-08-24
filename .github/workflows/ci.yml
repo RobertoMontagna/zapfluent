@@ -48,9 +48,11 @@ jobs:
       # For more details, see: https://docs.sonarsource.com/sonarqube/latest/devops-platform-integration/github-integration/
       - name: SonarQube Scan
         if: ${{ github.ref == 'refs/heads/main' }}
-        uses: SonarSource/sonarqube-scan-action@v4
+        uses: SonarSource/sonarqube-scan-action@v5.3.0
         env:
           # You need to create these secrets in your repository settings.
           # SONAR_HOST_URL should be set to https://sonarcloud.io for SonarCloud.
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+          SONAR_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY }}
+          SONAR_ORGANIZATION: ${{ secrets.SONAR_ORGANIZATION }}
