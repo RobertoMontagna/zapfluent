@@ -63,6 +63,7 @@ func TestFluent_ErrorHandling_EarlyFailing(t *testing.T) {
 		Done()
 
 	g.Expect(err).To(MatchError(errTest1))
+	g.Expect(err).ToNot(MatchError(errTest2))
 }
 
 func TestFluent_WithFallback_ReplacesFailingFieldAndAggregatesError(t *testing.T) {

@@ -122,10 +122,12 @@ func TestErrorHandler_EncodeField_FallbackFails(t *testing.T) {
 func TestErrorHandler_EncodeField_EarlyFailingSkip(t *testing.T) {
 	g := NewWithT(t)
 	cfg := core.NewErrorHandlingConfiguration(core.WithMode(core.ErrorHandlingModeEarlyFailing))
-	handler := core.NewErrorHandler(&cfg, zapcore.NewMapObjectEncoder())
+	enc := zapcore.NewMapObjectEncoder()
+	handler := core.NewErrorHandler(&cfg, enc)
 
 	handler.EncodeField(stubs.NewFailingField("first", errTest1))()
 	handler.EncodeField(core.String("second", "value"))()
 
 	g.Expect(handler.AggregatedError()).To(MatchError(errTest1))
+	g.Expect(enc.Fields).To(BeEmpty())
 }
