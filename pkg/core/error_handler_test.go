@@ -21,7 +21,7 @@ func TestErrorHandler_ShouldSkip_ContinueMode(t *testing.T) {
 	cfg := core.NewErrorHandlingConfiguration(core.WithMode(core.ErrorHandlingModeContinue))
 	handler := core.NewErrorHandler(&cfg, zapcore.NewMapObjectEncoder())
 
-	handler.EncodeField(stubs.NewFailingField("test", errTest1))()
+	handler.EncodeField(stubs.NewFailingFieldForTest("test", errTest1))()
 
 	g.Expect(handler.ShouldSkip()).To(BeFalse())
 	g.Expect(handler.AggregatedError()).To(HaveOccurred())
@@ -32,7 +32,7 @@ func TestErrorHandler_ShouldSkip_EarlyFailingMode(t *testing.T) {
 	cfg := core.NewErrorHandlingConfiguration(core.WithMode(core.ErrorHandlingModeEarlyFailing))
 	handler := core.NewErrorHandler(&cfg, zapcore.NewMapObjectEncoder())
 
-	handler.EncodeField(stubs.NewFailingField("test", errTest1))()
+	handler.EncodeField(stubs.NewFailingFieldForTest("test", errTest1))()
 
 	g.Expect(handler.ShouldSkip()).To(BeTrue())
 	g.Expect(handler.AggregatedError()).To(HaveOccurred())
@@ -55,7 +55,7 @@ func TestErrorHandler_EncodeField_FallbackSuccess(t *testing.T) {
 	handler := core.NewErrorHandler(&cfg, enc)
 	errEncode := errors.New("encode error")
 
-	handler.EncodeField(stubs.NewFailingField("test", errEncode))()
+	handler.EncodeField(stubs.NewFailingFieldForTest("test", errEncode))()
 
 	g.Expect(handler.AggregatedError()).To(MatchError(errEncode))
 	g.Expect(enc.Fields).To(HaveKeyWithValue("test", "fallback"))
@@ -66,13 +66,13 @@ func TestErrorHandler_EncodeField_FallbackFails(t *testing.T) {
 	errInitial := errors.New("initial encode error")
 	errFallback := errors.New("fallback encode error")
 	fallbackFactory := func(name string, err error) core.Field {
-		return stubs.NewFailingField(name, errFallback)
+		return stubs.NewFailingFieldForTest(name, errFallback)
 	}
 	cfg := core.NewErrorHandlingConfiguration(core.WithFallbackFieldFactory(fallbackFactory))
 	enc := zapcore.NewMapObjectEncoder()
 	handler := core.NewErrorHandler(&cfg, enc)
 
-	handler.EncodeField(stubs.NewFailingField("test", errInitial))()
+	handler.EncodeField(stubs.NewFailingFieldForTest("test", errInitial))()
 
 	g.Expect(handler.AggregatedError()).To(MatchError(errInitial))
 	g.Expect(handler.AggregatedError()).To(MatchError(errFallback))
@@ -85,7 +85,7 @@ func TestErrorHandler_EncodeField_EarlyFailingSkip(t *testing.T) {
 	enc := zapcore.NewMapObjectEncoder()
 	handler := core.NewErrorHandler(&cfg, enc)
 
-	handler.EncodeField(stubs.NewFailingField("first", errTest1))()
+	handler.EncodeField(stubs.NewFailingFieldForTest("first", errTest1))()
 	handler.EncodeField(core.String("second", "value"))()
 
 	g.Expect(handler.AggregatedError()).To(MatchError(errTest1))
