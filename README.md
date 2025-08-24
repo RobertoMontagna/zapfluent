@@ -91,6 +91,8 @@ This is a non-exhaustive list of planned features and improvements, in no partic
 - [ ] Add support for logging pointer fields, automatically handling `nil` values.
 - [ ] Implement support for logging slice fields.
 - [ ] [Optional] Implement support for logging map fields.
+- [ ] Introduce Snyk or a similar service for dependency scanning.
+- [ ] Introduce Renovate or a similar service for automated dependency updates.
 
 ## 🤝 Contributing
 
