@@ -61,3 +61,9 @@ If your request is specifically to audit and refactor the entire codebase (as op
 > **Your Input:** Please choose how to proceed based on the report.
 > *   **(T)ackle <Area #>:** Tell me to start working on a specific area (e.g., `T 1` to tackle Testing). I will then begin at **Phase 1 (Task Intake & Planning)** for that specific area.
 > *   **(S)top:** End the audit process.
+
+---
+
+## Content Style Guide
+
+*   Always use lists (unordered or ordered) to define a rule.
