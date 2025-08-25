@@ -37,8 +37,7 @@ func (z *Fluent) Add(field core.Field) *Fluent {
 		return z
 	}
 
-	encodingErrorManager := z.errorHandler.EncodeField(field)
-	encodingErrorManager()
+	z.errorHandler.EncodeField(field)()
 
 	return z
 }

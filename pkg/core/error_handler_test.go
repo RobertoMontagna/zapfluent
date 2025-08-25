@@ -13,9 +13,9 @@ import (
 )
 
 var (
-	errTest1    = errors.New("error 1")
-	errEncode   = errors.New("encode error")
-	errInitial  = errors.New("initial encode error")
+	errTest1     = errors.New("error 1")
+	errEncode    = errors.New("encode error")
+	errInitial   = errors.New("initial encode error")
 	failingField = stubs.NewFailingFieldForTest(
 		stubs.WithName("test"), stubs.WithError(errTest1),
 	)
