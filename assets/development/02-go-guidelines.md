@@ -7,7 +7,7 @@
 * **Package Size and Cohesion**
     * A package should have a single, well-defined responsibility. Group related types and functions together. If two packages are so tightly coupled that they are almost always used together, consider merging them.
 * **Project Layout**
-    * For consistency, consider following the [Standard Go Project Layout](https://github.com/golang-standards/project-layout). This is not an official standard, but it is a community-accepted convention.
+    * For consistency, it is highly recommended to follow the [Standard Go Project Layout](https://github.com/golang-standards/project-layout). This is not an official standard, but it is a community-accepted convention.
 
 ## Error Handling
 
