@@ -106,7 +106,7 @@
         * **External Test Data**
             * When externalizing, store the data in a `testdata/` directory within the same package.
 * **Testing Strategy**
-    * Black-box testing is preferred except in very extreme corner cases. Tests should be written in a separate `_test` package and should only interact with the public API of the package under test.
+    * Black-box testing is the preferred strategy. Tests should validate the public API of a component without relying on its internal implementation details, except in rare and well-justified cases.
 
 ## System Boundaries
 
