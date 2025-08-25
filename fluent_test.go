@@ -171,3 +171,57 @@ func TestAsFluent_WithOtherEncoder(t *testing.T) {
 	fluent := zapfluent.AsFluent(zapcore.NewJSONEncoder(zap.NewDevelopmentEncoderConfig()))
 	g.Expect(fluent).ToNot(BeNil())
 }
+
+func TestFluent_AddField_EncodesField(t *testing.T) {
+	testCases := []struct {
+		name          string
+		field         zapfluent.Field
+		expectedKey   string
+		expectedValue any
+	}{
+		{
+			name:          "with string",
+			field:         zapfluent.String("my_string", "value"),
+			expectedKey:   "my_string",
+			expectedValue: "value",
+		},
+		{
+			name:          "with int",
+			field:         zapfluent.Int("my_int", 123),
+			expectedKey:   "my_int",
+			expectedValue: 123,
+		},
+		{
+			name:          "with int8",
+			field:         zapfluent.Int8("my_int8", 12),
+			expectedKey:   "my_int8",
+			expectedValue: int8(12),
+		},
+		{
+			name:          "with bool (true)",
+			field:         zapfluent.Bool("my_bool", true),
+			expectedKey:   "my_bool",
+			expectedValue: true,
+		},
+		{
+			name:          "with bool (false)",
+			field:         zapfluent.Bool("my_bool", false),
+			expectedKey:   "my_bool",
+			expectedValue: false,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			g := NewWithT(t)
+
+			enc := zapcore.NewMapObjectEncoder()
+			fluent := zapfluent.AsFluent(core.NewFluentEncoder(testutil.NewDoNotEncodeEncoderForTest(enc), core.NewConfiguration()))
+
+			err := fluent.Add(tc.field).Done()
+
+			g.Expect(err).ToNot(HaveOccurred())
+			g.Expect(enc.Fields).To(HaveKeyWithValue(tc.expectedKey, tc.expectedValue))
+		})
+	}
+}

@@ -30,6 +30,11 @@ func Int8(name string, value int8) TypedField[int8] {
 	return core.Int8(name, value)
 }
 
+// Bool returns a new field with a bool value.
+func Bool(name string, value bool) TypedField[bool] {
+	return core.Bool(name, value)
+}
+
 // Object returns a new field with a value that implements zapcore.ObjectMarshaler.
 //
 // It requires an `isNonZero` function to determine if the object should be
