@@ -52,9 +52,9 @@ type Comparable interface {
 // The `isNonZero` function for this field performs a simple comparison to the
 // zero value of the type (e.g., `v != *new(T)`).
 func ComparableObject[T Comparable](name string, value T) TypedField[T] {
+	var zero T
 	return Object(name, value, func(v T) bool {
-		var x T
-		return v != x
+		return v != zero
 	})
 }
 
