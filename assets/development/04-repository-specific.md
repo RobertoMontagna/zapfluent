@@ -16,3 +16,12 @@ This document contains guidelines and conventions that are specific to this repo
 * **Test Style**
     * **Rule**: All tests in this repository must be written in the standard XUnit style, using the built-in `testing` package. BDD-style frameworks like Ginkgo are not permitted.
     * **Guideline**: Prefer table-driven tests for their clarity and ease of extension. Use Gomega for assertions to improve readability, but do not use the Ginkgo test runner.
+
+## Tooling and Configuration
+
+* **Code Formatting**
+    * This repository uses `gofmt` as the standard for code formatting. `gofmt` is a standard Go tool with no project-specific configuration.
+* **Import Organization**
+    * We use the `gci` tool to enforce a consistent order and grouping for import statements. The specific configuration for `gci` is defined in our `.golangci.yml` file.
+* **Linting**
+    * We use `golangci-lint` to run a standard set of linters. The full configuration, including the list of enabled linters (`errcheck`, `gci`, `govet`, `revive`, `staticcheck`) and their settings, is defined in the `.golangci.yml` file at the root of the repository.

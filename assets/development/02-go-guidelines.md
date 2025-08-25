@@ -113,22 +113,12 @@ The `context` package is essential for managing deadlines, cancellation, and req
 * **Explain What, Not How**
     * The documentation should explain what the code does from a caller's perspective and how to use it correctly. Implementation details should be left to inline comments if necessary.
 
-## Linting
-
-To ensure code quality and consistency, use a standard set of linters. We recommend using `golangci-lint` as a lint runner with the following linters enabled at a minimum:
-
-* `errcheck`: Checks for unhandled errors.
-* `goimports`: Formats code and manages imports.
-* `golint`: Points out common style mistakes.
-* `govet`: Analyzes code for common mistakes.
-* `staticcheck`: Provides a wide range of static analysis checks.
-
 ## Formatting and Organization
 
-* **Gofmt**
-    * All Go code in the repository must be formatted with `gofmt`.
-* **Import Grouping**
-    * All import blocks must be grouped into four categories in a specific order: standard library, third-party, shared internal modules, and intra-module dependencies.
+* **Code Formatting**
+    * All code should be formatted according to a standard, deterministic style. This is typically enforced using automated tooling.
+* **Import Organization**
+    * To maintain clarity and consistency, all import statements should be grouped and sorted according to a predefined convention.
 * **Avoid Unnecessary Import Aliases**
     * Do not use an alias for an import if the package's default name is clear and does not cause a collision. Aliases should only be used when strictly necessary to resolve a name conflict.
 * **Reduce Nesting**
