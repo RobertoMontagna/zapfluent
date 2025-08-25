@@ -209,8 +209,10 @@ func TestObject(t *testing.T) {
 			shouldBeEmpty: false,
 		},
 		{
-			name:        "NonZero filter works correctly with non-zero value",
-			field:       core.Object("non-zero-key", &testObject{value: "value"}, isNonZero).NonZero(),
+			name: "NonZero filter works correctly with non-zero value",
+			field: core.Object(
+				"non-zero-key", &testObject{value: "value"}, isNonZero,
+			).NonZero(),
 			expectedKey: "non-zero-key",
 			expectedValue: map[string]interface{}{
 				"value": "value",
@@ -319,8 +321,10 @@ func TestComparableObject(t *testing.T) {
 			shouldBeEmpty: false,
 		},
 		{
-			name:        "NonZero filter works correctly with non-zero value",
-			field:       core.ComparableObject("non-zero-key", testComparableObject{value: "value"}).NonZero(),
+			name: "NonZero filter works correctly with non-zero value",
+			field: core.ComparableObject(
+				"non-zero-key", testComparableObject{value: "value"},
+			).NonZero(),
 			expectedKey: "non-zero-key",
 			expectedValue: map[string]interface{}{
 				"value": "value",

@@ -24,4 +24,4 @@ This document contains guidelines and conventions that are specific to this repo
 * **Import Organization**
     * We use the `gci` tool to enforce a consistent order and grouping for import statements. The specific configuration for `gci` is defined in our `.golangci.yml` file.
 * **Linting**
-    * We use `golangci-lint` to run a standard set of linters. The full configuration, including the list of enabled linters (`errcheck`, `gci`, `govet`, `revive`, `staticcheck`) and their settings, is defined in the `.golangci.yml` file at the root of the repository.
+    * We use `golangci-lint` to run a standard set of linters. The full configuration, including the list of enabled linters (`errcheck`, `gci`, `govet`, `revive`, `staticcheck`) and their settings, is defined in the `.golangci.yml` file at the root of the repository. As a notable rule, we enforce a soft limit of 100 characters per line via the `revive` linter.

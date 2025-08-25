@@ -107,7 +107,10 @@ func TestFluent_WithFailingFallback_LogsPredefinedErrorField(t *testing.T) {
 		core.WithErrorHandling(
 			core.NewErrorHandlingConfiguration(
 				core.WithFallbackFieldFactory(func(name string, err error) core.Field {
-					return stubs.NewFailingFieldForTest(stubs.WithName(name), stubs.WithError(errFallback))
+					return stubs.NewFailingFieldForTest(
+						stubs.WithName(name),
+						stubs.WithError(errFallback),
+					)
 				}),
 			),
 		),
@@ -133,7 +136,10 @@ func TestFluent_WithFailingFallbackAndCustomMessage_LogsCustomMessage(t *testing
 		core.WithErrorHandling(
 			core.NewErrorHandlingConfiguration(
 				core.WithFallbackFieldFactory(func(name string, err error) core.Field {
-					return stubs.NewFailingFieldForTest(stubs.WithName(name), stubs.WithError(errFallback))
+					return stubs.NewFailingFieldForTest(
+						stubs.WithName(name),
+						stubs.WithError(errFallback),
+					)
 				}),
 				core.WithFallbackErrorMessage("custom message"),
 			),

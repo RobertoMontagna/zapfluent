@@ -189,7 +189,9 @@ func TestFailureMessages(t *testing.T) {
 			if i == j {
 				continue
 			}
-			g.Expect(strings.Contains(msg1, msg2)).To(BeFalse(), "failure messages should not be substrings of each other: '%s' contains '%s'", msg1, msg2)
+			const m1 = "failure messages should not be substrings of each other"
+			const m2 = "'%s' contains '%s'"
+			g.Expect(strings.Contains(msg1, msg2)).To(BeFalse(), m1+": "+m2, msg1, msg2)
 		}
 	}
 }
