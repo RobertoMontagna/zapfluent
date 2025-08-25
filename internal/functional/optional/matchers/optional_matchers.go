@@ -106,6 +106,11 @@ type HaveValueMatcher[T any] struct {
 	expected T
 }
 
+// Expected returns the expected value for the matcher.
+func (m *HaveValueMatcher[T]) Expected() T {
+	return m.expected
+}
+
 func (m *HaveValueMatcher[T]) Match(actual any) (bool, error) {
 	opt, ok := actual.(optional.Optional[T])
 	if !ok {

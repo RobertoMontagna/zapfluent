@@ -1,10 +1,9 @@
 package matchers_test
 
 import (
+	"errors"
 	"strings"
 	"testing"
-
-	"github.com/onsi/gomega/types"
 
 	"go.robertomontagna.dev/zapfluent/internal/functional/lazyoptional"
 	"go.robertomontagna.dev/zapfluent/internal/functional/lazyoptional/matchers"
@@ -13,166 +12,217 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func TestMatchers(t *testing.T) {
-	t.Parallel()
+// BePresent Tests
+func TestMatcher_BePresent_SucceedsForPresent(t *testing.T) {
+	g := NewGomegaWithT(t)
 
-	matchTestCases := []struct {
-		name        string
-		input       any
-		matcher     types.GomegaMatcher
-		shouldFail  bool
-		expectedMsg string
-	}{
-		// BePresent
-		{
-			name:       "BePresent succeeds for present lazy optional",
-			input:      lazyoptional.Some("hello"),
-			matcher:    matchers.BePresent[string](),
-			shouldFail: false,
-		},
-		{
-			name:        "BePresent fails for empty lazy optional",
-			input:       lazyoptional.Empty[string](),
-			matcher:     matchers.BePresent[string](),
-			shouldFail:  true,
-			expectedMsg: matchers.BePresentFailureMessage,
-		},
-		{
-			name:       "Not(BePresent) succeeds for empty lazy optional",
-			input:      lazyoptional.Empty[string](),
-			matcher:    Not(matchers.BePresent[string]()),
-			shouldFail: false,
-		},
-		{
-			name:        "Not(BePresent) fails for present lazy optional",
-			input:       lazyoptional.Some("hello"),
-			matcher:     Not(matchers.BePresent[string]()),
-			shouldFail:  true,
-			expectedMsg: matchers.NotBePresentFailureMessage,
-		},
-		// BeEmpty
-		{
-			name:       "BeEmpty succeeds for empty lazy optional",
-			input:      lazyoptional.Empty[string](),
-			matcher:    matchers.BeEmpty[string](),
-			shouldFail: false,
-		},
-		{
-			name:        "BeEmpty fails for present lazy optional",
-			input:       lazyoptional.Some("hello"),
-			matcher:     matchers.BeEmpty[string](),
-			shouldFail:  true,
-			expectedMsg: matchers.BeEmptyFailureMessage,
-		},
-		{
-			name:       "Not(BeEmpty) succeeds for present lazy optional",
-			input:      lazyoptional.Some("hello"),
-			matcher:    Not(matchers.BeEmpty[string]()),
-			shouldFail: false,
-		},
-		{
-			name:        "Not(BeEmpty) fails for empty lazy optional",
-			input:       lazyoptional.Empty[string](),
-			matcher:     Not(matchers.BeEmpty[string]()),
-			shouldFail:  true,
-			expectedMsg: matchers.NotBeEmptyFailureMessage,
-		},
-		// HaveValue
-		{
-			name:       "HaveValue succeeds for lazy optional with the same value",
-			input:      lazyoptional.Some("hello"),
-			matcher:    matchers.HaveValue("hello"),
-			shouldFail: false,
-		},
-		{
-			name:        "HaveValue fails for lazy optional with a different value",
-			input:       lazyoptional.Some("world"),
-			matcher:     matchers.HaveValue("hello"),
-			shouldFail:  true,
-			expectedMsg: matchers.HaveValueFailureMessage,
-		},
-		{
-			name:        "HaveValue fails for an empty lazy optional",
-			input:       lazyoptional.Empty[string](),
-			matcher:     matchers.HaveValue("hello"),
-			shouldFail:  true,
-			expectedMsg: matchers.HaveValueFailureMessage,
-		},
-		{
-			name:       "Not(HaveValue) succeeds for lazy optional with a different value",
-			input:      lazyoptional.Some("world"),
-			matcher:    Not(matchers.HaveValue("hello")),
-			shouldFail: false,
-		},
-		{
-			name:        "Not(HaveValue) fails for lazy optional with the same value",
-			input:       lazyoptional.Some("hello"),
-			matcher:     Not(matchers.HaveValue("hello")),
-			shouldFail:  true,
-			expectedMsg: matchers.NotHaveValueFailureMessage,
-		},
-	}
+	matcher := matchers.BePresent[string]()
+	input := lazyoptional.Some("hello")
 
-	for _, tc := range matchTestCases {
-		tc := tc
-		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
-			g := NewGomegaWithT(t)
+	success, err := matcher.Match(input)
 
-			if tc.shouldFail {
-				failures := testutil.InterceptGomegaFailuresForTest(g, func() {
-					g.Expect(tc.input).To(tc.matcher)
-				})
-
-				g.Expect(failures).To(HaveLen(1))
-				g.Expect(failures[0]).To(ContainSubstring(tc.expectedMsg))
-			} else {
-				g.Expect(tc.input).To(tc.matcher)
-			}
-		})
-	}
-
-	errorTestCases := []struct {
-		name        string
-		matcher     types.GomegaMatcher
-		input       any
-		expectedErr error
-	}{
-		{
-			name:        "BePresent returns error for non-lazy-optional",
-			matcher:     matchers.BePresent[string](),
-			input:       "not-a-lazy-optional",
-			expectedErr: matchers.ErrMatcherWrongType,
-		},
-		{
-			name:        "BeEmpty returns error for non-lazy-optional",
-			matcher:     matchers.BeEmpty[string](),
-			input:       "not-a-lazy-optional",
-			expectedErr: matchers.ErrMatcherWrongType,
-		},
-		{
-			name:        "HaveValue returns error for non-lazy-optional",
-			matcher:     matchers.HaveValue("hello"),
-			input:       "not-a-lazy-optional",
-			expectedErr: matchers.ErrMatcherWrongType,
-		},
-	}
-
-	for _, tc := range errorTestCases {
-		tc := tc
-		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
-			g := NewGomegaWithT(t)
-
-			_, err := tc.matcher.Match(tc.input)
-
-			g.Expect(err).To(MatchError(tc.expectedErr))
-		})
-	}
+	g.Expect(err).ToNot(HaveOccurred())
+	g.Expect(success).To(BeTrue())
 }
 
-func TestFailureMessages(t *testing.T) {
-	t.Parallel()
+func TestMatcher_BePresent_FailsForEmpty(t *testing.T) {
+	g := NewGomegaWithT(t)
+
+	matcher := matchers.BePresent[string]()
+	input := lazyoptional.Empty[string]()
+
+	failures := testutil.InterceptGomegaFailuresForTest(g, func() {
+		g.Expect(input).To(matcher)
+	})
+
+	g.Expect(failures).To(HaveLen(1))
+	g.Expect(failures[0]).To(ContainSubstring(matchers.BePresentFailureMessage))
+}
+
+func TestMatcher_NotBePresent_SucceedsForEmpty(t *testing.T) {
+	g := NewGomegaWithT(t)
+
+	matcher := Not(matchers.BePresent[string]())
+	input := lazyoptional.Empty[string]()
+
+	success, err := matcher.Match(input)
+
+	g.Expect(err).ToNot(HaveOccurred())
+	g.Expect(success).To(BeTrue())
+}
+
+func TestMatcher_NotBePresent_FailsForPresent(t *testing.T) {
+	g := NewGomegaWithT(t)
+
+	matcher := Not(matchers.BePresent[string]())
+	input := lazyoptional.Some("hello")
+
+	failures := testutil.InterceptGomegaFailuresForTest(g, func() {
+		g.Expect(input).To(matcher)
+	})
+
+	g.Expect(failures).To(HaveLen(1))
+	g.Expect(failures[0]).To(ContainSubstring(matchers.NotBePresentFailureMessage))
+}
+
+func TestMatcher_BePresent_ErrorForWrongType(t *testing.T) {
+	g := NewGomegaWithT(t)
+
+	matcher := matchers.BePresent[string]()
+	input := "not-a-lazy-optional"
+
+	_, err := matcher.Match(input)
+
+	g.Expect(err).To(HaveOccurred())
+	g.Expect(errors.Is(err, matchers.ErrMatcherWrongType)).To(BeTrue())
+}
+
+// BeEmpty Tests
+func TestMatcher_BeEmpty_SucceedsForEmpty(t *testing.T) {
+	g := NewGomegaWithT(t)
+
+	matcher := matchers.BeEmpty[string]()
+	input := lazyoptional.Empty[string]()
+
+	success, err := matcher.Match(input)
+
+	g.Expect(err).ToNot(HaveOccurred())
+	g.Expect(success).To(BeTrue())
+}
+
+func TestMatcher_BeEmpty_FailsForPresent(t *testing.T) {
+	g := NewGomegaWithT(t)
+
+	matcher := matchers.BeEmpty[string]()
+	input := lazyoptional.Some("hello")
+
+	failures := testutil.InterceptGomegaFailuresForTest(g, func() {
+		g.Expect(input).To(matcher)
+	})
+
+	g.Expect(failures).To(HaveLen(1))
+	g.Expect(failures[0]).To(ContainSubstring(matchers.BeEmptyFailureMessage))
+}
+
+func TestMatcher_NotBeEmpty_SucceedsForPresent(t *testing.T) {
+	g := NewGomegaWithT(t)
+
+	matcher := Not(matchers.BeEmpty[string]())
+	input := lazyoptional.Some("hello")
+
+	success, err := matcher.Match(input)
+
+	g.Expect(err).ToNot(HaveOccurred())
+	g.Expect(success).To(BeTrue())
+}
+
+func TestMatcher_NotBeEmpty_FailsForEmpty(t *testing.T) {
+	g := NewGomegaWithT(t)
+
+	matcher := Not(matchers.BeEmpty[string]())
+	input := lazyoptional.Empty[string]()
+
+	failures := testutil.InterceptGomegaFailuresForTest(g, func() {
+		g.Expect(input).To(matcher)
+	})
+
+	g.Expect(failures).To(HaveLen(1))
+	g.Expect(failures[0]).To(ContainSubstring(matchers.NotBeEmptyFailureMessage))
+}
+
+func TestMatcher_BeEmpty_ErrorForWrongType(t *testing.T) {
+	g := NewGomegaWithT(t)
+
+	matcher := matchers.BeEmpty[string]()
+	input := "not-a-lazy-optional"
+
+	_, err := matcher.Match(input)
+
+	g.Expect(err).To(HaveOccurred())
+	g.Expect(errors.Is(err, matchers.ErrMatcherWrongType)).To(BeTrue())
+}
+
+// HaveValue Tests
+func TestMatcher_HaveValue_SucceedsForSameValue(t *testing.T) {
+	g := NewGomegaWithT(t)
+
+	matcher := matchers.HaveValue("hello")
+	input := lazyoptional.Some("hello")
+
+	success, err := matcher.Match(input)
+
+	g.Expect(err).ToNot(HaveOccurred())
+	g.Expect(success).To(BeTrue())
+}
+
+func TestMatcher_HaveValue_FailsForDifferentValue(t *testing.T) {
+	g := NewGomegaWithT(t)
+
+	matcher := matchers.HaveValue("hello")
+	input := lazyoptional.Some("world")
+
+	failures := testutil.InterceptGomegaFailuresForTest(g, func() {
+		g.Expect(input).To(matcher)
+	})
+
+	g.Expect(failures).To(HaveLen(1))
+	g.Expect(failures[0]).To(ContainSubstring(matchers.HaveValueFailureMessage))
+}
+
+func TestMatcher_HaveValue_FailsForEmpty(t *testing.T) {
+	g := NewGomegaWithT(t)
+
+	matcher := matchers.HaveValue("hello")
+	input := lazyoptional.Empty[string]()
+
+	failures := testutil.InterceptGomegaFailuresForTest(g, func() {
+		g.Expect(input).To(matcher)
+	})
+
+	g.Expect(failures).To(HaveLen(1))
+	g.Expect(failures[0]).To(ContainSubstring(matchers.HaveValueFailureMessage))
+}
+
+func TestMatcher_NotHaveValue_SucceedsForDifferentValue(t *testing.T) {
+	g := NewGomegaWithT(t)
+
+	matcher := Not(matchers.HaveValue("hello"))
+	input := lazyoptional.Some("world")
+
+	success, err := matcher.Match(input)
+
+	g.Expect(err).ToNot(HaveOccurred())
+	g.Expect(success).To(BeTrue())
+}
+
+func TestMatcher_NotHaveValue_FailsForSameValue(t *testing.T) {
+	g := NewGomegaWithT(t)
+
+	matcher := Not(matchers.HaveValue("hello"))
+	input := lazyoptional.Some("hello")
+
+	failures := testutil.InterceptGomegaFailuresForTest(g, func() {
+		g.Expect(input).To(matcher)
+	})
+
+	g.Expect(failures).To(HaveLen(1))
+	g.Expect(failures[0]).To(ContainSubstring(matchers.NotHaveValueFailureMessage))
+}
+
+func TestMatcher_HaveValue_ErrorForWrongType(t *testing.T) {
+	g := NewGomegaWithT(t)
+
+	matcher := matchers.HaveValue("hello")
+	input := "not-a-lazy-optional"
+
+	_, err := matcher.Match(input)
+
+	g.Expect(err).To(HaveOccurred())
+	g.Expect(errors.Is(err, matchers.ErrMatcherWrongType)).To(BeTrue())
+}
+
+// Other Tests
+func TestFailureMessages_AreNotSubstrings(t *testing.T) {
 	g := NewGomegaWithT(t)
 
 	messages := []string{
