@@ -92,6 +92,10 @@ The `context` package is essential for managing deadlines, cancellation, and req
     * Distinguish between test setup helpers and assertion helpers. It is idiomatic in Go to avoid assertion helpers that call `t.Fatal` or `t.Error`. Instead, return an error from your validation function and let the test function decide whether to fail the test.
 * **`t.Fatal` vs. `t.Error`**
     * Use `t.Fatal` when a test cannot continue because a setup step has failed. Use `t.Error` when a test case has failed but other test cases can still be run.
+* **Test Package Organization**
+    * In Go, the principle of Black-Box Testing is implemented by placing test files in a separate package using the `_test` suffix (e.g., `package mypackage_test`). This enforces that tests only import and use the public API of the package being tested.
+* **Test Data**
+    * To support co-locating test data with tests, Go provides a special convention. Any directory named `testdata` is ignored by the build tools, making it the standard location for storing external data files needed by tests in the same package.
 
 ## Performance
 

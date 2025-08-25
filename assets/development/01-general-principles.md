@@ -104,9 +104,9 @@
         * **Extensive Scripts**
             * SQL scripts or other large text dumps.
         * **External Test Data**
-            * When externalizing, store the data in a `testdata/` directory within the same package.
+            * When externalizing, store the data in a dedicated test assets directory (e.g., `testdata/`) within the same component.
 * **Testing Strategy**
-    * Black-box testing is preferred except in very extreme corner cases. Tests should be written in a separate `_test` package and should only interact with the public API of the package under test.
+    * This project prefers **Black-Box Testing**. In this approach, tests are treated as external clients of the code under test, interacting only with its public API. This ensures that tests verify the public contract of a component and are not tightly coupled to its implementation details.
 
 ## System Boundaries
 
