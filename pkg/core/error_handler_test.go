@@ -34,30 +34,43 @@ var (
 	)
 )
 
-func TestErrorHandler_ShouldSkip_ContinueMode(t *testing.T) {
-	g := NewWithT(t)
-	cfg := core.NewErrorHandlingConfiguration(core.WithMode(core.ErrorHandlingModeContinue))
-	handler := core.NewErrorHandler(&cfg, zapcore.NewMapObjectEncoder())
+func TestErrorHandler_ShouldSkip(t *testing.T) {
+	testCases := []struct {
+		name           string
+		mode           core.ErrorHandlingMode
+		expectedToSkip bool
+	}{
+		{
+			name:           "when mode is Continue, returns false",
+			mode:           core.ErrorHandlingModeContinue,
+			expectedToSkip: false,
+		},
+		{
+			name:           "when mode is EarlyFailing, returns true",
+			mode:           core.ErrorHandlingModeEarlyFailing,
+			expectedToSkip: true,
+		},
+	}
 
-	handler.EncodeField(failingField)()
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			g := NewWithT(t)
 
-	g.Expect(handler.ShouldSkip()).To(BeFalse())
-	g.Expect(handler.AggregatedError()).To(HaveOccurred())
+			cfg := core.NewErrorHandlingConfiguration(core.WithMode(tc.mode))
+			handler := core.NewErrorHandler(&cfg, zapcore.NewMapObjectEncoder())
+			handler.EncodeField(failingField)()
+
+			shouldSkip := handler.ShouldSkip()
+
+			g.Expect(shouldSkip).To(Equal(tc.expectedToSkip))
+			g.Expect(handler.AggregatedError()).To(HaveOccurred())
+		})
+	}
 }
 
-func TestErrorHandler_ShouldSkip_EarlyFailingMode(t *testing.T) {
+func TestErrorHandler_EncodeField_WhenFieldEncodesSuccessfully_NoError(t *testing.T) {
 	g := NewWithT(t)
-	cfg := core.NewErrorHandlingConfiguration(core.WithMode(core.ErrorHandlingModeEarlyFailing))
-	handler := core.NewErrorHandler(&cfg, zapcore.NewMapObjectEncoder())
 
-	handler.EncodeField(failingField)()
-
-	g.Expect(handler.ShouldSkip()).To(BeTrue())
-	g.Expect(handler.AggregatedError()).To(HaveOccurred())
-}
-
-func TestErrorHandler_EncodeField_Success(t *testing.T) {
-	g := NewWithT(t)
 	cfg := core.NewErrorHandlingConfiguration()
 	handler := core.NewErrorHandler(&cfg, zapcore.NewMapObjectEncoder())
 
@@ -66,8 +79,9 @@ func TestErrorHandler_EncodeField_Success(t *testing.T) {
 	g.Expect(handler.AggregatedError()).ToNot(HaveOccurred())
 }
 
-func TestErrorHandler_EncodeField_FallbackSuccess(t *testing.T) {
+func TestErrorHandler_EncodeField_WithSuccessfulFallback(t *testing.T) {
 	g := NewWithT(t)
+
 	cfg := core.NewErrorHandlingConfiguration(
 		core.WithFallbackFieldFactory(core.FixedStringFallback("fallback")),
 	)
@@ -80,8 +94,9 @@ func TestErrorHandler_EncodeField_FallbackSuccess(t *testing.T) {
 	g.Expect(enc.Fields).To(HaveKeyWithValue("test", "fallback"))
 }
 
-func TestErrorHandler_EncodeField_FallbackFails(t *testing.T) {
+func TestErrorHandler_EncodeField_WithFailingFallback(t *testing.T) {
 	g := NewWithT(t)
+
 	errFallback := errors.New("fallback encode error")
 	fallbackFactory := func(name string, err error) core.Field {
 		return stubs.NewFailingFieldForTest(
@@ -100,8 +115,9 @@ func TestErrorHandler_EncodeField_FallbackFails(t *testing.T) {
 	g.Expect(enc.Fields).To(HaveKeyWithValue("test", "failed to encode fallback field"))
 }
 
-func TestErrorHandler_EncodeField_EarlyFailingSkip(t *testing.T) {
+func TestErrorHandler_EncodeField_WithEarlyFailing(t *testing.T) {
 	g := NewWithT(t)
+
 	cfg := core.NewErrorHandlingConfiguration(core.WithMode(core.ErrorHandlingModeEarlyFailing))
 	enc := zapcore.NewMapObjectEncoder()
 	handler := core.NewErrorHandler(&cfg, enc)

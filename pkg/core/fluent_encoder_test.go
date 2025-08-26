@@ -11,7 +11,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func TestNewFluentEncoder(t *testing.T) {
+func TestNewFluentEncoder_WhenCalled_ReturnsNonNil(t *testing.T) {
 	g := NewWithT(t)
 
 	cfg := core.NewConfiguration()
@@ -22,7 +22,7 @@ func TestNewFluentEncoder(t *testing.T) {
 	g.Expect(fluentEncoder).ToNot(BeNil())
 }
 
-func TestFluentEncoder_Clone(t *testing.T) {
+func TestFluentEncoder_Clone_WhenCalled_ReturnsNewInstance(t *testing.T) {
 	g := NewWithT(t)
 
 	cfg := core.NewConfiguration()

@@ -1,8 +1,8 @@
 package core
 
 import (
-	"go.robertomontagna.dev/zapfluent/internal/enum"
 	"go.robertomontagna.dev/zapfluent/internal/functional/optional"
+	"go.robertomontagna.dev/zapfluent/internal/lang"
 )
 
 // FallbackFieldFactory is a function that creates a fallback field.
@@ -99,7 +99,7 @@ const (
 	ErrorHandlingModeContinueString     = "Continue"
 )
 
-var errorHandlingModeEnum = enum.New(
+var errorHandlingModeEnum = lang.NewIntEnum(
 	map[ErrorHandlingMode]string{
 		ErrorHandlingModeUnknown:      ErrorHandlingModeUnknownString,
 		ErrorHandlingModeEarlyFailing: ErrorHandlingModeEarlyFailingString,

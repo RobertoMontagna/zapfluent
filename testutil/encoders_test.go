@@ -10,8 +10,9 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func TestDoNotEncodeEncoder_NewDoNotEncodeEncoder(t *testing.T) {
+func TestNewDoNotEncodeEncoder(t *testing.T) {
 	g := NewWithT(t)
+
 	enc := zapcore.NewMapObjectEncoder()
 
 	result := testutil.NewDoNotEncodeEncoderForTest(enc)
@@ -21,6 +22,7 @@ func TestDoNotEncodeEncoder_NewDoNotEncodeEncoder(t *testing.T) {
 
 func TestDoNotEncodeEncoder_Clone(t *testing.T) {
 	g := NewWithT(t)
+
 	sut := testutil.NewDoNotEncodeEncoderForTest(zapcore.NewMapObjectEncoder())
 
 	clone := sut.Clone()
@@ -30,6 +32,7 @@ func TestDoNotEncodeEncoder_Clone(t *testing.T) {
 
 func TestDoNotEncodeEncoder_EncodeEntry(t *testing.T) {
 	g := NewWithT(t)
+
 	sut := testutil.NewDoNotEncodeEncoderForTest(zapcore.NewMapObjectEncoder())
 
 	buffer, err := sut.EncodeEntry(zapcore.Entry{}, nil)

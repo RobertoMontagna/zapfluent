@@ -1,4 +1,4 @@
-package core
+package core_test
 
 import (
 	"errors"
@@ -6,52 +6,72 @@ import (
 
 	"go.uber.org/zap/zapcore"
 
+	"go.robertomontagna.dev/zapfluent/pkg/core"
+
 	. "github.com/onsi/gomega"
 )
 
 const (
-	testFieldName    = "test-field"
-	testErrorMessage = "test-error"
+	ehcTestFieldName    = "test-field"
+	ehcTestErrorMessage = "test-error"
 )
 
 func TestNewErrorHandlingConfiguration(t *testing.T) {
-	g := NewWithT(t)
+	const customMessage = "test-message"
 
-	t.Run("with default options", func(t *testing.T) {
-		cfg := NewErrorHandlingConfiguration()
+	testCases := []struct {
+		name                   string
+		options                []core.ErrorHandlingConfigurationOption
+		expectedMode           core.ErrorHandlingMode
+		expectedFallbackErrMsg string
+	}{
+		{
+			name:                   "with default options",
+			options:                []core.ErrorHandlingConfigurationOption{},
+			expectedMode:           core.ErrorHandlingModeContinue,
+			expectedFallbackErrMsg: "failed to encode fallback field",
+		},
+		{
+			name: "with WithMode option",
+			options: []core.ErrorHandlingConfigurationOption{
+				core.WithMode(core.ErrorHandlingModeEarlyFailing),
+			},
+			expectedMode:           core.ErrorHandlingModeEarlyFailing,
+			expectedFallbackErrMsg: "failed to encode fallback field",
+		},
+		{
+			name: "with WithFallbackErrorMessage option",
+			options: []core.ErrorHandlingConfigurationOption{
+				core.WithFallbackErrorMessage(customMessage),
+			},
+			expectedMode:           core.ErrorHandlingModeContinue,
+			expectedFallbackErrMsg: customMessage,
+		},
+	}
 
-		g.Expect(cfg.Mode()).To(Equal(ErrorHandlingModeContinue))
-	})
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			g := NewWithT(t)
 
-	t.Run("with WithMode option", func(t *testing.T) {
-		opt := WithMode(ErrorHandlingModeEarlyFailing)
+			cfg := core.NewErrorHandlingConfiguration(tc.options...)
 
-		cfg := NewErrorHandlingConfiguration(opt)
-
-		g.Expect(cfg.Mode()).To(Equal(ErrorHandlingModeEarlyFailing))
-	})
-
-	t.Run("with WithFallbackErrorMessage option", func(t *testing.T) {
-		const message = "test-message"
-		opt := WithFallbackErrorMessage(message)
-
-		cfg := NewErrorHandlingConfiguration(opt)
-
-		g.Expect(cfg.FallbackErrorMessage).To(Equal(message))
-	})
+			g.Expect(cfg.Mode()).To(Equal(tc.expectedMode))
+			g.Expect(cfg.FallbackErrorMessage).To(Equal(tc.expectedFallbackErrMsg))
+		})
+	}
 }
 
 func TestErrorHandlingMode_String(t *testing.T) {
 	g := NewWithT(t)
 
 	testCases := []struct {
-		mode     ErrorHandlingMode
+		mode     core.ErrorHandlingMode
 		expected string
 	}{
-		{ErrorHandlingModeUnknown, ErrorHandlingModeUnknownString},
-		{ErrorHandlingModeEarlyFailing, ErrorHandlingModeEarlyFailingString},
-		{ErrorHandlingModeContinue, ErrorHandlingModeContinueString},
-		{ErrorHandlingMode(99), "Unknown(99)"},
+		{core.ErrorHandlingModeUnknown, core.ErrorHandlingModeUnknownString},
+		{core.ErrorHandlingModeEarlyFailing, core.ErrorHandlingModeEarlyFailingString},
+		{core.ErrorHandlingModeContinue, core.ErrorHandlingModeContinueString},
+		{core.ErrorHandlingMode(99), "Unknown(99)"},
 	}
 
 	for _, tc := range testCases {
@@ -69,45 +89,47 @@ func TestIntToErrorHandlingMode(t *testing.T) {
 	testCases := []struct {
 		name     string
 		value    int
-		expected ErrorHandlingMode
+		expected core.ErrorHandlingMode
 	}{
-		{ErrorHandlingModeUnknownString, 0, ErrorHandlingModeUnknown},
-		{ErrorHandlingModeEarlyFailingString, 1, ErrorHandlingModeEarlyFailing},
-		{ErrorHandlingModeContinueString, 2, ErrorHandlingModeContinue},
-		{"Invalid", 99, ErrorHandlingModeUnknown},
+		{core.ErrorHandlingModeUnknownString, 0, core.ErrorHandlingModeUnknown},
+		{core.ErrorHandlingModeEarlyFailingString, 1, core.ErrorHandlingModeEarlyFailing},
+		{core.ErrorHandlingModeContinueString, 2, core.ErrorHandlingModeContinue},
+		{"Invalid", 99, core.ErrorHandlingModeUnknown},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			mode := IntToErrorHandlingMode(tc.value)
+			mode := core.IntToErrorHandlingMode(tc.value)
 
 			g.Expect(mode).To(Equal(tc.expected))
 		})
 	}
 }
 
-func TestFixedStringFallback(t *testing.T) {
+func TestFixedStringFallback_WhenCalled_ReturnsFieldWithFixedValue(t *testing.T) {
 	g := NewWithT(t)
 	const fallbackValue = "fixed-value"
-	factory := FixedStringFallback(fallbackValue)
 
-	field := factory(testFieldName, errors.New(testErrorMessage))
-
+	factory := core.FixedStringFallback(fallbackValue)
 	enc := zapcore.NewMapObjectEncoder()
+
+	field := factory(ehcTestFieldName, errors.New(ehcTestErrorMessage))
 	err := field.Encode(enc)
+
 	g.Expect(err).ToNot(HaveOccurred())
-	g.Expect(enc.Fields).To(HaveKeyWithValue(testFieldName, fallbackValue))
+	g.Expect(enc.Fields).To(HaveKeyWithValue(ehcTestFieldName, fallbackValue))
 }
 
-func TestErrorStringFallback(t *testing.T) {
+func TestErrorStringFallback_WhenCalled_ReturnsFieldWithErrorString(t *testing.T) {
 	g := NewWithT(t)
 	const errorMsg = "this is the error message"
-	factory := ErrorStringFallback()
 
-	field := factory(testFieldName, errors.New(errorMsg))
-
+	factory := core.ErrorStringFallback()
 	enc := zapcore.NewMapObjectEncoder()
+
+	field := factory(ehcTestFieldName, errors.New(errorMsg))
 	err := field.Encode(enc)
+
 	g.Expect(err).ToNot(HaveOccurred())
-	g.Expect(enc.Fields).To(HaveKeyWithValue(testFieldName, errorMsg))
+	g.Expect(enc.Fields).To(HaveKeyWithValue(ehcTestFieldName, errorMsg))
 }

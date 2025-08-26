@@ -70,6 +70,5 @@ func TestInterceptGomegaFailures_RestoresFailHandler(t *testing.T) {
 
 	originalFailHandlerPtr := reflect.ValueOf(originalFailHandler).Pointer()
 	restoredFailHandlerPtr := reflect.ValueOf(g.Fail).Pointer()
-
 	g.Expect(restoredFailHandlerPtr).To(Equal(originalFailHandlerPtr))
 }
