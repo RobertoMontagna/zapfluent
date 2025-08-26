@@ -11,12 +11,12 @@ linters:
     - govet         # Reports common mistakes and suspicious constructs.
     - staticcheck   # A suite of static analysis checks for bugs, performance issues, and simplification.
     - revive        # A modern, configurable replacement for golint.
-    - gosec       # For security analysis
-    - gocyclo     # For code complexity
-    - funlen      # For function length
-    - prealloc    # For performance optimization
-    - ineffassign # For code efficiency
-    - misspell    # For spelling checks
+    - gosec         # For security analysis
+    - gocyclo       # For code complexity
+    - funlen        # For function length
+    - prealloc      # For performance optimization
+    - ineffassign   # For code efficiency
+    - misspell      # For spelling checks
 
   # It's good practice to disable linters that are not needed or are overly noisy.
   # For now, we will not disable any explicitly but will stick to the enabled set.
@@ -37,12 +37,12 @@ linters-settings:
     # The "checks" option allows us to enable non-default checkers.
     # "all" is a shorthand for all SA, S, ST, and QF checks.
     # This will include ST1003 for identifier naming.
-    checks: ["all"]
+    checks: [ "all" ]
   revive:
     rules:
       - name: line-length-limit
         severity: warning
-        arguments: [100]
+        arguments: [ 100 ]
   gocyclo:
     min-complexity: 7 # Adjust this value to set your desired complexity limit
 
