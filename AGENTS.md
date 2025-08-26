@@ -1,3 +1,17 @@
+# Core Directives
+
+Before undertaking any task, I must follow this startup procedure:
+
+1.  **Full Guideline Review:** Read and process all development guidelines contained in the `assets/development/` directory.
+2.  **Mental Model Construction:** Synthesize these rules into a comprehensive internal "mental model" of all project constraints and conventions.
+3.  **Validation Loop:** Re-read the guidelines and compare them against the constructed mental model. This loop must repeat until the model is fully consistent with all documented rules.
+
+## Ongoing Validation
+
+*   **Design-Time Check:** Before implementing any change, I must validate the proposed design against the mental model.
+*   **Post-Implementation Check:** After completing any development step, I must validate the resulting code changes against the mental model.
+
+---
 # Jules's Workflow Guidelines
 
 This document outlines the standard process for our collaboration on this repository. The goal is to ensure clarity, efficiency, and high-quality results.

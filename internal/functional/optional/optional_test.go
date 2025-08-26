@@ -5,8 +5,8 @@ import (
 	"strconv"
 	"testing"
 
+	"go.robertomontagna.dev/zapfluent/internal/functional/contracts/matchers"
 	"go.robertomontagna.dev/zapfluent/internal/functional/optional"
-	"go.robertomontagna.dev/zapfluent/internal/functional/optional/matchers"
 
 	. "github.com/onsi/gomega"
 )

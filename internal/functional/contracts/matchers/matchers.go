@@ -8,37 +8,34 @@ import (
 	"github.com/onsi/gomega/format"
 	"github.com/onsi/gomega/types"
 
-	"go.robertomontagna.dev/zapfluent/internal/functional/lazyoptional"
+	"go.robertomontagna.dev/zapfluent/internal/functional/contracts"
 )
 
 const (
 	// BePresentFailureMessage is the message returned when the optional is not present.
-	BePresentFailureMessage = "to be present in the lazy optional"
+	BePresentFailureMessage = "to be present in the optional"
 	// NotBePresentFailureMessage is the message returned when the optional is present.
-	NotBePresentFailureMessage = "to not be present in the lazy optional"
+	NotBePresentFailureMessage = "to not be present in the optional"
 	// BeEmptyFailureMessage is the message returned when the optional is not empty.
-	BeEmptyFailureMessage = "to be an empty lazy optional"
+	BeEmptyFailureMessage = "to be an empty optional"
 	// NotBeEmptyFailureMessage is the message returned when the optional is empty.
-	NotBeEmptyFailureMessage = "to not be an empty lazy optional"
-	// HaveValueFailureMessage is the message returned when the optional does not have the expected value.
+	NotBeEmptyFailureMessage = "to not be an empty optional"
+	// HaveValueFailureMessage is for when the optional does not have the expected value.
 	HaveValueFailureMessage = "to have the value"
 	// NotHaveValueFailureMessage is the message returned when the optional has the expected value.
 	NotHaveValueFailureMessage = "to not have the value"
 )
 
-// ErrMatcherWrongType is a sentinel error returned when a matcher receives a value of the wrong type.
+// ErrMatcherWrongType is a sentinel error for when a matcher receives a value of the wrong type.
 var ErrMatcherWrongType = errors.New("matcher received wrong type")
 
-func bePresentWrongTypeError[T any]() error {
-	return fmt.Errorf("BePresent matcher expects a lazyoptional.LazyOptional[%T]: %w", *new(T), ErrMatcherWrongType)
-}
-
-func beEmptyWrongTypeError[T any]() error {
-	return fmt.Errorf("BeEmpty matcher expects a lazyoptional.LazyOptional[%T]: %w", *new(T), ErrMatcherWrongType)
-}
-
-func haveValueWrongTypeError[T any]() error {
-	return fmt.Errorf("HaveValue matcher expects a lazyoptional.LazyOptional[%T]: %w", *new(T), ErrMatcherWrongType)
+func wrongTypeError[T any](matcherName string) error {
+	return fmt.Errorf(
+		"%s matcher expects a contracts.OptionalLike[%T]: %w",
+		matcherName,
+		*new(T),
+		ErrMatcherWrongType,
+	)
 }
 
 // BePresent succeeds if the actual value is an optional that is present.
@@ -49,12 +46,11 @@ func BePresent[T any]() types.GomegaMatcher {
 type BePresentMatcher[T any] struct{}
 
 func (m *BePresentMatcher[T]) Match(actual any) (bool, error) {
-	opt, ok := actual.(lazyoptional.LazyOptional[T])
+	opt, ok := actual.(contracts.OptionalLike[T])
 	if !ok {
-		return false, bePresentWrongTypeError[T]()
+		return false, wrongTypeError[T]("BePresent")
 	}
-	_, isPresent := opt.Get()
-	return isPresent, nil
+	return opt.IsPresent(), nil
 }
 
 func (m *BePresentMatcher[T]) FailureMessage(actual any) string {
@@ -73,12 +69,11 @@ func BeEmpty[T any]() types.GomegaMatcher {
 type BeEmptyMatcher[T any] struct{}
 
 func (m *BeEmptyMatcher[T]) Match(actual any) (bool, error) {
-	opt, ok := actual.(lazyoptional.LazyOptional[T])
+	opt, ok := actual.(contracts.OptionalLike[T])
 	if !ok {
-		return false, beEmptyWrongTypeError[T]()
+		return false, wrongTypeError[T]("BeEmpty")
 	}
-	_, isPresent := opt.Get()
-	return !isPresent, nil
+	return !opt.IsPresent(), nil
 }
 
 func (m *BeEmptyMatcher[T]) FailureMessage(actual any) string {
@@ -102,9 +97,9 @@ type HaveValueMatcher[T any] struct {
 }
 
 func (m *HaveValueMatcher[T]) Match(actual any) (bool, error) {
-	opt, ok := actual.(lazyoptional.LazyOptional[T])
+	opt, ok := actual.(contracts.OptionalLike[T])
 	if !ok {
-		return false, haveValueWrongTypeError[T]()
+		return false, wrongTypeError[T]("HaveValue")
 	}
 
 	val, ok := opt.Get()

@@ -2,10 +2,56 @@ package core
 
 import "go.uber.org/zap/zapcore"
 
+var (
+	// boolTypeFns holds the cached typeFieldFunctions for bool fields.
+	boolTypeFns = typeFieldFunctions[bool]{
+		encodeFunc: func(encoder zapcore.ObjectEncoder, name string, value bool) error {
+			encoder.AddBool(name, value)
+			return nil
+		},
+		isNonZero: func(b bool) bool {
+			return b
+		},
+	}
+
+	// stringTypeFns holds the cached typeFieldFunctions for string fields.
+	stringTypeFns = typeFieldFunctions[string]{
+		encodeFunc: func(encoder zapcore.ObjectEncoder, name string, value string) error {
+			encoder.AddString(name, value)
+			return nil
+		},
+		isNonZero: func(s string) bool {
+			return s != ""
+		},
+	}
+
+	// intTypeFns holds the cached typeFieldFunctions for int fields.
+	intTypeFns = typeFieldFunctions[int]{
+		encodeFunc: func(encoder zapcore.ObjectEncoder, name string, value int) error {
+			encoder.AddInt(name, value)
+			return nil
+		},
+		isNonZero: func(i int) bool {
+			return i != 0
+		},
+	}
+
+	// int8TypeFns holds the cached typeFieldFunctions for int8 fields.
+	int8TypeFns = typeFieldFunctions[int8]{
+		encodeFunc: func(encoder zapcore.ObjectEncoder, name string, value int8) error {
+			encoder.AddInt8(name, value)
+			return nil
+		},
+		isNonZero: func(i int8) bool {
+			return i != 0
+		},
+	}
+)
+
 // String returns a new field with a string value.
 func String(name string, value string) TypedField[string] {
 	return newTypedField(
-		stringTypeFns(),
+		stringTypeFns,
 		name,
 		value,
 	)
@@ -14,7 +60,7 @@ func String(name string, value string) TypedField[string] {
 // Int returns a new field with an int value.
 func Int(name string, value int) TypedField[int] {
 	return newTypedField(
-		intTypeFns(),
+		intTypeFns,
 		name,
 		value,
 	)
@@ -23,7 +69,7 @@ func Int(name string, value int) TypedField[int] {
 // Int8 returns a new field with an int8 value.
 func Int8(name string, value int8) TypedField[int8] {
 	return newTypedField(
-		int8TypeFns(),
+		int8TypeFns,
 		name,
 		value,
 	)
@@ -52,67 +98,19 @@ type Comparable interface {
 // The `isNonZero` function for this field performs a simple comparison to the
 // zero value of the type (e.g., `v != *new(T)`).
 func ComparableObject[T Comparable](name string, value T) TypedField[T] {
+	var zero T
 	return Object(name, value, func(v T) bool {
-		var x T
-		return v != x
+		return v != zero
 	})
 }
 
 // Bool returns a new field with a bool value.
 func Bool(name string, value bool) TypedField[bool] {
 	return newTypedField(
-		boolTypeFns(),
+		boolTypeFns,
 		name,
 		value,
 	)
-}
-
-func boolTypeFns() typeFieldFunctions[bool] {
-	return typeFieldFunctions[bool]{
-		encodeFunc: func(encoder zapcore.ObjectEncoder, name string, value bool) error {
-			encoder.AddBool(name, value)
-			return nil
-		},
-		isNonZero: func(b bool) bool {
-			return b
-		},
-	}
-}
-
-func stringTypeFns() typeFieldFunctions[string] {
-	return typeFieldFunctions[string]{
-		encodeFunc: func(encoder zapcore.ObjectEncoder, name string, value string) error {
-			encoder.AddString(name, value)
-			return nil
-		},
-		isNonZero: func(s string) bool {
-			return s != ""
-		},
-	}
-}
-
-func intTypeFns() typeFieldFunctions[int] {
-	return typeFieldFunctions[int]{
-		encodeFunc: func(encoder zapcore.ObjectEncoder, name string, value int) error {
-			encoder.AddInt(name, value)
-			return nil
-		},
-		isNonZero: func(i int) bool {
-			return i != 0
-		},
-	}
-}
-
-func int8TypeFns() typeFieldFunctions[int8] {
-	return typeFieldFunctions[int8]{
-		encodeFunc: func(encoder zapcore.ObjectEncoder, name string, value int8) error {
-			encoder.AddInt8(name, value)
-			return nil
-		},
-		isNonZero: func(i int8) bool {
-			return i != 0
-		},
-	}
 }
 
 func objectTypeFns[T zapcore.ObjectMarshaler](isNonZero func(T) bool) typeFieldFunctions[T] {

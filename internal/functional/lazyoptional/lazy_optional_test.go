@@ -4,8 +4,8 @@ import (
 	"strconv"
 	"testing"
 
+	"go.robertomontagna.dev/zapfluent/internal/functional/contracts/matchers"
 	"go.robertomontagna.dev/zapfluent/internal/functional/lazyoptional"
-	"go.robertomontagna.dev/zapfluent/internal/functional/lazyoptional/matchers"
 
 	. "github.com/onsi/gomega"
 )
@@ -79,7 +79,9 @@ func TestFlatMap(t *testing.T) {
 
 	t.Run("on Some that returns Some", func(t *testing.T) {
 		opt := lazyoptional.Some(42)
-		f := func(i int) lazyoptional.LazyOptional[string] { return lazyoptional.Some(strconv.Itoa(i)) }
+		f := func(i int) lazyoptional.LazyOptional[string] {
+			return lazyoptional.Some(strconv.Itoa(i))
+		}
 
 		fmOpt := lazyoptional.FlatMap(opt, f)
 
@@ -98,7 +100,9 @@ func TestFlatMap(t *testing.T) {
 
 	t.Run("on Empty", func(t *testing.T) {
 		opt := lazyoptional.Empty[int]()
-		f := func(i int) lazyoptional.LazyOptional[string] { return lazyoptional.Some(strconv.Itoa(i)) }
+		f := func(i int) lazyoptional.LazyOptional[string] {
+			return lazyoptional.Some(strconv.Itoa(i))
+		}
 
 		fmOpt := lazyoptional.FlatMap(opt, f)
 

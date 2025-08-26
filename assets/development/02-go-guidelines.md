@@ -92,6 +92,8 @@ The `context` package is essential for managing deadlines, cancellation, and req
     * Distinguish between test setup helpers and assertion helpers. It is idiomatic in Go to avoid assertion helpers that call `t.Fatal` or `t.Error`. Instead, return an error from your validation function and let the test function decide whether to fail the test.
 * **`t.Fatal` vs. `t.Error`**
     * Use `t.Fatal` when a test cannot continue because a setup step has failed. Use `t.Error` when a test case has failed but other test cases can still be run.
+* **Black-Box Testing**
+    * To enforce black-box testing, tests must be written in a separate package with a `_test` suffix (e.g., `mypackage_test`). This ensures that tests can only access the exported identifiers of the package under test.
 
 ## Performance
 
