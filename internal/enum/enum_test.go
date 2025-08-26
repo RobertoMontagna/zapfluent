@@ -26,41 +26,59 @@ var testEnumSpec = enum.New(
 )
 
 func TestEnum_String(t *testing.T) {
-	g := NewWithT(t)
+	testCases := []struct {
+		name     string
+		value    testEnum
+		expected string
+	}{
+		{
+			name:     "with known value",
+			value:    testEnumValue1,
+			expected: "Value1",
+		},
+		{
+			name:     "with unknown value",
+			value:    testEnum(99),
+			expected: "Unknown(99)",
+		},
+	}
 
-	t.Run("with known value", func(t *testing.T) {
-		val := testEnumValue1
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			g := NewWithT(t)
 
-		s := testEnumSpec.String(val)
+			s := testEnumSpec.String(tc.value)
 
-		g.Expect(s).To(Equal("Value1"))
-	})
-
-	t.Run("with unknown value", func(t *testing.T) {
-		val := testEnum(99)
-
-		s := testEnumSpec.String(val)
-
-		g.Expect(s).To(Equal("Unknown(99)"))
-	})
+			g.Expect(s).To(Equal(tc.expected))
+		})
+	}
 }
 
 func TestEnum_FromInt(t *testing.T) {
-	g := NewWithT(t)
+	testCases := []struct {
+		name     string
+		value    int
+		expected testEnum
+	}{
+		{
+			name:     "with valid int",
+			value:    1,
+			expected: testEnumValue1,
+		},
+		{
+			name:     "with invalid int",
+			value:    99,
+			expected: testEnumUnknown,
+		},
+	}
 
-	t.Run("with valid int", func(t *testing.T) {
-		i := 1
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			g := NewWithT(t)
 
-		val := testEnumSpec.FromInt(i)
+			val := testEnumSpec.FromInt(tc.value)
 
-		g.Expect(val).To(Equal(testEnumValue1))
-	})
-
-	t.Run("with invalid int", func(t *testing.T) {
-		i := 99
-
-		val := testEnumSpec.FromInt(i)
-
-		g.Expect(val).To(Equal(testEnumUnknown))
-	})
+			g.Expect(val).To(Equal(tc.expected))
+		})
+	}
 }

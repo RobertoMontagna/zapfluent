@@ -14,8 +14,6 @@ import (
 )
 
 func TestMatchers(t *testing.T) {
-	t.Parallel()
-
 	// This test table is designed to test the generic matchers with both
 	// optional.Optional and lazyoptional.LazyOptional to ensure the
 	// OptionalLike[T] interface is correctly handled.
@@ -113,9 +111,7 @@ func TestMatchers(t *testing.T) {
 	}
 
 	for _, tc := range matchTestCases {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
 			g := NewGomegaWithT(t)
 
 			if tc.shouldFail {
@@ -159,9 +155,7 @@ func TestMatchers(t *testing.T) {
 	}
 
 	for _, tc := range errorTestCases {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
 			g := NewGomegaWithT(t)
 
 			_, err := tc.matcher.Match(tc.input)

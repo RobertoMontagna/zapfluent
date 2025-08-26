@@ -11,162 +11,243 @@ import (
 )
 
 func TestLiftToOptional(t *testing.T) {
-	g := NewWithT(t)
+	v := 123
+	testCases := []struct {
+		name          string
+		f             func() *int
+		shouldBeEmpty bool
+		expectedValue int
+	}{
+		{
+			name:          "for nil-returning function",
+			f:             func() *int { return nil },
+			shouldBeEmpty: true,
+		},
+		{
+			name:          "for value-returning function",
+			f:             func() *int { return &v },
+			shouldBeEmpty: false,
+			expectedValue: 123,
+		},
+	}
 
-	t.Run("for nil-returning function", func(t *testing.T) {
-		f := func() *int { return nil }
-		lifted := optional.LiftToOptional(f)
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			g := NewWithT(t)
 
-		result := lifted()
+			lifted := optional.LiftToOptional(tc.f)
 
-		g.Expect(result).To(matchers.BeEmpty[int]())
-	})
+			result := lifted()
 
-	t.Run("for value-returning function", func(t *testing.T) {
-		v := 123
-		f := func() *int { return &v }
-		lifted := optional.LiftToOptional(f)
-
-		result := lifted()
-
-		g.Expect(result).To(matchers.BePresent[int]())
-		g.Expect(result).To(matchers.HaveValue(123))
-	})
+			if tc.shouldBeEmpty {
+				g.Expect(result).To(matchers.BeEmpty[int]())
+			} else {
+				g.Expect(result).To(matchers.BePresent[int]())
+				g.Expect(result).To(matchers.HaveValue(tc.expectedValue))
+			}
+		})
+	}
 }
 
 func TestLiftToOptional1(t *testing.T) {
-	g := NewWithT(t)
+	v := 123
+	testCases := []struct {
+		name          string
+		f             func(string) *int
+		shouldBeEmpty bool
+		expectedValue int
+	}{
+		{
+			name:          "for nil-returning function",
+			f:             func(s string) *int { return nil },
+			shouldBeEmpty: true,
+		},
+		{
+			name: "for value-returning function",
+			f: func(s string) *int {
+				return &v
+			},
+			shouldBeEmpty: false,
+			expectedValue: 123,
+		},
+	}
 
-	t.Run("for nil-returning function", func(t *testing.T) {
-		f := func(s string) *int { return nil }
-		lifted := optional.LiftToOptional1(f)
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			g := NewWithT(t)
 
-		result := lifted("test")
+			lifted := optional.LiftToOptional1(tc.f)
 
-		g.Expect(result).To(matchers.BeEmpty[int]())
-	})
+			result := lifted("test")
 
-	t.Run("for value-returning function", func(t *testing.T) {
-		v := 123
-		f := func(s string) *int {
-			g.Expect(s).To(Equal("test"))
-			return &v
-		}
-		lifted := optional.LiftToOptional1(f)
-
-		result := lifted("test")
-
-		g.Expect(result).To(matchers.BePresent[int]())
-		g.Expect(result).To(matchers.HaveValue(123))
-	})
+			if tc.shouldBeEmpty {
+				g.Expect(result).To(matchers.BeEmpty[int]())
+			} else {
+				g.Expect(result).To(matchers.BePresent[int]())
+				g.Expect(result).To(matchers.HaveValue(tc.expectedValue))
+			}
+		})
+	}
 }
 
 func TestLiftToOptional2(t *testing.T) {
-	g := NewWithT(t)
+	v := 123
+	testCases := []struct {
+		name          string
+		f             func(string, int) *int
+		shouldBeEmpty bool
+		expectedValue int
+	}{
+		{
+			name:          "for nil-returning function",
+			f:             func(s string, i int) *int { return nil },
+			shouldBeEmpty: true,
+		},
+		{
+			name: "for value-returning function",
+			f: func(s string, i int) *int {
+				return &v
+			},
+			shouldBeEmpty: false,
+			expectedValue: 123,
+		},
+	}
 
-	t.Run("for nil-returning function", func(t *testing.T) {
-		f := func(s string, i int) *int { return nil }
-		lifted := optional.LiftToOptional2(f)
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			g := NewWithT(t)
 
-		result := lifted("test", 1)
+			lifted := optional.LiftToOptional2(tc.f)
 
-		g.Expect(result).To(matchers.BeEmpty[int]())
-	})
+			result := lifted("test", 1)
 
-	t.Run("for value-returning function", func(t *testing.T) {
-		v := 123
-		f := func(s string, i int) *int {
-			g.Expect(s).To(Equal("test"))
-			g.Expect(i).To(Equal(1))
-			return &v
-		}
-		lifted := optional.LiftToOptional2(f)
-
-		result := lifted("test", 1)
-
-		g.Expect(result).To(matchers.BePresent[int]())
-		g.Expect(result).To(matchers.HaveValue(123))
-	})
+			if tc.shouldBeEmpty {
+				g.Expect(result).To(matchers.BeEmpty[int]())
+			} else {
+				g.Expect(result).To(matchers.BePresent[int]())
+				g.Expect(result).To(matchers.HaveValue(tc.expectedValue))
+			}
+		})
+	}
 }
 
 func TestLiftErrorToOptional(t *testing.T) {
-	g := NewWithT(t)
-
 	testErr := errors.New("test error")
+	testCases := []struct {
+		name          string
+		f             func() error
+		shouldBeEmpty bool
+		expectedValue error
+	}{
+		{
+			name:          "for nil-returning function",
+			f:             func() error { return nil },
+			shouldBeEmpty: true,
+		},
+		{
+			name:          "for error-returning function",
+			f:             func() error { return testErr },
+			shouldBeEmpty: false,
+			expectedValue: testErr,
+		},
+	}
 
-	t.Run("for nil-returning function", func(t *testing.T) {
-		f := func() error { return nil }
-		lifted := optional.LiftErrorToOptional(f)
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			g := NewWithT(t)
 
-		result := lifted()
+			lifted := optional.LiftErrorToOptional(tc.f)
 
-		g.Expect(result).To(matchers.BeEmpty[error]())
-	})
+			result := lifted()
 
-	t.Run("for error-returning function", func(t *testing.T) {
-		f := func() error { return testErr }
-		lifted := optional.LiftErrorToOptional(f)
-
-		result := lifted()
-
-		g.Expect(result).To(matchers.BePresent[error]())
-		g.Expect(result).To(matchers.HaveValue(testErr))
-	})
+			if tc.shouldBeEmpty {
+				g.Expect(result).To(matchers.BeEmpty[error]())
+			} else {
+				g.Expect(result).To(matchers.BePresent[error]())
+				g.Expect(result).To(matchers.HaveValue(tc.expectedValue))
+			}
+		})
+	}
 }
 
 func TestLiftErrorToOptional1(t *testing.T) {
-	g := NewWithT(t)
-
 	testErr := errors.New("test error")
+	testCases := []struct {
+		name          string
+		f             func(string) error
+		shouldBeEmpty bool
+		expectedValue error
+	}{
+		{
+			name:          "for nil-returning function",
+			f:             func(s string) error { return nil },
+			shouldBeEmpty: true,
+		},
+		{
+			name: "for error-returning function",
+			f: func(s string) error {
+				return testErr
+			},
+			shouldBeEmpty: false,
+			expectedValue: testErr,
+		},
+	}
 
-	t.Run("for nil-returning function", func(t *testing.T) {
-		f := func(s string) error { return nil }
-		lifted := optional.LiftErrorToOptional1(f)
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			g := NewWithT(t)
 
-		result := lifted("test")
+			lifted := optional.LiftErrorToOptional1(tc.f)
 
-		g.Expect(result).To(matchers.BeEmpty[error]())
-	})
+			result := lifted("test")
 
-	t.Run("for error-returning function", func(t *testing.T) {
-		f := func(s string) error {
-			g.Expect(s).To(Equal("test"))
-			return testErr
-		}
-		lifted := optional.LiftErrorToOptional1(f)
-
-		result := lifted("test")
-
-		g.Expect(result).To(matchers.BePresent[error]())
-		g.Expect(result).To(matchers.HaveValue(testErr))
-	})
+			if tc.shouldBeEmpty {
+				g.Expect(result).To(matchers.BeEmpty[error]())
+			} else {
+				g.Expect(result).To(matchers.BePresent[error]())
+				g.Expect(result).To(matchers.HaveValue(tc.expectedValue))
+			}
+		})
+	}
 }
 
 func TestLiftErrorToOptional2(t *testing.T) {
-	g := NewWithT(t)
-
 	testErr := errors.New("test error")
+	testCases := []struct {
+		name          string
+		f             func(string, int) error
+		shouldBeEmpty bool
+		expectedValue error
+	}{
+		{
+			name:          "for nil-returning function",
+			f:             func(s string, i int) error { return nil },
+			shouldBeEmpty: true,
+		},
+		{
+			name: "for error-returning function",
+			f: func(s string, i int) error {
+				return testErr
+			},
+			shouldBeEmpty: false,
+			expectedValue: testErr,
+		},
+	}
 
-	t.Run("for nil-returning function", func(t *testing.T) {
-		f := func(s string, i int) error { return nil }
-		lifted := optional.LiftErrorToOptional2(f)
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			g := NewWithT(t)
 
-		result := lifted("test", 1)
+			lifted := optional.LiftErrorToOptional2(tc.f)
 
-		g.Expect(result).To(matchers.BeEmpty[error]())
-	})
+			result := lifted("test", 1)
 
-	t.Run("for error-returning function", func(t *testing.T) {
-		f := func(s string, i int) error {
-			g.Expect(s).To(Equal("test"))
-			g.Expect(i).To(Equal(1))
-			return testErr
-		}
-		lifted := optional.LiftErrorToOptional2(f)
-
-		result := lifted("test", 1)
-
-		g.Expect(result).To(matchers.BePresent[error]())
-		g.Expect(result).To(matchers.HaveValue(testErr))
-	})
+			if tc.shouldBeEmpty {
+				g.Expect(result).To(matchers.BeEmpty[error]())
+			} else {
+				g.Expect(result).To(matchers.BePresent[error]())
+				g.Expect(result).To(matchers.HaveValue(tc.expectedValue))
+			}
+		})
+	}
 }

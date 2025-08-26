@@ -30,35 +30,48 @@ func TestLazyOptional_Empty(t *testing.T) {
 }
 
 func TestLazyOptional_Filter(t *testing.T) {
-	g := NewWithT(t)
+	testCases := []struct {
+		name          string
+		initialValue  lazyoptional.LazyOptional[int]
+		predicate     func(int) bool
+		shouldBeEmpty bool
+		expectedValue int
+	}{
+		{
+			name:          "on Some with passing condition",
+			initialValue:  lazyoptional.Some(42),
+			predicate:     func(i int) bool { return i > 10 },
+			shouldBeEmpty: false,
+			expectedValue: 42,
+		},
+		{
+			name:          "on Some with failing condition",
+			initialValue:  lazyoptional.Some(42),
+			predicate:     func(i int) bool { return i < 10 },
+			shouldBeEmpty: true,
+		},
+		{
+			name:          "on Empty",
+			initialValue:  lazyoptional.Empty[int](),
+			predicate:     func(i int) bool { return i > 10 },
+			shouldBeEmpty: true,
+		},
+	}
 
-	t.Run("on Some with passing condition", func(t *testing.T) {
-		opt := lazyoptional.Some(42)
-		predicate := func(i int) bool { return i > 10 }
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			g := NewWithT(t)
 
-		filteredOpt := opt.Filter(predicate)
+			filteredOpt := tc.initialValue.Filter(tc.predicate)
 
-		g.Expect(filteredOpt).To(matchers.BePresent[int]())
-		g.Expect(filteredOpt).To(matchers.HaveValue(42))
-	})
-
-	t.Run("on Some with failing condition", func(t *testing.T) {
-		opt := lazyoptional.Some(42)
-		predicate := func(i int) bool { return i < 10 }
-
-		filteredOpt := opt.Filter(predicate)
-
-		g.Expect(filteredOpt).To(matchers.BeEmpty[int]())
-	})
-
-	t.Run("on Empty", func(t *testing.T) {
-		opt := lazyoptional.Empty[int]()
-		predicate := func(i int) bool { return i > 10 }
-
-		filteredOpt := opt.Filter(predicate)
-
-		g.Expect(filteredOpt).To(matchers.BeEmpty[int]())
-	})
+			if tc.shouldBeEmpty {
+				g.Expect(filteredOpt).To(matchers.BeEmpty[int]())
+			} else {
+				g.Expect(filteredOpt).To(matchers.BePresent[int]())
+				g.Expect(filteredOpt).To(matchers.HaveValue(tc.expectedValue))
+			}
+		})
+	}
 }
 
 func TestNewConstantProducer(t *testing.T) {
@@ -75,60 +88,91 @@ func TestNewConstantProducer(t *testing.T) {
 }
 
 func TestFlatMap(t *testing.T) {
-	g := NewWithT(t)
+	testCases := []struct {
+		name          string
+		initialValue  lazyoptional.LazyOptional[int]
+		f             func(int) lazyoptional.LazyOptional[string]
+		shouldBeEmpty bool
+		expectedValue string
+	}{
+		{
+			name:         "on Some that returns Some",
+			initialValue: lazyoptional.Some(42),
+			f: func(i int) lazyoptional.LazyOptional[string] {
+				return lazyoptional.Some(strconv.Itoa(i))
+			},
+			shouldBeEmpty: false,
+			expectedValue: "42",
+		},
+		{
+			name:         "on Some that returns Empty",
+			initialValue: lazyoptional.Some(42),
+			f: func(i int) lazyoptional.LazyOptional[string] {
+				return lazyoptional.Empty[string]()
+			},
+			shouldBeEmpty: true,
+		},
+		{
+			name:         "on Empty",
+			initialValue: lazyoptional.Empty[int](),
+			f: func(i int) lazyoptional.LazyOptional[string] {
+				return lazyoptional.Some(strconv.Itoa(i))
+			},
+			shouldBeEmpty: true,
+		},
+	}
 
-	t.Run("on Some that returns Some", func(t *testing.T) {
-		opt := lazyoptional.Some(42)
-		f := func(i int) lazyoptional.LazyOptional[string] {
-			return lazyoptional.Some(strconv.Itoa(i))
-		}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			g := NewWithT(t)
 
-		fmOpt := lazyoptional.FlatMap(opt, f)
+			fmOpt := lazyoptional.FlatMap(tc.initialValue, tc.f)
 
-		g.Expect(fmOpt).To(matchers.BePresent[string]())
-		g.Expect(fmOpt).To(matchers.HaveValue("42"))
-	})
-
-	t.Run("on Some that returns Empty", func(t *testing.T) {
-		opt := lazyoptional.Some(42)
-		f := func(i int) lazyoptional.LazyOptional[string] { return lazyoptional.Empty[string]() }
-
-		fmOpt := lazyoptional.FlatMap(opt, f)
-
-		g.Expect(fmOpt).To(matchers.BeEmpty[string]())
-	})
-
-	t.Run("on Empty", func(t *testing.T) {
-		opt := lazyoptional.Empty[int]()
-		f := func(i int) lazyoptional.LazyOptional[string] {
-			return lazyoptional.Some(strconv.Itoa(i))
-		}
-
-		fmOpt := lazyoptional.FlatMap(opt, f)
-
-		g.Expect(fmOpt).To(matchers.BeEmpty[string]())
-	})
+			if tc.shouldBeEmpty {
+				g.Expect(fmOpt).To(matchers.BeEmpty[string]())
+			} else {
+				g.Expect(fmOpt).To(matchers.BePresent[string]())
+				g.Expect(fmOpt).To(matchers.HaveValue(tc.expectedValue))
+			}
+		})
+	}
 }
 
 func TestMap(t *testing.T) {
-	g := NewWithT(t)
+	testCases := []struct {
+		name          string
+		initialValue  lazyoptional.LazyOptional[int]
+		mapper        func(int) string
+		shouldBeEmpty bool
+		expectedValue string
+	}{
+		{
+			name:          "on Some",
+			initialValue:  lazyoptional.Some(42),
+			mapper:        func(i int) string { return strconv.Itoa(i) },
+			shouldBeEmpty: false,
+			expectedValue: "42",
+		},
+		{
+			name:          "on Empty",
+			initialValue:  lazyoptional.Empty[int](),
+			mapper:        func(i int) string { return strconv.Itoa(i) },
+			shouldBeEmpty: true,
+		},
+	}
 
-	t.Run("on Some", func(t *testing.T) {
-		opt := lazyoptional.Some(42)
-		mapper := func(i int) string { return strconv.Itoa(i) }
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			g := NewWithT(t)
 
-		mappedOpt := lazyoptional.Map(opt, mapper)
+			mappedOpt := lazyoptional.Map(tc.initialValue, tc.mapper)
 
-		g.Expect(mappedOpt).To(matchers.BePresent[string]())
-		g.Expect(mappedOpt).To(matchers.HaveValue("42"))
-	})
-
-	t.Run("on Empty", func(t *testing.T) {
-		opt := lazyoptional.Empty[int]()
-		mapper := func(i int) string { return strconv.Itoa(i) }
-
-		mappedOpt := lazyoptional.Map(opt, mapper)
-
-		g.Expect(mappedOpt).To(matchers.BeEmpty[string]())
-	})
+			if tc.shouldBeEmpty {
+				g.Expect(mappedOpt).To(matchers.BeEmpty[string]())
+			} else {
+				g.Expect(mappedOpt).To(matchers.BePresent[string]())
+				g.Expect(mappedOpt).To(matchers.HaveValue(tc.expectedValue))
+			}
+		})
+	}
 }

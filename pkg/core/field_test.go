@@ -1,9 +1,12 @@
-package core
+package core_test
 
 import (
+	"strconv"
 	"testing"
 
 	"go.uber.org/zap/zapcore"
+
+	"go.robertomontagna.dev/zapfluent/pkg/core"
 
 	. "github.com/onsi/gomega"
 )
@@ -12,69 +15,61 @@ const (
 	testValueString = "test-value"
 )
 
-func TestLazyTypedField_Name(t *testing.T) {
+func TestTypedField_Name(t *testing.T) {
 	g := NewWithT(t)
 
-	functions := typeFieldFunctions[string]{}
-	field := newTypedField(functions, testFieldName, testValueString)
+	field := core.String(testFieldName, testValueString)
 
 	g.Expect(field.Name()).To(Equal(testFieldName))
 }
 
-func TestLazyTypedField(t *testing.T) {
-	functions := typeFieldFunctions[string]{
-		encodeFunc: func(enc zapcore.ObjectEncoder, name string, value string) error {
-			enc.AddString(name, value)
-			return nil
-		},
-		isNonZero: func(s string) bool { return s != "" },
-	}
-	baseField := newTypedField(functions, testFieldName, testValueString)
-	zeroField := newTypedField(functions, testFieldName, "")
-
+func TestTypedField_Filtering(t *testing.T) {
 	testCases := []struct {
 		name       string
-		inputField Field
+		inputField core.TypedField[string]
 		assertion  func(g *GomegaWithT, fields map[string]any)
 	}{
 		{
 			name:       "Encode: when value is present, it encodes the value",
-			inputField: baseField,
+			inputField: core.String(testFieldName, testValueString),
 			assertion: func(g *GomegaWithT, fields map[string]any) {
 				g.Expect(fields).To(HaveKeyWithValue(testFieldName, testValueString))
 			},
 		},
 		{
-			name:       "Encode: when value is not present, it does not encode anything",
-			inputField: baseField.Filter(func(s string) bool { return false }),
+			name: "Encode: when value is not present, it does not encode anything",
+			inputField: core.String(testFieldName, testValueString).
+				Filter(func(s string) bool { return false }),
 			assertion: func(g *GomegaWithT, fields map[string]any) {
 				g.Expect(fields).To(BeEmpty())
 			},
 		},
 		{
-			name:       "Filter: when condition is met, it keeps the value",
-			inputField: baseField.Filter(func(s string) bool { return true }),
+			name: "Filter: when condition is met, it keeps the value",
+			inputField: core.String(testFieldName, testValueString).
+				Filter(func(s string) bool { return true }),
 			assertion: func(g *GomegaWithT, fields map[string]any) {
 				g.Expect(fields).ToNot(BeEmpty())
 			},
 		},
 		{
-			name:       "Filter: when condition is not met, it removes the value",
-			inputField: baseField.Filter(func(s string) bool { return false }),
+			name: "Filter: when condition is not met, it removes the value",
+			inputField: core.String(testFieldName, testValueString).
+				Filter(func(s string) bool { return false }),
 			assertion: func(g *GomegaWithT, fields map[string]any) {
 				g.Expect(fields).To(BeEmpty())
 			},
 		},
 		{
 			name:       "NonZero: when value is not zero, it keeps the value",
-			inputField: baseField.NonZero(),
+			inputField: core.String(testFieldName, testValueString).NonZero(),
 			assertion: func(g *GomegaWithT, fields map[string]any) {
 				g.Expect(fields).ToNot(BeEmpty())
 			},
 		},
 		{
 			name:       "NonZero: when value is zero, it removes the value",
-			inputField: zeroField.NonZero(),
+			inputField: core.String(testFieldName, "").NonZero(),
 			assertion: func(g *GomegaWithT, fields map[string]any) {
 				g.Expect(fields).To(BeEmpty())
 			},
@@ -87,30 +82,25 @@ func TestLazyTypedField(t *testing.T) {
 			enc := zapcore.NewMapObjectEncoder()
 
 			err := tc.inputField.Encode(enc)
-			g.Expect(err).ToNot(HaveOccurred())
 
+			g.Expect(err).ToNot(HaveOccurred())
 			tc.assertion(g, enc.Fields)
 		})
 	}
 }
 
-func TestLazyTypedField_Format(t *testing.T) {
+func TestTypedField_Format(t *testing.T) {
 	g := NewWithT(t)
 
-	functions := typeFieldFunctions[int]{
-		encodeFunc: func(enc zapcore.ObjectEncoder, name string, value int) error {
-			enc.AddInt(name, value)
-			return nil
-		},
-	}
-	field := newTypedField(functions, testFieldName, 5)
-	formattedField := field.Format(func(i int) string { return "formatted" })
+	field := core.Int(testFieldName, 5)
+
+	formattedField := field.Format(func(i int) string { return "formatted-" + strconv.Itoa(i) })
 	enc := zapcore.NewMapObjectEncoder()
 
 	err := formattedField.Encode(enc)
 
 	g.Expect(err).ToNot(HaveOccurred())
-	g.Expect(enc.Fields).To(HaveKeyWithValue(testFieldName, "formatted"))
+	g.Expect(enc.Fields).To(HaveKeyWithValue(testFieldName, "formatted-5"))
 }
 
 func TestIsNotNil_WithUntypedNil(t *testing.T) {
@@ -118,7 +108,7 @@ func TestIsNotNil_WithUntypedNil(t *testing.T) {
 
 	var input any
 
-	actual := ReflectiveIsNotNil(input)
+	actual := core.ReflectiveIsNotNil(input)
 
 	g.Expect(actual).To(BeFalse())
 }
@@ -150,7 +140,7 @@ func TestIsNotNil_WithTypedValues(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			actual := ReflectiveIsNotNil(tc.input)
+			actual := core.ReflectiveIsNotNil(tc.input)
 
 			g.Expect(actual).To(Equal(tc.expected))
 		})

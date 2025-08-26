@@ -39,8 +39,9 @@ var (
 	)
 )
 
-func TestFluent_Done_WithMultipleErrors_AggregatesErrors(t *testing.T) {
+func TestFluent_Done_WhenFieldsFail_ShouldAggregateErrors(t *testing.T) {
 	g := NewWithT(t)
+
 	fluent := zapfluent.AsFluent(core.NewFluentEncoder(
 		testutil.NewDoNotEncodeEncoderForTest(zapcore.NewMapObjectEncoder()),
 		core.NewConfiguration(),
@@ -55,8 +56,9 @@ func TestFluent_Done_WithMultipleErrors_AggregatesErrors(t *testing.T) {
 	g.Expect(err).To(MatchError(errTest2))
 }
 
-func TestFluent_ErrorHandling_EarlyFailing(t *testing.T) {
+func TestFluent_Done_WhenEarlyFailingIsEnabled_ShouldStopAfterFirstError(t *testing.T) {
 	g := NewWithT(t)
+
 	cfg := core.NewConfiguration(
 		core.WithErrorHandling(
 			core.NewErrorHandlingConfiguration(
@@ -78,8 +80,9 @@ func TestFluent_ErrorHandling_EarlyFailing(t *testing.T) {
 	g.Expect(err).ToNot(MatchError(errTest2))
 }
 
-func TestFluent_WithFallback_ReplacesFailingFieldAndAggregatesError(t *testing.T) {
+func TestFluent_Done_WhenFallbackIsConfigured_ShouldReplaceFieldAndReturnError(t *testing.T) {
 	g := NewWithT(t)
+
 	cfg := core.NewConfiguration(
 		core.WithErrorHandling(
 			core.NewErrorHandlingConfiguration(
@@ -101,8 +104,9 @@ func TestFluent_WithFallback_ReplacesFailingFieldAndAggregatesError(t *testing.T
 	g.Expect(enc.Fields).To(HaveKeyWithValue(testFailingField, testFallbackValue))
 }
 
-func TestFluent_WithFailingFallback_LogsPredefinedErrorField(t *testing.T) {
+func TestFluent_Done_WhenFallbackAlsoFails_ShouldLogPredefinedError(t *testing.T) {
 	g := NewWithT(t)
+
 	cfg := core.NewConfiguration(
 		core.WithErrorHandling(
 			core.NewErrorHandlingConfiguration(
@@ -130,8 +134,9 @@ func TestFluent_WithFailingFallback_LogsPredefinedErrorField(t *testing.T) {
 	g.Expect(enc.Fields).To(HaveKeyWithValue(testFailingField, "failed to encode fallback field"))
 }
 
-func TestFluent_WithFailingFallbackAndCustomMessage_LogsCustomMessage(t *testing.T) {
+func TestFluent_Done_WhenFailingFallbackHasCustomMessage_ShouldLogCustomMessage(t *testing.T) {
 	g := NewWithT(t)
+
 	cfg := core.NewConfiguration(
 		core.WithErrorHandling(
 			core.NewErrorHandlingConfiguration(
@@ -160,25 +165,36 @@ func TestFluent_WithFailingFallbackAndCustomMessage_LogsCustomMessage(t *testing
 	g.Expect(enc.Fields).To(HaveKeyWithValue(testFailingField, "custom message"))
 }
 
-func TestAsFluent_WithFluentEncoder(t *testing.T) {
-	g := NewWithT(t)
-	fluentEncoder := core.NewFluentEncoder(
-		zapcore.NewJSONEncoder(zap.NewDevelopmentEncoderConfig()),
-		core.NewConfiguration(),
-	)
+func TestAsFluent(t *testing.T) {
+	testCases := []struct {
+		name    string
+		encoder zapcore.Encoder
+	}{
+		{
+			name: "with fluent encoder",
+			encoder: core.NewFluentEncoder(
+				zapcore.NewJSONEncoder(zap.NewDevelopmentEncoderConfig()),
+				core.NewConfiguration(),
+			),
+		},
+		{
+			name:    "with other encoder",
+			encoder: zapcore.NewJSONEncoder(zap.NewDevelopmentEncoderConfig()),
+		},
+	}
 
-	fluent := zapfluent.AsFluent(fluentEncoder)
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			g := NewWithT(t)
 
-	g.Expect(fluent).ToNot(BeNil())
+			fluent := zapfluent.AsFluent(tc.encoder)
+
+			g.Expect(fluent).ToNot(BeNil())
+		})
+	}
 }
 
-func TestAsFluent_WithOtherEncoder(t *testing.T) {
-	g := NewWithT(t)
-	fluent := zapfluent.AsFluent(zapcore.NewJSONEncoder(zap.NewDevelopmentEncoderConfig()))
-	g.Expect(fluent).ToNot(BeNil())
-}
-
-func TestFluent_AddField_EncodesField(t *testing.T) {
+func TestFluent_Add_ForDifferentFieldTypes_ShouldEncodeCorrectly(t *testing.T) {
 	testCases := []struct {
 		name          string
 		field         zapfluent.Field

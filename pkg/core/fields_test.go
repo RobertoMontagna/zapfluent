@@ -29,8 +29,6 @@ func (t testComparableObject) MarshalLogObject(enc zapcore.ObjectEncoder) error 
 }
 
 func TestString(t *testing.T) {
-	t.Parallel()
-
 	testCases := []struct {
 		name          string
 		field         core.TypedField[string]
@@ -61,9 +59,7 @@ func TestString(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
 			g := NewWithT(t)
 
 			enc := zapcore.NewMapObjectEncoder()
@@ -82,8 +78,6 @@ func TestString(t *testing.T) {
 }
 
 func TestInt(t *testing.T) {
-	t.Parallel()
-
 	testCases := []struct {
 		name          string
 		field         core.TypedField[int]
@@ -114,9 +108,7 @@ func TestInt(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
 			g := NewWithT(t)
 
 			enc := zapcore.NewMapObjectEncoder()
@@ -135,8 +127,6 @@ func TestInt(t *testing.T) {
 }
 
 func TestInt8(t *testing.T) {
-	t.Parallel()
-
 	testCases := []struct {
 		name          string
 		field         core.TypedField[int8]
@@ -167,9 +157,7 @@ func TestInt8(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
 			g := NewWithT(t)
 
 			enc := zapcore.NewMapObjectEncoder()
@@ -188,8 +176,6 @@ func TestInt8(t *testing.T) {
 }
 
 func TestObject(t *testing.T) {
-	t.Parallel()
-
 	isNonZero := func(o *testObject) bool { return o != nil && o.value != "" }
 
 	testCases := []struct {
@@ -230,9 +216,7 @@ func TestObject(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
 			g := NewWithT(t)
 
 			enc := zapcore.NewMapObjectEncoder()
@@ -251,8 +235,6 @@ func TestObject(t *testing.T) {
 }
 
 func TestBool(t *testing.T) {
-	t.Parallel()
-
 	testCases := []struct {
 		name          string
 		field         core.TypedField[bool]
@@ -283,9 +265,7 @@ func TestBool(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
 			g := NewWithT(t)
 
 			enc := zapcore.NewMapObjectEncoder()
@@ -304,8 +284,6 @@ func TestBool(t *testing.T) {
 }
 
 func TestComparableObject(t *testing.T) {
-	t.Parallel()
-
 	testCases := []struct {
 		name          string
 		field         core.TypedField[testComparableObject]
@@ -343,9 +321,7 @@ func TestComparableObject(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
 			g := NewWithT(t)
 
 			enc := zapcore.NewMapObjectEncoder()
