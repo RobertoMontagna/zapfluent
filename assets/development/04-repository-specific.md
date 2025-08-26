@@ -16,3 +16,4 @@ This document contains guidelines and conventions that are specific to this repo
 * **Test Style**
     * **Rule**: All tests in this repository must be written in the standard XUnit style, using the built-in `testing` package. BDD-style frameworks like Ginkgo are not permitted.
     * **Guideline**: Prefer table-driven tests for their clarity and ease of extension. Use Gomega for assertions to improve readability, but do not use the Ginkgo test runner.
+    * **Note**: The use of Gomega is a deliberate exception to the general guideline in `02-go-guidelines.md` which discourages assertion helpers that call `t.Fatal`. Gomega's expressive syntax is prioritized for readability in this project's tests.

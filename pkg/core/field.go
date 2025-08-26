@@ -86,7 +86,7 @@ func (f *lazyTypedField[T]) NonZero() TypedField[T] {
 func (f *lazyTypedField[T]) Format(formatter func(T) string) TypedField[string] {
 	return &lazyTypedField[string]{
 		name:      f.name,
-		functions: stringTypeFns(),
+		functions: stringTypeFns,
 		value:     lazyoptional.Map(f.value, formatter),
 	}
 }

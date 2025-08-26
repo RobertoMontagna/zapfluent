@@ -43,7 +43,9 @@ func WithFallbackErrorMessage(message string) ErrorHandlingConfigurationOption {
 //
 // If no options are provided, it returns a default configuration that continues
 // on error and does not use a fallback factory.
-func NewErrorHandlingConfiguration(opts ...ErrorHandlingConfigurationOption) ErrorHandlingConfiguration {
+func NewErrorHandlingConfiguration(
+	opts ...ErrorHandlingConfigurationOption,
+) ErrorHandlingConfiguration {
 	config := ErrorHandlingConfiguration{
 		mode:                 ErrorHandlingModeContinue,
 		fallbackFactory:      optional.Empty[FallbackFieldFactory](),

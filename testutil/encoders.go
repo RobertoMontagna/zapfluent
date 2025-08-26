@@ -39,6 +39,8 @@ func (t *DoNotEncodeEncoderForTest) Clone() zapcore.Encoder {
 // EncodeEntry is a no-op implementation to satisfy the Encoder interface.
 // The tests that use this wrapper do not rely on the full encoding pipeline,
 // only on the fields added to the underlying ObjectEncoder.
-func (t *DoNotEncodeEncoderForTest) EncodeEntry(_ zapcore.Entry, _ []zapcore.Field) (*buffer.Buffer, error) {
+func (t *DoNotEncodeEncoderForTest) EncodeEntry(
+	_ zapcore.Entry, _ []zapcore.Field,
+) (*buffer.Buffer, error) {
 	return nil, nil
 }

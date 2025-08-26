@@ -13,13 +13,25 @@ import (
 )
 
 var (
-	errTest1                     = errors.New("error 1")
-	errEncode                    = errors.New("encode error")
-	errInitial                   = errors.New("initial encode error")
-	failingField                 = stubs.NewFailingFieldForTest(stubs.WithName("test"), stubs.WithError(errTest1))
-	anotherFailingField          = stubs.NewFailingFieldForTest(stubs.WithName("first"), stubs.WithError(errTest1))
-	failingFieldWithEncodeError  = stubs.NewFailingFieldForTest(stubs.WithName("test"), stubs.WithError(errEncode))
-	failingFieldWithInitialError = stubs.NewFailingFieldForTest(stubs.WithName("test"), stubs.WithError(errInitial))
+	errTest1     = errors.New("error 1")
+	errEncode    = errors.New("encode error")
+	errInitial   = errors.New("initial encode error")
+	failingField = stubs.NewFailingFieldForTest(
+		stubs.WithName("test"),
+		stubs.WithError(errTest1),
+	)
+	anotherFailingField = stubs.NewFailingFieldForTest(
+		stubs.WithName("first"),
+		stubs.WithError(errTest1),
+	)
+	failingFieldWithEncodeError = stubs.NewFailingFieldForTest(
+		stubs.WithName("test"),
+		stubs.WithError(errEncode),
+	)
+	failingFieldWithInitialError = stubs.NewFailingFieldForTest(
+		stubs.WithName("test"),
+		stubs.WithError(errInitial),
+	)
 )
 
 func TestErrorHandler_ShouldSkip_ContinueMode(t *testing.T) {
@@ -56,7 +68,9 @@ func TestErrorHandler_EncodeField_Success(t *testing.T) {
 
 func TestErrorHandler_EncodeField_FallbackSuccess(t *testing.T) {
 	g := NewWithT(t)
-	cfg := core.NewErrorHandlingConfiguration(core.WithFallbackFieldFactory(core.FixedStringFallback("fallback")))
+	cfg := core.NewErrorHandlingConfiguration(
+		core.WithFallbackFieldFactory(core.FixedStringFallback("fallback")),
+	)
 	enc := zapcore.NewMapObjectEncoder()
 	handler := core.NewErrorHandler(&cfg, enc)
 

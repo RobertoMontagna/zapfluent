@@ -32,6 +32,11 @@ linters-settings:
     # "all" is a shorthand for all SA, S, ST, and QF checks.
     # This will include ST1003 for identifier naming.
     checks: ["all"]
+  revive:
+    rules:
+      - name: line-length-limit
+        severity: warning
+        arguments: [100]
 
 issues:
   exclude-rules:

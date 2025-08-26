@@ -20,25 +20,37 @@ const (
 	BeEmptyFailureMessage = "to be an empty lazy optional"
 	// NotBeEmptyFailureMessage is the message returned when the optional is empty.
 	NotBeEmptyFailureMessage = "to not be an empty lazy optional"
-	// HaveValueFailureMessage is the message returned when the optional does not have the expected value.
+	// HaveValueFailureMessage is for when the optional does not have the expected value.
 	HaveValueFailureMessage = "to have the value"
 	// NotHaveValueFailureMessage is the message returned when the optional has the expected value.
 	NotHaveValueFailureMessage = "to not have the value"
 )
 
-// ErrMatcherWrongType is a sentinel error returned when a matcher receives a value of the wrong type.
+// ErrMatcherWrongType is a sentinel error for when a matcher receives a value of the wrong type.
 var ErrMatcherWrongType = errors.New("matcher received wrong type")
 
 func bePresentWrongTypeError[T any]() error {
-	return fmt.Errorf("BePresent matcher expects a lazyoptional.LazyOptional[%T]: %w", *new(T), ErrMatcherWrongType)
+	return fmt.Errorf(
+		"BePresent matcher expects a lazyoptional.LazyOptional[%T]: %w",
+		*new(T),
+		ErrMatcherWrongType,
+	)
 }
 
 func beEmptyWrongTypeError[T any]() error {
-	return fmt.Errorf("BeEmpty matcher expects a lazyoptional.LazyOptional[%T]: %w", *new(T), ErrMatcherWrongType)
+	return fmt.Errorf(
+		"BeEmpty matcher expects a lazyoptional.LazyOptional[%T]: %w",
+		*new(T),
+		ErrMatcherWrongType,
+	)
 }
 
 func haveValueWrongTypeError[T any]() error {
-	return fmt.Errorf("HaveValue matcher expects a lazyoptional.LazyOptional[%T]: %w", *new(T), ErrMatcherWrongType)
+	return fmt.Errorf(
+		"HaveValue matcher expects a lazyoptional.LazyOptional[%T]: %w",
+		*new(T),
+		ErrMatcherWrongType,
+	)
 }
 
 // BePresent succeeds if the actual value is an optional that is present.
