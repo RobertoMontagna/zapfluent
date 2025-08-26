@@ -11,6 +11,11 @@ import (
 	. "github.com/onsi/gomega"
 )
 
+const (
+	ehcTestFieldName    = "test-field"
+	ehcTestErrorMessage = "test-error"
+)
+
 func TestNewErrorHandlingConfiguration(t *testing.T) {
 	const customMessage = "test-message"
 
@@ -108,11 +113,11 @@ func TestFixedStringFallback_WhenCalled_ReturnsFieldWithFixedValue(t *testing.T)
 	factory := core.FixedStringFallback(fallbackValue)
 	enc := zapcore.NewMapObjectEncoder()
 
-	field := factory(testFieldName, errors.New(testErrorMessage))
+	field := factory(ehcTestFieldName, errors.New(ehcTestErrorMessage))
 	err := field.Encode(enc)
 
 	g.Expect(err).ToNot(HaveOccurred())
-	g.Expect(enc.Fields).To(HaveKeyWithValue(testFieldName, fallbackValue))
+	g.Expect(enc.Fields).To(HaveKeyWithValue(ehcTestFieldName, fallbackValue))
 }
 
 func TestErrorStringFallback_WhenCalled_ReturnsFieldWithErrorString(t *testing.T) {
@@ -122,9 +127,9 @@ func TestErrorStringFallback_WhenCalled_ReturnsFieldWithErrorString(t *testing.T
 	factory := core.ErrorStringFallback()
 	enc := zapcore.NewMapObjectEncoder()
 
-	field := factory(testFieldName, errors.New(errorMsg))
+	field := factory(ehcTestFieldName, errors.New(errorMsg))
 	err := field.Encode(enc)
 
 	g.Expect(err).ToNot(HaveOccurred())
-	g.Expect(enc.Fields).To(HaveKeyWithValue(testFieldName, errorMsg))
+	g.Expect(enc.Fields).To(HaveKeyWithValue(ehcTestFieldName, errorMsg))
 }

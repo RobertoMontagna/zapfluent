@@ -12,15 +12,16 @@ import (
 )
 
 const (
-	testValueString = "test-value"
+	fieldTestFieldName = "test-field"
+	testValueString    = "test-value"
 )
 
 func TestTypedField_Name(t *testing.T) {
 	g := NewWithT(t)
 
-	field := core.String(testFieldName, testValueString)
+	field := core.String(fieldTestFieldName, testValueString)
 
-	g.Expect(field.Name()).To(Equal(testFieldName))
+	g.Expect(field.Name()).To(Equal(fieldTestFieldName))
 }
 
 func TestTypedField_Filtering(t *testing.T) {
@@ -31,14 +32,14 @@ func TestTypedField_Filtering(t *testing.T) {
 	}{
 		{
 			name:       "Encode: when value is present, it encodes the value",
-			inputField: core.String(testFieldName, testValueString),
+			inputField: core.String(fieldTestFieldName, testValueString),
 			assertion: func(g *GomegaWithT, fields map[string]any) {
-				g.Expect(fields).To(HaveKeyWithValue(testFieldName, testValueString))
+				g.Expect(fields).To(HaveKeyWithValue(fieldTestFieldName, testValueString))
 			},
 		},
 		{
 			name: "Encode: when value is not present, it does not encode anything",
-			inputField: core.String(testFieldName, testValueString).
+			inputField: core.String(fieldTestFieldName, testValueString).
 				Filter(func(s string) bool { return false }),
 			assertion: func(g *GomegaWithT, fields map[string]any) {
 				g.Expect(fields).To(BeEmpty())
@@ -46,7 +47,7 @@ func TestTypedField_Filtering(t *testing.T) {
 		},
 		{
 			name: "Filter: when condition is met, it keeps the value",
-			inputField: core.String(testFieldName, testValueString).
+			inputField: core.String(fieldTestFieldName, testValueString).
 				Filter(func(s string) bool { return true }),
 			assertion: func(g *GomegaWithT, fields map[string]any) {
 				g.Expect(fields).ToNot(BeEmpty())
@@ -54,7 +55,7 @@ func TestTypedField_Filtering(t *testing.T) {
 		},
 		{
 			name: "Filter: when condition is not met, it removes the value",
-			inputField: core.String(testFieldName, testValueString).
+			inputField: core.String(fieldTestFieldName, testValueString).
 				Filter(func(s string) bool { return false }),
 			assertion: func(g *GomegaWithT, fields map[string]any) {
 				g.Expect(fields).To(BeEmpty())
@@ -62,14 +63,14 @@ func TestTypedField_Filtering(t *testing.T) {
 		},
 		{
 			name:       "NonZero: when value is not zero, it keeps the value",
-			inputField: core.String(testFieldName, testValueString).NonZero(),
+			inputField: core.String(fieldTestFieldName, testValueString).NonZero(),
 			assertion: func(g *GomegaWithT, fields map[string]any) {
 				g.Expect(fields).ToNot(BeEmpty())
 			},
 		},
 		{
 			name:       "NonZero: when value is zero, it removes the value",
-			inputField: core.String(testFieldName, "").NonZero(),
+			inputField: core.String(fieldTestFieldName, "").NonZero(),
 			assertion: func(g *GomegaWithT, fields map[string]any) {
 				g.Expect(fields).To(BeEmpty())
 			},
@@ -92,7 +93,7 @@ func TestTypedField_Filtering(t *testing.T) {
 func TestTypedField_Format(t *testing.T) {
 	g := NewWithT(t)
 
-	field := core.Int(testFieldName, 5)
+	field := core.Int(fieldTestFieldName, 5)
 
 	formattedField := field.Format(func(i int) string { return "formatted-" + strconv.Itoa(i) })
 	enc := zapcore.NewMapObjectEncoder()
@@ -100,5 +101,5 @@ func TestTypedField_Format(t *testing.T) {
 	err := formattedField.Encode(enc)
 
 	g.Expect(err).ToNot(HaveOccurred())
-	g.Expect(enc.Fields).To(HaveKeyWithValue(testFieldName, "formatted-5"))
+	g.Expect(enc.Fields).To(HaveKeyWithValue(fieldTestFieldName, "formatted-5"))
 }
