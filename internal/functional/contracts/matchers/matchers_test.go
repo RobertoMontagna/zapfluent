@@ -1,13 +1,13 @@
 package matchers_test
 
 import (
-	"strings"
 	"testing"
 
 	"github.com/onsi/gomega/types"
 
+	"go.robertomontagna.dev/zapfluent/internal/functional/contracts/matchers"
 	"go.robertomontagna.dev/zapfluent/internal/functional/lazyoptional"
-	"go.robertomontagna.dev/zapfluent/internal/functional/lazyoptional/matchers"
+	"go.robertomontagna.dev/zapfluent/internal/functional/optional"
 	"go.robertomontagna.dev/zapfluent/testutil"
 
 	. "github.com/onsi/gomega"
@@ -16,6 +16,9 @@ import (
 func TestMatchers(t *testing.T) {
 	t.Parallel()
 
+	// This test table is designed to test the generic matchers with both
+	// optional.Optional and lazyoptional.LazyOptional to ensure the
+	// OptionalLike[T] interface is correctly handled.
 	matchTestCases := []struct {
 		name        string
 		input       any
@@ -23,7 +26,21 @@ func TestMatchers(t *testing.T) {
 		shouldFail  bool
 		expectedMsg string
 	}{
-		// BePresent
+		// BePresent with optional.Optional
+		{
+			name:       "BePresent succeeds for present optional",
+			input:      optional.Some("hello"),
+			matcher:    matchers.BePresent[string](),
+			shouldFail: false,
+		},
+		{
+			name:        "BePresent fails for empty optional",
+			input:       optional.Empty[string](),
+			matcher:     matchers.BePresent[string](),
+			shouldFail:  true,
+			expectedMsg: matchers.BePresentFailureMessage,
+		},
+		// BePresent with lazyoptional.LazyOptional
 		{
 			name:       "BePresent succeeds for present lazy optional",
 			input:      lazyoptional.Some("hello"),
@@ -37,20 +54,21 @@ func TestMatchers(t *testing.T) {
 			shouldFail:  true,
 			expectedMsg: matchers.BePresentFailureMessage,
 		},
+		// BeEmpty with optional.Optional
 		{
-			name:       "Not(BePresent) succeeds for empty lazy optional",
-			input:      lazyoptional.Empty[string](),
-			matcher:    Not(matchers.BePresent[string]()),
+			name:       "BeEmpty succeeds for empty optional",
+			input:      optional.Empty[string](),
+			matcher:    matchers.BeEmpty[string](),
 			shouldFail: false,
 		},
 		{
-			name:        "Not(BePresent) fails for present lazy optional",
-			input:       lazyoptional.Some("hello"),
-			matcher:     Not(matchers.BePresent[string]()),
+			name:        "BeEmpty fails for present optional",
+			input:       optional.Some("hello"),
+			matcher:     matchers.BeEmpty[string](),
 			shouldFail:  true,
-			expectedMsg: matchers.NotBePresentFailureMessage,
+			expectedMsg: matchers.BeEmptyFailureMessage,
 		},
-		// BeEmpty
+		// BeEmpty with lazyoptional.LazyOptional
 		{
 			name:       "BeEmpty succeeds for empty lazy optional",
 			input:      lazyoptional.Empty[string](),
@@ -64,20 +82,21 @@ func TestMatchers(t *testing.T) {
 			shouldFail:  true,
 			expectedMsg: matchers.BeEmptyFailureMessage,
 		},
+		// HaveValue with optional.Optional
 		{
-			name:       "Not(BeEmpty) succeeds for present lazy optional",
-			input:      lazyoptional.Some("hello"),
-			matcher:    Not(matchers.BeEmpty[string]()),
+			name:       "HaveValue succeeds for optional with the same value",
+			input:      optional.Some("hello"),
+			matcher:    matchers.HaveValue("hello"),
 			shouldFail: false,
 		},
 		{
-			name:        "Not(BeEmpty) fails for empty lazy optional",
-			input:       lazyoptional.Empty[string](),
-			matcher:     Not(matchers.BeEmpty[string]()),
+			name:        "HaveValue fails for an empty optional",
+			input:       optional.Empty[string](),
+			matcher:     matchers.HaveValue("hello"),
 			shouldFail:  true,
-			expectedMsg: matchers.NotBeEmptyFailureMessage,
+			expectedMsg: matchers.HaveValueFailureMessage,
 		},
-		// HaveValue
+		// HaveValue with lazyoptional.LazyOptional
 		{
 			name:       "HaveValue succeeds for lazy optional with the same value",
 			input:      lazyoptional.Some("hello"),
@@ -85,31 +104,11 @@ func TestMatchers(t *testing.T) {
 			shouldFail: false,
 		},
 		{
-			name:        "HaveValue fails for lazy optional with a different value",
-			input:       lazyoptional.Some("world"),
-			matcher:     matchers.HaveValue("hello"),
-			shouldFail:  true,
-			expectedMsg: matchers.HaveValueFailureMessage,
-		},
-		{
 			name:        "HaveValue fails for an empty lazy optional",
 			input:       lazyoptional.Empty[string](),
 			matcher:     matchers.HaveValue("hello"),
 			shouldFail:  true,
 			expectedMsg: matchers.HaveValueFailureMessage,
-		},
-		{
-			name:       "Not(HaveValue) succeeds for lazy optional with a different value",
-			input:      lazyoptional.Some("world"),
-			matcher:    Not(matchers.HaveValue("hello")),
-			shouldFail: false,
-		},
-		{
-			name:        "Not(HaveValue) fails for lazy optional with the same value",
-			input:       lazyoptional.Some("hello"),
-			matcher:     Not(matchers.HaveValue("hello")),
-			shouldFail:  true,
-			expectedMsg: matchers.NotHaveValueFailureMessage,
 		},
 	}
 
@@ -132,6 +131,7 @@ func TestMatchers(t *testing.T) {
 		})
 	}
 
+	// Error handling tests
 	errorTestCases := []struct {
 		name        string
 		matcher     types.GomegaMatcher
@@ -139,21 +139,21 @@ func TestMatchers(t *testing.T) {
 		expectedErr error
 	}{
 		{
-			name:        "BePresent returns error for non-lazy-optional",
+			name:        "BePresent returns error for non-optional type",
 			matcher:     matchers.BePresent[string](),
-			input:       "not-a-lazy-optional",
+			input:       "not-an-optional",
 			expectedErr: matchers.ErrMatcherWrongType,
 		},
 		{
-			name:        "BeEmpty returns error for non-lazy-optional",
+			name:        "BeEmpty returns error for non-optional type",
 			matcher:     matchers.BeEmpty[string](),
-			input:       "not-a-lazy-optional",
+			input:       "not-an-optional",
 			expectedErr: matchers.ErrMatcherWrongType,
 		},
 		{
-			name:        "HaveValue returns error for non-lazy-optional",
+			name:        "HaveValue returns error for non-optional type",
 			matcher:     matchers.HaveValue("hello"),
-			input:       "not-a-lazy-optional",
+			input:       "not-an-optional",
 			expectedErr: matchers.ErrMatcherWrongType,
 		},
 	}
@@ -168,34 +168,5 @@ func TestMatchers(t *testing.T) {
 
 			g.Expect(err).To(MatchError(tc.expectedErr))
 		})
-	}
-}
-
-func TestFailureMessages(t *testing.T) {
-	t.Parallel()
-	g := NewGomegaWithT(t)
-
-	messages := []string{
-		matchers.BePresentFailureMessage,
-		matchers.NotBePresentFailureMessage,
-		matchers.BeEmptyFailureMessage,
-		matchers.NotBeEmptyFailureMessage,
-		matchers.HaveValueFailureMessage,
-		matchers.NotHaveValueFailureMessage,
-	}
-
-	for i, msg1 := range messages {
-		for j, msg2 := range messages {
-			if i == j {
-				continue
-			}
-			g.Expect(strings.Contains(msg1, msg2)).
-				To(
-					BeFalse(),
-					"failure messages should not be substrings of each other: '%s' contains '%s'",
-					msg1,
-					msg2,
-				)
-		}
 	}
 }

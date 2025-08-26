@@ -36,6 +36,12 @@ func (o LazyOptional[T]) Get() (T, bool) {
 	return o.producer()
 }
 
+// IsPresent returns true if the optional contains a value.
+func (o LazyOptional[T]) IsPresent() bool {
+	_, isPresent := o.Get()
+	return isPresent
+}
+
 // Filter returns a new LazyOptional that will be empty if the original
 // optional was empty or if the value does not satisfy the given condition.
 func (o LazyOptional[T]) Filter(condition func(T) bool) LazyOptional[T] {

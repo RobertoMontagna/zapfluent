@@ -8,7 +8,7 @@ import (
 	"github.com/onsi/gomega/format"
 	"github.com/onsi/gomega/types"
 
-	"go.robertomontagna.dev/zapfluent/internal/functional/optional"
+	"go.robertomontagna.dev/zapfluent/internal/functional/contracts"
 )
 
 const (
@@ -29,25 +29,10 @@ const (
 // ErrMatcherWrongType is a sentinel error for when a matcher receives a value of the wrong type.
 var ErrMatcherWrongType = errors.New("matcher received wrong type")
 
-func bePresentWrongTypeError[T any]() error {
+func wrongTypeError[T any](matcherName string) error {
 	return fmt.Errorf(
-		"BePresent matcher expects an optional.Optional[%T]: %w",
-		*new(T),
-		ErrMatcherWrongType,
-	)
-}
-
-func beEmptyWrongTypeError[T any]() error {
-	return fmt.Errorf(
-		"BeEmpty matcher expects an optional.Optional[%T]: %w",
-		*new(T),
-		ErrMatcherWrongType,
-	)
-}
-
-func haveValueWrongTypeError[T any]() error {
-	return fmt.Errorf(
-		"HaveValue matcher expects an optional.Optional[%T]: %w",
+		"%s matcher expects a contracts.OptionalLike[%T]: %w",
+		matcherName,
 		*new(T),
 		ErrMatcherWrongType,
 	)
@@ -61,9 +46,9 @@ func BePresent[T any]() types.GomegaMatcher {
 type BePresentMatcher[T any] struct{}
 
 func (m *BePresentMatcher[T]) Match(actual any) (bool, error) {
-	opt, ok := actual.(optional.Optional[T])
+	opt, ok := actual.(contracts.OptionalLike[T])
 	if !ok {
-		return false, bePresentWrongTypeError[T]()
+		return false, wrongTypeError[T]("BePresent")
 	}
 	return opt.IsPresent(), nil
 }
@@ -84,9 +69,9 @@ func BeEmpty[T any]() types.GomegaMatcher {
 type BeEmptyMatcher[T any] struct{}
 
 func (m *BeEmptyMatcher[T]) Match(actual any) (bool, error) {
-	opt, ok := actual.(optional.Optional[T])
+	opt, ok := actual.(contracts.OptionalLike[T])
 	if !ok {
-		return false, beEmptyWrongTypeError[T]()
+		return false, wrongTypeError[T]("BeEmpty")
 	}
 	return !opt.IsPresent(), nil
 }
@@ -112,9 +97,9 @@ type HaveValueMatcher[T any] struct {
 }
 
 func (m *HaveValueMatcher[T]) Match(actual any) (bool, error) {
-	opt, ok := actual.(optional.Optional[T])
+	opt, ok := actual.(contracts.OptionalLike[T])
 	if !ok {
-		return false, haveValueWrongTypeError[T]()
+		return false, wrongTypeError[T]("HaveValue")
 	}
 
 	val, ok := opt.Get()
