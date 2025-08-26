@@ -70,3 +70,15 @@ jobs:
         uses: snyk/actions/golang@master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          command: test
+          args: --org=${{ secrets.SNYK_ORG }}
+
+      - name: Run Snyk to monitor for vulnerabilities
+        if: ${{ always() }}
+        uses: snyk/actions/golang@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          command: monitor
+          args: --org=${{ secrets.SNYK_ORG }}

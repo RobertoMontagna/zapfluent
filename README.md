@@ -3,6 +3,7 @@
 [![CI](https://github.com/RobertoMontagna/zapfluent/actions/workflows/ci.yml/badge.svg)](https://github.com/RobertoMontagna/zapfluent/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/RobertoMontagna/zapfluent/graph/badge.svg)](https://codecov.io/gh/RobertoMontagna/zapfluent)
 [![SonarCloud](https://sonarcloud.io/api/project_badges/measure?project=RobertoMontagna_zapfluent&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=RobertoMontagna_zapfluent)
+[![Known Vulnerabilities](https://snyk.io/test/github/RobertoMontagna/zapfluent/badge.svg)](https://snyk.io/test/github/RobertoMontagna/zapfluent)
 [![Developed with Google Jules](https://img.shields.io/badge/Developed%20with-Google%20Jules-blue?logo=google)](https://jules.google/)
 
 <div align="center">
