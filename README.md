@@ -3,7 +3,7 @@
 [![CI](https://github.com/RobertoMontagna/zapfluent/actions/workflows/ci.yml/badge.svg)](https://github.com/RobertoMontagna/zapfluent/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/RobertoMontagna/zapfluent/graph/badge.svg)](https://codecov.io/gh/RobertoMontagna/zapfluent)
 [![SonarCloud](https://sonarcloud.io/api/project_badges/measure?project=RobertoMontagna_zapfluent&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=RobertoMontagna_zapfluent)
-[![Known Vulnerabilities](https://snyk.io/test/github/RobertoMontagna/zapfluent/badge.svg)](https://snyk.io/test/github/RobertoMontagna/zapfluent)
+[![Known Vulnerabilities](https://snyk.io/test/github/RobertoMontagna/ad606eb3-40a4-4157-9a53-77cb70724132/badge.svg)](https://app.snyk.io/org/robertomontagna/project/ad606eb3-40a4-4157-9a53-77cb70724132)
 [![Developed with Google Jules](https://img.shields.io/badge/Developed%20with-Google%20Jules-blue?logo=google)](https://jules.google/)
 
 <div align="center">
@@ -92,7 +92,7 @@ This is a non-exhaustive list of planned features and improvements, in no partic
 - [ ] Add support for logging pointer fields, automatically handling `nil` values.
 - [ ] Implement support for logging slice fields.
 - [ ] [Optional] Implement support for logging map fields.
-- [ ] Introduce Snyk or a similar service for dependency scanning.
+- [X] Introduce Snyk or a similar service for dependency scanning.
 - [ ] Introduce Renovate or a similar service for automated dependency updates.
 
 ## 🤝 Contributing
