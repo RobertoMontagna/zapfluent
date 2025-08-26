@@ -1,9 +1,9 @@
-package enum_test
+package lang_test
 
 import (
 	"testing"
 
-	"go.robertomontagna.dev/zapfluent/internal/enum"
+	"go.robertomontagna.dev/zapfluent/internal/lang"
 
 	. "github.com/onsi/gomega"
 )
@@ -16,7 +16,7 @@ const (
 	testEnumValue2
 )
 
-var testEnumSpec = enum.New(
+var testEnumSpec = lang.NewIntEnum(
 	map[testEnum]string{
 		testEnumUnknown: "Unknown",
 		testEnumValue1:  "Value1",
@@ -25,7 +25,7 @@ var testEnumSpec = enum.New(
 	testEnumUnknown,
 )
 
-func TestEnum_String(t *testing.T) {
+func TestIntEnum_String(t *testing.T) {
 	testCases := []struct {
 		name     string
 		value    testEnum
@@ -54,7 +54,7 @@ func TestEnum_String(t *testing.T) {
 	}
 }
 
-func TestEnum_FromInt(t *testing.T) {
+func TestIntEnum_FromInt(t *testing.T) {
 	testCases := []struct {
 		name     string
 		value    int
