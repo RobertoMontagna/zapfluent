@@ -11,6 +11,12 @@ linters:
     - govet         # Reports common mistakes and suspicious constructs.
     - staticcheck   # A suite of static analysis checks for bugs, performance issues, and simplification.
     - revive        # A modern, configurable replacement for golint.
+    - gosec       # For security analysis
+    - gocyclo     # For code complexity
+    - funlen      # For function length
+    - prealloc    # For performance optimization
+    - ineffassign # For code efficiency
+    - misspell    # For spelling checks
 
   # It's good practice to disable linters that are not needed or are overly noisy.
   # For now, we will not disable any explicitly but will stick to the enabled set.
@@ -37,6 +43,8 @@ linters-settings:
       - name: line-length-limit
         severity: warning
         arguments: [100]
+  gocyclo:
+    min-complexity: 7 # Adjust this value to set your desired complexity limit
 
 issues:
   exclude-rules:
@@ -45,6 +53,9 @@ issues:
       linters:
         - revive
       text: "dot-imports|unused-parameter"
+    - source: "^func Test"
+      linters:
+        - funlen
 
 # We can add more configuration here as needed, but this provides a solid baseline
 # that directly reflects the project's development documentation.
