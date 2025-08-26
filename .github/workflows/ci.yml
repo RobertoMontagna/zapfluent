@@ -57,3 +57,36 @@ jobs:
             -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}
             -Dsonar.go.coverage.reportPaths=coverage.out
             -Dsonar.test.inclusions=**/*_test.go
+
+  snyk:
+    name: Snyk
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: 'go.mod'
+          cache: true
+
+      - name: Set up Snyk
+        uses: snyk/actions/setup@master
+
+      - name: Run Snyk Open Source scan
+        run: snyk test --org=${{ secrets.SNYK_ORG }}
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+      - name: Run Snyk Code scan
+        run: snyk code test --org=${{ secrets.SNYK_ORG }}
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+      - name: Run Snyk monitor
+        if: ${{ always() }}
+        run: snyk monitor --org=${{ secrets.SNYK_ORG }}
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
