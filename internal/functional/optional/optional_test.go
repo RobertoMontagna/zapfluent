@@ -20,6 +20,18 @@ func TestOptional_Some(t *testing.T) {
 	g.Expect(o).To(matchers.HaveValue("test"))
 }
 
+func TestOptional_Map_WhenMapperReturnsNil(t *testing.T) {
+	g := NewWithT(t)
+
+	opt := optional.OfError(errors.New("test error"))
+
+	res := optional.Map(opt, func(t error) error {
+		return nil
+	})
+
+	g.Expect(res).To(matchers.BeEmpty[error]())
+}
+
 func TestOptional_Empty(t *testing.T) {
 	g := NewWithT(t)
 

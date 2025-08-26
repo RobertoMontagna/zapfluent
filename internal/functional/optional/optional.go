@@ -61,10 +61,15 @@ func (o Optional[T]) IsPresent() bool {
 // Map applies the given mapping function to the value if it is present.
 //
 // It returns an Optional describing the result of the mapping function.
-// If the original optional is empty, this returns an empty optional.
+// If the original optional is empty, or if the mapping function returns a nil
+// value, this returns an empty optional.
 func Map[T any, R any](o Optional[T], f func(T) R) Optional[R] {
 	if o.IsPresent() {
-		return Some(f(o.value))
+		mapped := f(o.value)
+		if isNil(mapped) {
+			return Empty[R]()
+		}
+		return Some(mapped)
 	}
 	return Empty[R]()
 }
