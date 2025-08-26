@@ -1,11 +1,11 @@
-package optional
+package lang
 
 import "reflect"
 
-// isNil checks if a value is nil using reflection.
+// ReflectiveIsNil checks if a value is nil using reflection.
 // It correctly handles interfaces, pointers, channels, functions, maps, and slices.
-func isNil[T any](v T) bool {
-	if any(v) == nil {
+func ReflectiveIsNil(v any) bool {
+	if v == nil {
 		return true
 	}
 

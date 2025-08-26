@@ -1,6 +1,8 @@
 // Package optional provides a generic, eager implementation of an Optional type.
 package optional
 
+import "go.robertomontagna.dev/zapfluent/internal/lang"
+
 // Optional is a container object which may or may not contain a non-nil value.
 //
 // This is an "eager" optional, meaning that transformations are applied
@@ -66,7 +68,7 @@ func (o Optional[T]) IsPresent() bool {
 func Map[T any, R any](o Optional[T], f func(T) R) Optional[R] {
 	if o.IsPresent() {
 		mapped := f(o.value)
-		if isNil(mapped) {
+		if lang.ReflectiveIsNil(mapped) {
 			return Empty[R]()
 		}
 		return Some(mapped)

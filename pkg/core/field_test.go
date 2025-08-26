@@ -6,6 +6,7 @@ import (
 
 	"go.uber.org/zap/zapcore"
 
+	"go.robertomontagna.dev/zapfluent/internal/lang"
 	"go.robertomontagna.dev/zapfluent/pkg/core"
 
 	. "github.com/onsi/gomega"
@@ -103,17 +104,17 @@ func TestTypedField_Format(t *testing.T) {
 	g.Expect(enc.Fields).To(HaveKeyWithValue(testFieldName, "formatted-5"))
 }
 
-func TestIsNotNil_WithUntypedNil(t *testing.T) {
+func TestReflectiveIsNil_WithUntypedNil(t *testing.T) {
 	g := NewWithT(t)
 
 	var input any
 
-	actual := core.ReflectiveIsNotNil(input)
+	actual := lang.ReflectiveIsNil(input)
 
-	g.Expect(actual).To(BeFalse())
+	g.Expect(actual).To(BeTrue())
 }
 
-func TestIsNotNil_WithTypedValues(t *testing.T) {
+func TestReflectiveIsNil_WithTypedValues(t *testing.T) {
 	g := NewWithT(t)
 
 	testCases := []struct {
@@ -121,26 +122,26 @@ func TestIsNotNil_WithTypedValues(t *testing.T) {
 		input    any
 		expected bool
 	}{
-		{"nil pointer", (*int)(nil), false},
-		{"nil interface", (any)(nil), false},
-		{"nil slice", ([]int)(nil), false},
-		{"nil map", (map[int]int)(nil), false},
-		{"nil channel", (chan int)(nil), false},
-		{"nil func", (func())(nil), false},
-		{"non-nil int", 1, true},
-		{"non-nil string", "hello", true},
-		{"non-nil struct", struct{}{}, true},
-		{"non-nil pointer", new(int), true},
-		{"non-nil interface", any(1), true},
-		{"non-nil slice", make([]int, 1), true},
-		{"non-nil map", make(map[int]int), true},
-		{"non-nil channel", make(chan int), true},
-		{"non-nil func", func() {}, true},
+		{"nil pointer", (*int)(nil), true},
+		{"nil interface", (any)(nil), true},
+		{"nil slice", ([]int)(nil), true},
+		{"nil map", (map[int]int)(nil), true},
+		{"nil channel", (chan int)(nil), true},
+		{"nil func", (func())(nil), true},
+		{"non-nil int", 1, false},
+		{"non-nil string", "hello", false},
+		{"non-nil struct", struct{}{}, false},
+		{"non-nil pointer", new(int), false},
+		{"non-nil interface", any(1), false},
+		{"non-nil slice", make([]int, 1), false},
+		{"non-nil map", make(map[int]int), false},
+		{"non-nil channel", make(chan int), false},
+		{"non-nil func", func() {}, false},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			actual := core.ReflectiveIsNotNil(tc.input)
+			actual := lang.ReflectiveIsNil(tc.input)
 
 			g.Expect(actual).To(Equal(tc.expected))
 		})
