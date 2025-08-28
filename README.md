@@ -8,7 +8,7 @@
 
 <div align="center">
 
-![Zap Fluent Encoder Logo](assets/images/fluentzap_logo.png)
+![Zap Fluent Encoder Logo](assets/images/zapfluent_logo.png)
 
 A fluent interface encoder for [Uber's Zap logging library](https://github.com/uber-go/zap) that provides a more
 intuitive and expressive way to add structured logging fields. Say goodbye to endless `zap.String("key", "value")` calls
@@ -113,4 +113,13 @@ The `Makefile` provides several useful targets for local development:
 Please run `make fmt`, `make lint`, and `make test` before submitting a pull request to ensure your changes meet the project's quality standards.
 
 ---
+
+<div align="center">
+
+![Zap Fluent Gopher Logo](assets/images/zapfluent_gopher.png)
+
+</div>
+
+---
+
 *This project is actively developed with the assistance of Google Jules, an AI-powered software engineer.*
