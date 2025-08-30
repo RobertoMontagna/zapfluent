@@ -1,6 +1,7 @@
 package zapfluent_test
 
 import (
+	"fmt"
 	"testing"
 
 	"go.uber.org/zap/zapcore"
@@ -21,6 +22,65 @@ type testObject struct {
 func (t testObject) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 	enc.AddString("value", t.Value)
 	return nil
+}
+
+func TestTypedPointerField_WithAddress_ShouldEncodeValueAndAddress(t *testing.T) {
+	strVal := "value"
+	intVal := 42
+
+	testCases := []struct {
+		name          string
+		field         zapfluent.Field
+		expectedKey   string
+		expectedValue map[string]interface{}
+	}{
+		{
+			name:        "with string pointer (non-nil)",
+			field:       zapfluent.StringPtr("my_string_ptr", &strVal).WithAddress(),
+			expectedKey: "my_string_ptr",
+			expectedValue: map[string]interface{}{
+				"value":   "value",
+				"address": fmt.Sprintf("%p", &strVal),
+			},
+		},
+		{
+			name:        "with string pointer (nil)",
+			field:       zapfluent.StringPtr("my_string_ptr", nil).WithAddress(),
+			expectedKey: "my_string_ptr",
+			expectedValue: map[string]interface{}{
+				"value":   "<nil>",
+				"address": "0x0",
+			},
+		},
+		{
+			name:        "with int pointer (non-nil)",
+			field:       zapfluent.IntPtr("my_int_ptr", &intVal).WithAddress(),
+			expectedKey: "my_int_ptr",
+			expectedValue: map[string]interface{}{
+				"value":   intVal,
+				"address": fmt.Sprintf("%p", &intVal),
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			g := NewWithT(t)
+
+			enc := zapcore.NewMapObjectEncoder()
+			fluent := zapfluent.AsFluent(
+				core.NewFluentEncoder(
+					testutil.NewDoNotEncodeEncoderForTest(enc),
+					core.NewConfiguration(),
+				),
+			)
+
+			err := fluent.Add(tc.field).Done()
+
+			g.Expect(err).ToNot(HaveOccurred())
+			g.Expect(enc.Fields).To(HaveKeyWithValue(tc.expectedKey, tc.expectedValue))
+		})
+	}
 }
 
 func TestFluent_Add_ForDifferentFieldTypes_ShouldEncodeCorrectly(t *testing.T) {
