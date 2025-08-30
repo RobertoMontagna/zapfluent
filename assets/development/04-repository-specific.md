@@ -17,3 +17,7 @@ This document contains guidelines and conventions that are specific to this repo
     * **Rule**: All tests in this repository must be written in the standard XUnit style, using the built-in `testing` package. BDD-style frameworks like Ginkgo are not permitted.
     * **Guideline**: Prefer table-driven tests for their clarity and ease of extension. Use Gomega for assertions to improve readability, but do not use the Ginkgo test runner.
     * **Note**: The use of Gomega is a deliberate exception to the general guideline in `02-go-guidelines.md` which discourages assertion helpers that call `t.Fatal`. Gomega's expressive syntax is prioritized for readability in this project's tests.
+* **Test Function Granularity and Structure**
+    * **Rule**: A single test function should focus on a single, well-defined behavior of the unit under test (e.g., `TestMyFunc_Encoding`, `TestMyFunc_Validation`).
+    * **Rule**: For behaviors that require testing multiple inputs or conditions, the table-driven test pattern is required. The test function should contain a single loop that iterates over the test cases and executes them within a single `t.Run` call. A top-level test function must contain **at most one** such `t.Run` loop.
+    * **Rule**: For simple tests that only cover a single case, the table-driven approach should not be used. The test should be a direct, linear sequence of Arrange, Act, and Assert steps.
