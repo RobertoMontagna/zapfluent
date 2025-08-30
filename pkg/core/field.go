@@ -32,6 +32,17 @@ type TypedField[T any] interface {
 	Format(formatter func(T) string) TypedField[string]
 }
 
+// TypedPointerField is a generic interface that represents a field with a
+// pointer value. It implements the base Field interface and provides a `NonNil`
+// method to safely convert it to a TypedField for chaining.
+type TypedPointerField[T any] interface {
+	Field
+	// NonNil converts the pointer field into a standard TypedField. If the
+	// original pointer was nil, the resulting TypedField will be empty,
+	// preventing further operations in a chain.
+	NonNil() TypedField[T]
+}
+
 type encodeFunc[T any] func(zapcore.ObjectEncoder, string, T) error
 
 type typeFieldFunctions[T any] struct {
@@ -86,5 +97,38 @@ func (f *lazyTypedField[T]) Format(formatter func(T) string) TypedField[string] 
 		name:      f.name,
 		functions: stringTypeFns,
 		value:     lazyoptional.Map(f.value, formatter),
+	}
+}
+
+type pointerField[T any] struct {
+	functions typeFieldFunctions[T]
+	value     *T
+	name      string
+}
+
+func (p *pointerField[T]) Name() string {
+	return p.name
+}
+
+func (p *pointerField[T]) Encode(encoder zapcore.ObjectEncoder) error {
+	if p.value != nil {
+		return p.functions.encodeFunc(encoder, p.name, *p.value)
+	}
+	encoder.AddString(p.name, "<nil>")
+	return nil
+}
+
+func (p *pointerField[T]) NonNil() TypedField[T] {
+	var value lazyoptional.LazyOptional[T]
+	if p.value != nil {
+		value = lazyoptional.Some(*p.value)
+	} else {
+		value = lazyoptional.Empty[T]()
+	}
+
+	return &lazyTypedField[T]{
+		functions: p.functions,
+		name:      p.name,
+		value:     value,
 	}
 }

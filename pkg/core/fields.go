@@ -113,6 +113,77 @@ func Bool(name string, value bool) TypedField[bool] {
 	)
 }
 
+// StringPtr returns a new field with a *string value.
+func StringPtr(name string, value *string) TypedPointerField[string] {
+	return newPointerField(
+		stringTypeFns,
+		name,
+		value,
+	)
+}
+
+// IntPtr returns a new field with an *int value.
+func IntPtr(name string, value *int) TypedPointerField[int] {
+	return newPointerField(
+		intTypeFns,
+		name,
+		value,
+	)
+}
+
+// Int8Ptr returns a new field with an *int8 value.
+func Int8Ptr(name string, value *int8) TypedPointerField[int8] {
+	return newPointerField(
+		int8TypeFns,
+		name,
+		value,
+	)
+}
+
+// ObjectPtr returns a new field with a value that is a pointer to a
+// zapcore.ObjectMarshaler.
+func ObjectPtr[T zapcore.ObjectMarshaler](
+	name string,
+	value *T,
+	isNonZero func(T) bool,
+) TypedPointerField[T] {
+	return newPointerField(
+		objectTypeFns(isNonZero),
+		name,
+		value,
+	)
+}
+
+// ComparableObjectPtr returns a new field with a value that is a pointer to a
+// type that implements both zapcore.ObjectMarshaler and the comparable constraint.
+func ComparableObjectPtr[T Comparable](name string, value *T) TypedPointerField[T] {
+	var zero T
+	return ObjectPtr(name, value, func(v T) bool {
+		return v != zero
+	})
+}
+
+// BoolPtr returns a new field with a *bool value.
+func BoolPtr(name string, value *bool) TypedPointerField[bool] {
+	return newPointerField(
+		boolTypeFns,
+		name,
+		value,
+	)
+}
+
+func newPointerField[T any](
+	functions typeFieldFunctions[T],
+	name string,
+	value *T,
+) TypedPointerField[T] {
+	return &pointerField[T]{
+		functions: functions,
+		name:      name,
+		value:     value,
+	}
+}
+
 func objectTypeFns[T zapcore.ObjectMarshaler](isNonZero func(T) bool) typeFieldFunctions[T] {
 	return typeFieldFunctions[T]{
 		encodeFunc: func(encoder zapcore.ObjectEncoder, name string, value T) error {
