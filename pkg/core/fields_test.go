@@ -77,344 +77,6 @@ func TestString(t *testing.T) {
 	}
 }
 
-func TestStringPtr(t *testing.T) {
-	nonNilValue := "my-value"
-	testCases := []struct {
-		name          string
-		field         core.Field
-		expectedKey   string
-		expectedValue any // Use any for <nil> string vs actual type
-		shouldBeEmpty bool
-	}{
-		{
-			name:          "with non-nil pointer, it creates a string field correctly",
-			field:         core.StringPtr("my-key", &nonNilValue),
-			expectedKey:   "my-key",
-			expectedValue: "my-value",
-		},
-		{
-			name:          "with nil pointer, it creates a nil field correctly",
-			field:         core.StringPtr("my-key", nil),
-			expectedKey:   "my-key",
-			expectedValue: "<nil>",
-		},
-		{
-			name:          "NonNil with non-nil pointer works correctly",
-			field:         core.StringPtr("my-key", &nonNilValue).NonNil(),
-			expectedKey:   "my-key",
-			expectedValue: "my-value",
-		},
-		{
-			name:          "NonNil with nil pointer works correctly",
-			field:         core.StringPtr("my-key", nil).NonNil(),
-			expectedKey:   "my-key",
-			shouldBeEmpty: true,
-		},
-	}
-
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			g := NewWithT(t)
-
-			enc := zapcore.NewMapObjectEncoder()
-
-			err := tc.field.Encode(enc)
-
-			g.Expect(err).ToNot(HaveOccurred())
-			if tc.shouldBeEmpty {
-				g.Expect(enc.Fields).ToNot(HaveKey(tc.expectedKey))
-			} else {
-				g.Expect(enc.Fields).To(HaveKeyWithValue(tc.expectedKey, tc.expectedValue))
-				g.Expect(tc.field.Name()).To(Equal(tc.expectedKey))
-			}
-		})
-	}
-}
-
-func TestIntPtr(t *testing.T) {
-	nonNilValue := 123
-	testCases := []struct {
-		name          string
-		field         core.Field
-		expectedKey   string
-		expectedValue any // Use any for <nil> string vs actual type
-		shouldBeEmpty bool
-	}{
-		{
-			name:          "with non-nil pointer, it creates an int field correctly",
-			field:         core.IntPtr("my-key", &nonNilValue),
-			expectedKey:   "my-key",
-			expectedValue: 123,
-		},
-		{
-			name:          "with nil pointer, it creates a nil field correctly",
-			field:         core.IntPtr("my-key", nil),
-			expectedKey:   "my-key",
-			expectedValue: "<nil>",
-		},
-		{
-			name:          "NonNil with non-nil pointer works correctly",
-			field:         core.IntPtr("my-key", &nonNilValue).NonNil(),
-			expectedKey:   "my-key",
-			expectedValue: 123,
-		},
-		{
-			name:          "NonNil with nil pointer works correctly",
-			field:         core.IntPtr("my-key", nil).NonNil(),
-			expectedKey:   "my-key",
-			shouldBeEmpty: true,
-		},
-	}
-
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			g := NewWithT(t)
-
-			enc := zapcore.NewMapObjectEncoder()
-
-			err := tc.field.Encode(enc)
-
-			g.Expect(err).ToNot(HaveOccurred())
-			if tc.shouldBeEmpty {
-				g.Expect(enc.Fields).ToNot(HaveKey(tc.expectedKey))
-			} else {
-				g.Expect(enc.Fields).To(HaveKeyWithValue(tc.expectedKey, tc.expectedValue))
-				g.Expect(tc.field.Name()).To(Equal(tc.expectedKey))
-			}
-		})
-	}
-}
-
-func TestInt8Ptr(t *testing.T) {
-	nonNilValue := int8(12)
-	testCases := []struct {
-		name          string
-		field         core.Field
-		expectedKey   string
-		expectedValue any // Use any for <nil> string vs actual type
-		shouldBeEmpty bool
-	}{
-		{
-			name:          "with non-nil pointer, it creates an int8 field correctly",
-			field:         core.Int8Ptr("my-key", &nonNilValue),
-			expectedKey:   "my-key",
-			expectedValue: int8(12),
-		},
-		{
-			name:          "with nil pointer, it creates a nil field correctly",
-			field:         core.Int8Ptr("my-key", nil),
-			expectedKey:   "my-key",
-			expectedValue: "<nil>",
-		},
-		{
-			name:          "NonNil with non-nil pointer works correctly",
-			field:         core.Int8Ptr("my-key", &nonNilValue).NonNil(),
-			expectedKey:   "my-key",
-			expectedValue: int8(12),
-		},
-		{
-			name:          "NonNil with nil pointer works correctly",
-			field:         core.Int8Ptr("my-key", nil).NonNil(),
-			expectedKey:   "my-key",
-			shouldBeEmpty: true,
-		},
-	}
-
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			g := NewWithT(t)
-
-			enc := zapcore.NewMapObjectEncoder()
-
-			err := tc.field.Encode(enc)
-
-			g.Expect(err).ToNot(HaveOccurred())
-			if tc.shouldBeEmpty {
-				g.Expect(enc.Fields).ToNot(HaveKey(tc.expectedKey))
-			} else {
-				g.Expect(enc.Fields).To(HaveKeyWithValue(tc.expectedKey, tc.expectedValue))
-				g.Expect(tc.field.Name()).To(Equal(tc.expectedKey))
-			}
-		})
-	}
-}
-
-func TestBoolPtr(t *testing.T) {
-	nonNilValue := true
-	testCases := []struct {
-		name          string
-		field         core.Field
-		expectedKey   string
-		expectedValue any // Use any for <nil> string vs actual type
-		shouldBeEmpty bool
-	}{
-		{
-			name:          "with non-nil pointer, it creates a bool field correctly",
-			field:         core.BoolPtr("my-key", &nonNilValue),
-			expectedKey:   "my-key",
-			expectedValue: true,
-		},
-		{
-			name:          "with nil pointer, it creates a nil field correctly",
-			field:         core.BoolPtr("my-key", nil),
-			expectedKey:   "my-key",
-			expectedValue: "<nil>",
-		},
-		{
-			name:          "NonNil with non-nil pointer works correctly",
-			field:         core.BoolPtr("my-key", &nonNilValue).NonNil(),
-			expectedKey:   "my-key",
-			expectedValue: true,
-		},
-		{
-			name:          "NonNil with nil pointer works correctly",
-			field:         core.BoolPtr("my-key", nil).NonNil(),
-			expectedKey:   "my-key",
-			shouldBeEmpty: true,
-		},
-	}
-
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			g := NewWithT(t)
-
-			enc := zapcore.NewMapObjectEncoder()
-
-			err := tc.field.Encode(enc)
-
-			g.Expect(err).ToNot(HaveOccurred())
-			if tc.shouldBeEmpty {
-				g.Expect(enc.Fields).ToNot(HaveKey(tc.expectedKey))
-			} else {
-				g.Expect(enc.Fields).To(HaveKeyWithValue(tc.expectedKey, tc.expectedValue))
-				g.Expect(tc.field.Name()).To(Equal(tc.expectedKey))
-			}
-		})
-	}
-}
-
-func TestObjectPtr(t *testing.T) {
-	isNonZero := func(o testObject) bool { return o.value != "" }
-	nonNilValue := &testObject{value: "test"}
-
-	testCases := []struct {
-		name          string
-		field         core.Field
-		expectedKey   string
-		expectedValue any // Use any for <nil> string vs actual type
-		shouldBeEmpty bool
-	}{
-		{
-			name:        "with non-nil pointer, it creates an object field correctly",
-			field:       core.ObjectPtr("my-key", nonNilValue, isNonZero),
-			expectedKey: "my-key",
-			expectedValue: map[string]interface{}{
-				"value": "test",
-			},
-		},
-		{
-			name:          "with nil pointer, it creates a nil field correctly",
-			field:         core.ObjectPtr("my-key", (*testObject)(nil), isNonZero),
-			expectedKey:   "my-key",
-			expectedValue: "<nil>",
-		},
-		{
-			name:        "NonNil with non-nil pointer works correctly",
-			field:       core.ObjectPtr("my-key", nonNilValue, isNonZero).NonNil(),
-			expectedKey: "my-key",
-			expectedValue: map[string]interface{}{
-				"value": "test",
-			},
-		},
-		{
-			name:          "NonNil with nil pointer works correctly",
-			field:         core.ObjectPtr("my-key", (*testObject)(nil), isNonZero).NonNil(),
-			expectedKey:   "my-key",
-			shouldBeEmpty: true,
-		},
-	}
-
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			g := NewWithT(t)
-
-			enc := zapcore.NewMapObjectEncoder()
-
-			err := tc.field.Encode(enc)
-
-			g.Expect(err).ToNot(HaveOccurred())
-			if tc.shouldBeEmpty {
-				g.Expect(enc.Fields).ToNot(HaveKey(tc.expectedKey))
-			} else {
-				g.Expect(enc.Fields).To(HaveKeyWithValue(tc.expectedKey, tc.expectedValue))
-				g.Expect(tc.field.Name()).To(Equal(tc.expectedKey))
-			}
-		})
-	}
-}
-
-func TestComparableObjectPtr(t *testing.T) {
-	nonNilValue := testComparableObject{value: "test"}
-
-	testCases := []struct {
-		name          string
-		field         core.Field
-		expectedKey   string
-		expectedValue any // Use any for <nil> string vs actual type
-		shouldBeEmpty bool
-	}{
-		{
-			name:        "with non-nil pointer, it creates a comparable object field correctly",
-			field:       core.ComparableObjectPtr("my-key", &nonNilValue),
-			expectedKey: "my-key",
-			expectedValue: map[string]interface{}{
-				"value": "test",
-			},
-		},
-		{
-			name:          "with nil pointer, it creates a nil field correctly",
-			field:         core.ComparableObjectPtr("my-key", (*testComparableObject)(nil)),
-			expectedKey:   "my-key",
-			expectedValue: "<nil>",
-		},
-		{
-			name:        "NonNil with non-nil pointer works correctly",
-			field:       core.ComparableObjectPtr("my-key", &nonNilValue).NonNil(),
-			expectedKey: "my-key",
-			expectedValue: map[string]interface{}{
-				"value": "test",
-			},
-		},
-		{
-			name: "NonNil with nil pointer works correctly",
-			field: core.ComparableObjectPtr(
-				"my-key",
-				(*testComparableObject)(nil),
-			).NonNil(),
-			expectedKey:   "my-key",
-			shouldBeEmpty: true,
-		},
-	}
-
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			g := NewWithT(t)
-
-			enc := zapcore.NewMapObjectEncoder()
-
-			err := tc.field.Encode(enc)
-
-			g.Expect(err).ToNot(HaveOccurred())
-			if tc.shouldBeEmpty {
-				g.Expect(enc.Fields).ToNot(HaveKey(tc.expectedKey))
-			} else {
-				g.Expect(enc.Fields).To(HaveKeyWithValue(tc.expectedKey, tc.expectedValue))
-				g.Expect(tc.field.Name()).To(Equal(tc.expectedKey))
-			}
-		})
-	}
-}
-
 func TestInt(t *testing.T) {
 	testCases := []struct {
 		name          string
@@ -514,18 +176,18 @@ func TestInt8(t *testing.T) {
 }
 
 func TestObject(t *testing.T) {
-	isNonZero := func(o *testObject) bool { return o != nil && o.value != "" }
+	isNonZero := func(o testObject) bool { return o.value != "" }
 
 	testCases := []struct {
 		name          string
-		field         core.TypedField[*testObject]
+		field         core.TypedField[testObject]
 		expectedKey   string
 		expectedValue any
 		shouldBeEmpty bool
 	}{
 		{
 			name:        "it creates an object field correctly",
-			field:       core.Object("my-key", &testObject{value: "test"}, isNonZero),
+			field:       core.Object("my-key", testObject{value: "test"}, isNonZero),
 			expectedKey: "my-key",
 			expectedValue: map[string]interface{}{
 				"value": "test",
@@ -536,7 +198,7 @@ func TestObject(t *testing.T) {
 			name: "NonZero filter works correctly with non-zero value",
 			field: core.Object(
 				"non-zero-key",
-				&testObject{value: "value"},
+				testObject{value: "value"},
 				isNonZero,
 			).NonZero(),
 			expectedKey: "non-zero-key",
@@ -547,7 +209,7 @@ func TestObject(t *testing.T) {
 		},
 		{
 			name:          "NonZero filter works correctly with zero value",
-			field:         core.Object("zero-key", &testObject{value: ""}, isNonZero).NonZero(),
+			field:         core.Object("zero-key", testObject{value: ""}, isNonZero).NonZero(),
 			expectedKey:   "zero-key",
 			shouldBeEmpty: true,
 		},
@@ -675,4 +337,354 @@ func TestComparableObject(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestStringPtr(t *testing.T) {
+	t.Run("Encode", func(t *testing.T) {
+		t.Run("when pointer is not nil, it encodes the value", func(t *testing.T) {
+			g := NewWithT(t)
+			nonNilValue := "my-value"
+
+			field := core.StringPtr("my-key", &nonNilValue)
+
+			enc := zapcore.NewMapObjectEncoder()
+			err := field.Encode(enc)
+
+			g.Expect(err).ToNot(HaveOccurred())
+			g.Expect(enc.Fields).To(HaveKeyWithValue("my-key", "my-value"))
+		})
+
+		t.Run("when pointer is nil, it encodes <nil>", func(t *testing.T) {
+			g := NewWithT(t)
+
+			field := core.StringPtr("my-key", nil)
+
+			enc := zapcore.NewMapObjectEncoder()
+			err := field.Encode(enc)
+
+			g.Expect(err).ToNot(HaveOccurred())
+			g.Expect(enc.Fields).To(HaveKeyWithValue("my-key", "<nil>"))
+		})
+	})
+
+	t.Run("NonNil", func(t *testing.T) {
+		t.Run("when pointer is not nil, it returns a valid field", func(t *testing.T) {
+			g := NewWithT(t)
+			nonNilValue := "my-value"
+
+			field := core.StringPtr("my-key", &nonNilValue).NonNil()
+
+			enc := zapcore.NewMapObjectEncoder()
+			err := field.Encode(enc)
+
+			g.Expect(err).ToNot(HaveOccurred())
+			g.Expect(enc.Fields).To(HaveKeyWithValue("my-key", "my-value"))
+		})
+
+		t.Run("when pointer is nil, it returns an empty field", func(t *testing.T) {
+			g := NewWithT(t)
+
+			field := core.StringPtr("my-key", nil).NonNil()
+
+			enc := zapcore.NewMapObjectEncoder()
+			err := field.Encode(enc)
+
+			g.Expect(err).ToNot(HaveOccurred())
+			g.Expect(enc.Fields).To(BeEmpty())
+		})
+	})
+}
+
+func TestIntPtr(t *testing.T) {
+	t.Run("Encode", func(t *testing.T) {
+		t.Run("when pointer is not nil, it encodes the value", func(t *testing.T) {
+			g := NewWithT(t)
+			nonNilValue := 123
+
+			field := core.IntPtr("my-key", &nonNilValue)
+
+			enc := zapcore.NewMapObjectEncoder()
+			err := field.Encode(enc)
+
+			g.Expect(err).ToNot(HaveOccurred())
+			g.Expect(enc.Fields).To(HaveKeyWithValue("my-key", 123))
+		})
+
+		t.Run("when pointer is nil, it encodes <nil>", func(t *testing.T) {
+			g := NewWithT(t)
+
+			field := core.IntPtr("my-key", nil)
+
+			enc := zapcore.NewMapObjectEncoder()
+			err := field.Encode(enc)
+
+			g.Expect(err).ToNot(HaveOccurred())
+			g.Expect(enc.Fields).To(HaveKeyWithValue("my-key", "<nil>"))
+		})
+	})
+
+	t.Run("NonNil", func(t *testing.T) {
+		t.Run("when pointer is not nil, it returns a valid field", func(t *testing.T) {
+			g := NewWithT(t)
+			nonNilValue := 123
+
+			field := core.IntPtr("my-key", &nonNilValue).NonNil()
+
+			enc := zapcore.NewMapObjectEncoder()
+			err := field.Encode(enc)
+
+			g.Expect(err).ToNot(HaveOccurred())
+			g.Expect(enc.Fields).To(HaveKeyWithValue("my-key", 123))
+		})
+
+		t.Run("when pointer is nil, it returns an empty field", func(t *testing.T) {
+			g := NewWithT(t)
+
+			field := core.IntPtr("my-key", nil).NonNil()
+
+			enc := zapcore.NewMapObjectEncoder()
+			err := field.Encode(enc)
+
+			g.Expect(err).ToNot(HaveOccurred())
+			g.Expect(enc.Fields).To(BeEmpty())
+		})
+	})
+}
+
+func TestInt8Ptr(t *testing.T) {
+	t.Run("Encode", func(t *testing.T) {
+		t.Run("when pointer is not nil, it encodes the value", func(t *testing.T) {
+			g := NewWithT(t)
+			nonNilValue := int8(12)
+
+			field := core.Int8Ptr("my-key", &nonNilValue)
+
+			enc := zapcore.NewMapObjectEncoder()
+			err := field.Encode(enc)
+
+			g.Expect(err).ToNot(HaveOccurred())
+			g.Expect(enc.Fields).To(HaveKeyWithValue("my-key", int8(12)))
+		})
+
+		t.Run("when pointer is nil, it encodes <nil>", func(t *testing.T) {
+			g := NewWithT(t)
+
+			field := core.Int8Ptr("my-key", nil)
+
+			enc := zapcore.NewMapObjectEncoder()
+			err := field.Encode(enc)
+
+			g.Expect(err).ToNot(HaveOccurred())
+			g.Expect(enc.Fields).To(HaveKeyWithValue("my-key", "<nil>"))
+		})
+	})
+
+	t.Run("NonNil", func(t *testing.T) {
+		t.Run("when pointer is not nil, it returns a valid field", func(t *testing.T) {
+			g := NewWithT(t)
+			nonNilValue := int8(12)
+
+			field := core.Int8Ptr("my-key", &nonNilValue).NonNil()
+
+			enc := zapcore.NewMapObjectEncoder()
+			err := field.Encode(enc)
+
+			g.Expect(err).ToNot(HaveOccurred())
+			g.Expect(enc.Fields).To(HaveKeyWithValue("my-key", int8(12)))
+		})
+
+		t.Run("when pointer is nil, it returns an empty field", func(t *testing.T) {
+			g := NewWithT(t)
+
+			field := core.Int8Ptr("my-key", nil).NonNil()
+
+			enc := zapcore.NewMapObjectEncoder()
+			err := field.Encode(enc)
+
+			g.Expect(err).ToNot(HaveOccurred())
+			g.Expect(enc.Fields).To(BeEmpty())
+		})
+	})
+}
+
+func TestBoolPtr(t *testing.T) {
+	t.Run("Encode", func(t *testing.T) {
+		t.Run("when pointer is not nil, it encodes the value", func(t *testing.T) {
+			g := NewWithT(t)
+			nonNilValue := true
+
+			field := core.BoolPtr("my-key", &nonNilValue)
+
+			enc := zapcore.NewMapObjectEncoder()
+			err := field.Encode(enc)
+
+			g.Expect(err).ToNot(HaveOccurred())
+			g.Expect(enc.Fields).To(HaveKeyWithValue("my-key", true))
+		})
+
+		t.Run("when pointer is nil, it encodes <nil>", func(t *testing.T) {
+			g := NewWithT(t)
+
+			field := core.BoolPtr("my-key", nil)
+
+			enc := zapcore.NewMapObjectEncoder()
+			err := field.Encode(enc)
+
+			g.Expect(err).ToNot(HaveOccurred())
+			g.Expect(enc.Fields).To(HaveKeyWithValue("my-key", "<nil>"))
+		})
+	})
+
+	t.Run("NonNil", func(t *testing.T) {
+		t.Run("when pointer is not nil, it returns a valid field", func(t *testing.T) {
+			g := NewWithT(t)
+			nonNilValue := true
+
+			field := core.BoolPtr("my-key", &nonNilValue).NonNil()
+
+			enc := zapcore.NewMapObjectEncoder()
+			err := field.Encode(enc)
+
+			g.Expect(err).ToNot(HaveOccurred())
+			g.Expect(enc.Fields).To(HaveKeyWithValue("my-key", true))
+		})
+
+		t.Run("when pointer is nil, it returns an empty field", func(t *testing.T) {
+			g := NewWithT(t)
+
+			field := core.BoolPtr("my-key", nil).NonNil()
+
+			enc := zapcore.NewMapObjectEncoder()
+			err := field.Encode(enc)
+
+			g.Expect(err).ToNot(HaveOccurred())
+			g.Expect(enc.Fields).To(BeEmpty())
+		})
+	})
+}
+
+func TestObjectPtr(t *testing.T) {
+	isNonZero := func(o testObject) bool { return o.value != "" }
+
+	t.Run("Encode", func(t *testing.T) {
+		t.Run("when pointer is not nil, it encodes the value", func(t *testing.T) {
+			g := NewWithT(t)
+			nonNilValue := &testObject{value: "test"}
+
+			field := core.ObjectPtr("my-key", nonNilValue, isNonZero)
+
+			enc := zapcore.NewMapObjectEncoder()
+			err := field.Encode(enc)
+
+			g.Expect(err).ToNot(HaveOccurred())
+			g.Expect(enc.Fields).To(HaveKeyWithValue(
+				"my-key",
+				map[string]interface{}{"value": "test"},
+			))
+		})
+
+		t.Run("when pointer is nil, it encodes <nil>", func(t *testing.T) {
+			g := NewWithT(t)
+
+			field := core.ObjectPtr("my-key", (*testObject)(nil), isNonZero)
+
+			enc := zapcore.NewMapObjectEncoder()
+			err := field.Encode(enc)
+
+			g.Expect(err).ToNot(HaveOccurred())
+			g.Expect(enc.Fields).To(HaveKeyWithValue("my-key", "<nil>"))
+		})
+	})
+
+	t.Run("NonNil", func(t *testing.T) {
+		t.Run("when pointer is not nil, it returns a valid field", func(t *testing.T) {
+			g := NewWithT(t)
+			nonNilValue := &testObject{value: "test"}
+
+			field := core.ObjectPtr("my-key", nonNilValue, isNonZero).NonNil()
+
+			enc := zapcore.NewMapObjectEncoder()
+			err := field.Encode(enc)
+
+			g.Expect(err).ToNot(HaveOccurred())
+			g.Expect(enc.Fields).To(HaveKeyWithValue(
+				"my-key",
+				map[string]interface{}{"value": "test"},
+			))
+		})
+
+		t.Run("when pointer is nil, it returns an empty field", func(t *testing.T) {
+			g := NewWithT(t)
+
+			field := core.ObjectPtr("my-key", (*testObject)(nil), isNonZero).NonNil()
+
+			enc := zapcore.NewMapObjectEncoder()
+			err := field.Encode(enc)
+
+			g.Expect(err).ToNot(HaveOccurred())
+			g.Expect(enc.Fields).To(BeEmpty())
+		})
+	})
+}
+
+func TestComparableObjectPtr(t *testing.T) {
+	t.Run("Encode", func(t *testing.T) {
+		t.Run("when pointer is not nil, it encodes the value", func(t *testing.T) {
+			g := NewWithT(t)
+			nonNilValue := &testComparableObject{value: "test"}
+
+			field := core.ComparableObjectPtr("my-key", nonNilValue)
+
+			enc := zapcore.NewMapObjectEncoder()
+			err := field.Encode(enc)
+
+			g.Expect(err).ToNot(HaveOccurred())
+			g.Expect(enc.Fields).To(HaveKeyWithValue(
+				"my-key",
+				map[string]interface{}{"value": "test"},
+			))
+		})
+
+		t.Run("when pointer is nil, it encodes <nil>", func(t *testing.T) {
+			g := NewWithT(t)
+
+			field := core.ComparableObjectPtr("my-key", (*testComparableObject)(nil))
+
+			enc := zapcore.NewMapObjectEncoder()
+			err := field.Encode(enc)
+
+			g.Expect(err).ToNot(HaveOccurred())
+			g.Expect(enc.Fields).To(HaveKeyWithValue("my-key", "<nil>"))
+		})
+	})
+
+	t.Run("NonNil", func(t *testing.T) {
+		t.Run("when pointer is not nil, it returns a valid field", func(t *testing.T) {
+			g := NewWithT(t)
+			nonNilValue := &testComparableObject{value: "test"}
+
+			field := core.ComparableObjectPtr("my-key", nonNilValue).NonNil()
+
+			enc := zapcore.NewMapObjectEncoder()
+			err := field.Encode(enc)
+
+			g.Expect(err).ToNot(HaveOccurred())
+			g.Expect(enc.Fields).To(HaveKeyWithValue(
+				"my-key",
+				map[string]interface{}{"value": "test"},
+			))
+		})
+
+		t.Run("when pointer is nil, it returns an empty field", func(t *testing.T) {
+			g := NewWithT(t)
+
+			field := core.ComparableObjectPtr("my-key", (*testComparableObject)(nil)).NonNil()
+
+			enc := zapcore.NewMapObjectEncoder()
+			err := field.Encode(enc)
+
+			g.Expect(err).ToNot(HaveOccurred())
+			g.Expect(enc.Fields).To(BeEmpty())
+		})
+	})
 }

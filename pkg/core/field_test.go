@@ -21,7 +21,9 @@ func TestTypedField_Name(t *testing.T) {
 
 	field := core.String(fieldTestFieldName, testValueString)
 
-	g.Expect(field.Name()).To(Equal(fieldTestFieldName))
+	name := field.Name()
+
+	g.Expect(name).To(Equal(fieldTestFieldName))
 }
 
 func TestTypedField_Filtering(t *testing.T) {
@@ -104,65 +106,38 @@ func TestTypedField_Format(t *testing.T) {
 	g.Expect(enc.Fields).To(HaveKeyWithValue(fieldTestFieldName, "formatted-5"))
 }
 
-func TestTypedPointerField(t *testing.T) {
-	// Create a non-nil pointer for testing
+func TestTypedPointerField_Name(t *testing.T) {
+	g := NewWithT(t)
+	nonNilValue := "value"
+
+	field := core.StringPtr(fieldTestFieldName, &nonNilValue)
+
+	name := field.Name()
+
+	g.Expect(name).To(Equal(fieldTestFieldName))
+}
+
+func TestTypedPointerField_Encode(t *testing.T) {
 	nonNilValue := testValueString
 	var nonNilPtr = &nonNilValue
 
-	// Test Name() method separately as it's simple
-	t.Run("Name", func(t *testing.T) {
-		g := NewWithT(t)
-		field := core.StringPtr(fieldTestFieldName, nonNilPtr)
-		g.Expect(field.Name()).To(Equal(fieldTestFieldName))
-	})
-
 	testCases := []struct {
 		name      string
-		field     core.Field // Use the base Field interface for Encode tests
+		field     core.Field
 		assertion func(g *GomegaWithT, fields map[string]any)
 	}{
 		{
-			name:  "Encode: when pointer is not nil, it encodes the value",
+			name:  "when pointer is not nil, it encodes the value",
 			field: core.StringPtr(fieldTestFieldName, nonNilPtr),
 			assertion: func(g *GomegaWithT, fields map[string]any) {
 				g.Expect(fields).To(HaveKeyWithValue(fieldTestFieldName, testValueString))
 			},
 		},
 		{
-			name:  "Encode: when pointer is nil, it encodes '<nil>'",
+			name:  "when pointer is nil, it encodes '<nil>'",
 			field: core.StringPtr(fieldTestFieldName, nil),
 			assertion: func(g *GomegaWithT, fields map[string]any) {
 				g.Expect(fields).To(HaveKeyWithValue(fieldTestFieldName, "<nil>"))
-			},
-		},
-		{
-			name:  "NonNil: when pointer is not nil, it returns a valid field",
-			field: core.StringPtr(fieldTestFieldName, nonNilPtr).NonNil(),
-			assertion: func(g *GomegaWithT, fields map[string]any) {
-				g.Expect(fields).To(HaveKeyWithValue(fieldTestFieldName, testValueString))
-			},
-		},
-		{
-			name:  "NonNil: when pointer is nil, it returns an empty field",
-			field: core.StringPtr(fieldTestFieldName, nil).NonNil(),
-			assertion: func(g *GomegaWithT, fields map[string]any) {
-				g.Expect(fields).To(BeEmpty())
-			},
-		},
-		{
-			name: "NonNil: allows chaining when pointer is not nil",
-			field: core.StringPtr(fieldTestFieldName, nonNilPtr).NonNil().
-				Filter(func(s string) bool { return false }), // Filter should execute
-			assertion: func(g *GomegaWithT, fields map[string]any) {
-				g.Expect(fields).To(BeEmpty()) // Be empty because filter returns false
-			},
-		},
-		{
-			name: "NonNil: chaining is a no-op when pointer is nil",
-			field: core.StringPtr(fieldTestFieldName, nil).NonNil().
-				Filter(func(s string) bool { return true }), // Filter should not matter
-			assertion: func(g *GomegaWithT, fields map[string]any) {
-				g.Expect(fields).To(BeEmpty()) // Still empty because original pointer was nil
 			},
 		},
 	}
@@ -170,6 +145,62 @@ func TestTypedPointerField(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			g := NewWithT(t)
+
+			enc := zapcore.NewMapObjectEncoder()
+
+			err := tc.field.Encode(enc)
+
+			g.Expect(err).ToNot(HaveOccurred())
+			tc.assertion(g, enc.Fields)
+		})
+	}
+}
+
+func TestTypedPointerField_NonNil(t *testing.T) {
+	nonNilValue := testValueString
+	var nonNilPtr = &nonNilValue
+
+	testCases := []struct {
+		name      string
+		field     core.Field
+		assertion func(g *GomegaWithT, fields map[string]any)
+	}{
+		{
+			name:  "when pointer is not nil, it returns a valid field",
+			field: core.StringPtr(fieldTestFieldName, nonNilPtr).NonNil(),
+			assertion: func(g *GomegaWithT, fields map[string]any) {
+				g.Expect(fields).To(HaveKeyWithValue(fieldTestFieldName, testValueString))
+			},
+		},
+		{
+			name:  "when pointer is nil, it returns an empty field",
+			field: core.StringPtr(fieldTestFieldName, nil).NonNil(),
+			assertion: func(g *GomegaWithT, fields map[string]any) {
+				g.Expect(fields).To(BeEmpty())
+			},
+		},
+		{
+			name: "allows chaining when pointer is not nil",
+			field: core.StringPtr(fieldTestFieldName, nonNilPtr).NonNil().
+				Filter(func(s string) bool { return false }),
+			assertion: func(g *GomegaWithT, fields map[string]any) {
+				g.Expect(fields).To(BeEmpty())
+			},
+		},
+		{
+			name: "chaining is a no-op when pointer is nil",
+			field: core.StringPtr(fieldTestFieldName, nil).NonNil().
+				Filter(func(s string) bool { return true }),
+			assertion: func(g *GomegaWithT, fields map[string]any) {
+				g.Expect(fields).To(BeEmpty())
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			g := NewWithT(t)
+
 			enc := zapcore.NewMapObjectEncoder()
 
 			err := tc.field.Encode(enc)
