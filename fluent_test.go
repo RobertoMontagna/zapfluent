@@ -195,6 +195,11 @@ func TestAsFluent(t *testing.T) {
 }
 
 func TestFluent_Add_ForDifferentFieldTypes_ShouldEncodeCorrectly(t *testing.T) {
+	strVal := "value"
+	intVal := 42
+	int8Val := int8(8)
+	boolTrue := true
+
 	testCases := []struct {
 		name          string
 		field         zapfluent.Field
@@ -208,10 +213,34 @@ func TestFluent_Add_ForDifferentFieldTypes_ShouldEncodeCorrectly(t *testing.T) {
 			expectedValue: "value",
 		},
 		{
+			name:          "with string pointer (non-nil)",
+			field:         zapfluent.StringPtr("my_string_ptr", &strVal),
+			expectedKey:   "my_string_ptr",
+			expectedValue: "value",
+		},
+		{
+			name:          "with string pointer (nil)",
+			field:         zapfluent.StringPtr("my_string_ptr", nil),
+			expectedKey:   "my_string_ptr",
+			expectedValue: "<nil>",
+		},
+		{
 			name:          "with int",
 			field:         zapfluent.Int("my_int", 123),
 			expectedKey:   "my_int",
 			expectedValue: 123,
+		},
+		{
+			name:          "with int pointer (non-nil)",
+			field:         zapfluent.IntPtr("my_int_ptr", &intVal),
+			expectedKey:   "my_int_ptr",
+			expectedValue: 42,
+		},
+		{
+			name:          "with int pointer (nil)",
+			field:         zapfluent.IntPtr("my_int_ptr", nil),
+			expectedKey:   "my_int_ptr",
+			expectedValue: "<nil>",
 		},
 		{
 			name:          "with int8",
@@ -220,10 +249,34 @@ func TestFluent_Add_ForDifferentFieldTypes_ShouldEncodeCorrectly(t *testing.T) {
 			expectedValue: int8(12),
 		},
 		{
+			name:          "with int8 pointer (non-nil)",
+			field:         zapfluent.Int8Ptr("my_int8_ptr", &int8Val),
+			expectedKey:   "my_int8_ptr",
+			expectedValue: int8(8),
+		},
+		{
+			name:          "with int8 pointer (nil)",
+			field:         zapfluent.Int8Ptr("my_int8_ptr", nil),
+			expectedKey:   "my_int8_ptr",
+			expectedValue: "<nil>",
+		},
+		{
 			name:          "with bool (true)",
 			field:         zapfluent.Bool("my_bool", true),
 			expectedKey:   "my_bool",
 			expectedValue: true,
+		},
+		{
+			name:          "with bool pointer (non-nil)",
+			field:         zapfluent.BoolPtr("my_bool_ptr", &boolTrue),
+			expectedKey:   "my_bool_ptr",
+			expectedValue: true,
+		},
+		{
+			name:          "with bool pointer (nil)",
+			field:         zapfluent.BoolPtr("my_bool_ptr", nil),
+			expectedKey:   "my_bool_ptr",
+			expectedValue: "<nil>",
 		},
 		{
 			name:          "with bool (false)",
