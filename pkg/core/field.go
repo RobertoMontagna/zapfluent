@@ -1,10 +1,38 @@
 package core
 
 import (
+	"fmt"
+
 	"go.uber.org/zap/zapcore"
 
 	"go.robertomontagna.dev/zapfluent/internal/functional/lazyoptional"
 )
+
+// PointerInfo is a struct that holds a pointer to a value and the necessary
+// functions to encode it. It is used to provide detailed information about a
+// pointer, including its value and memory address, when logging.
+type PointerInfo[T any] struct {
+	// PtrValue is the pointer to the value of type T.
+	PtrValue *T
+	// encodeVal is the function used to encode the value of type T.
+	encodeVal encodeFunc[T]
+}
+
+// MarshalLogObject implements the zapcore.ObjectMarshaler interface for
+// PointerInfo. It encodes the pointer's value and its memory address.
+func (p PointerInfo[T]) MarshalLogObject(enc zapcore.ObjectEncoder) error {
+	if p.PtrValue == nil {
+		enc.AddString("value", "<nil>")
+		enc.AddString("address", "0x0")
+		return nil
+	}
+
+	if err := p.encodeVal(enc, "value", *p.PtrValue); err != nil {
+		return err
+	}
+	enc.AddString("address", fmt.Sprintf("%p", p.PtrValue))
+	return nil
+}
 
 // Field is the interface that all concrete field types must implement. It
 // represents a single key-value pair to be encoded.
@@ -41,6 +69,10 @@ type TypedPointerField[T any] interface {
 	// original pointer was nil, the resulting TypedField will be empty,
 	// preventing further operations in a chain.
 	NonNil() TypedField[T]
+	// WithAddress returns a new field that, when encoded, produces an object
+	// containing both the pointer's value and its memory address. This is
+	// useful for debugging and understanding pointer references in logs.
+	WithAddress() TypedField[PointerInfo[T]]
 }
 
 type encodeFunc[T any] func(zapcore.ObjectEncoder, string, T) error
@@ -131,4 +163,17 @@ func (p *pointerField[T]) NonNil() TypedField[T] {
 		name:      p.name,
 		value:     value,
 	}
+}
+
+func (p *pointerField[T]) WithAddress() TypedField[PointerInfo[T]] {
+	return newTypedField(
+		objectTypeFns(func(pi PointerInfo[T]) bool {
+			return pi.PtrValue != nil
+		}),
+		p.name,
+		PointerInfo[T]{
+			PtrValue:  p.value,
+			encodeVal: p.functions.encodeFunc,
+		},
+	)
 }
