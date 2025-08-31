@@ -4,12 +4,13 @@ import (
 	"testing"
 
 	"github.com/onsi/gomega/types"
-	"go.robertomontagna.dev/zapfluent/internal/testutil"
 
-	. "github.com/onsi/gomega"
 	"go.robertomontagna.dev/zapfluent/internal/functional/contracts/matchers"
 	"go.robertomontagna.dev/zapfluent/internal/functional/lazyoptional"
 	"go.robertomontagna.dev/zapfluent/internal/functional/optional"
+	"go.robertomontagna.dev/zapfluent/internal/testutil"
+
+	. "github.com/onsi/gomega"
 )
 
 func TestMatchers(t *testing.T) {

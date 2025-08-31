@@ -4,11 +4,12 @@ import (
 	"errors"
 	"testing"
 
-	"go.robertomontagna.dev/zapfluent/internal/testutil/stubs"
 	"go.uber.org/zap/zapcore"
 
-	. "github.com/onsi/gomega"
+	"go.robertomontagna.dev/zapfluent/internal/testutil/stubs"
 	"go.robertomontagna.dev/zapfluent/pkg/core"
+
+	. "github.com/onsi/gomega"
 )
 
 var (

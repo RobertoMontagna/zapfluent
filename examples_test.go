@@ -4,12 +4,12 @@ import (
 	"strings"
 	"time"
 
-	"go.robertomontagna.dev/zapfluent/internal/testutil"
-	"go.robertomontagna.dev/zapfluent/internal/testutil/zaptestutil"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
 	"go.robertomontagna.dev/zapfluent"
+	"go.robertomontagna.dev/zapfluent/internal/testutil"
+	"go.robertomontagna.dev/zapfluent/internal/testutil/zaptestutil"
 )
 
 // Address represents a street address.

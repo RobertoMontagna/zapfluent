@@ -3,8 +3,9 @@ package testutil_test
 import (
 	"testing"
 
-	"go.robertomontagna.dev/zapfluent/internal/testutil"
 	"go.uber.org/zap/zapcore"
+
+	"go.robertomontagna.dev/zapfluent/internal/testutil"
 
 	. "github.com/onsi/gomega"
 )
