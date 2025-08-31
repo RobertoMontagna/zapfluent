@@ -20,8 +20,9 @@ type testObject struct {
 
 // MarshalLogObject implements the zapcore.ObjectMarshaler interface.
 func (t testObject) MarshalLogObject(enc zapcore.ObjectEncoder) error {
-	enc.AddString("value", t.Value)
-	return nil
+	return zapfluent.AsFluent(enc).
+		Add(zapfluent.String("value", t.Value)).
+		Done()
 }
 
 func TestTypedPointerField_WithAddress_ShouldEncodeValueAndAddress(t *testing.T) {

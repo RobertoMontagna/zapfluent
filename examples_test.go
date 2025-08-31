@@ -7,6 +7,7 @@ import (
 	"go.uber.org/zap/zapcore"
 
 	"go.robertomontagna.dev/zapfluent"
+	"go.robertomontagna.dev/zapfluent/testutil"
 )
 
 // Address represents a street address.
@@ -45,9 +46,9 @@ func (u User) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 		Done()
 }
 
+//revive:disable:line-length-limit
 func Example_withComplexObject() {
-	logger, _ := zap.NewProduction()
-	_ = logger.Sync()
+	logger := testutil.StdOutLoggerForTest()
 
 	user := User{
 		ID:       123,
@@ -61,9 +62,10 @@ func Example_withComplexObject() {
 		Tags: []string{"go", "logging", "zap"},
 	}
 
-	logger.Info("Logging a complex, nested object", zap.Object("user", user))
+	logger.Infow("Logging a complex, nested object", zap.Object("user", user))
 
-	// In a real application, the output would be a JSON log line.
-	// For this example, we just demonstrate the usage.
 	// Output:
+	//{"level":"info","msg":"Logging a complex, nested object","user":{"id":123,"name":"John Doe","isActive":true,"address":{"street":"123 Main St","city":"Anytown","zip":"12345"},"tags":"go,logging,zap"}}
 }
+
+//revive:enable:line-length-limit
