@@ -68,7 +68,7 @@ func TestTypedPointerField_WithAddress_ShouldEncodeValueAndAddress(t *testing.T)
 			g := NewWithT(t)
 
 			enc := zapcore.NewMapObjectEncoder()
-			fluent := zapfluent.AsFluent(
+			fluent := core.AsFluent(
 				core.NewFluentEncoder(
 					testutil.NewDoNotEncodeEncoderForTest(enc),
 					core.NewConfiguration(),
@@ -180,7 +180,7 @@ func TestFluent_Add_ForDifferentFieldTypes_ShouldEncodeCorrectly(t *testing.T) {
 			g := NewWithT(t)
 
 			enc := zapcore.NewMapObjectEncoder()
-			fluent := zapfluent.AsFluent(
+			fluent := core.AsFluent(
 				core.NewFluentEncoder(
 					testutil.NewDoNotEncodeEncoderForTest(enc),
 					core.NewConfiguration(),
@@ -260,7 +260,7 @@ func TestFluent_Add_ForComparableObjectFields_ShouldEncodeCorrectly(t *testing.T
 			g := NewWithT(t)
 
 			enc := zapcore.NewMapObjectEncoder()
-			fluent := zapfluent.AsFluent(
+			fluent := core.AsFluent(
 				core.NewFluentEncoder(
 					testutil.NewDoNotEncodeEncoderForTest(enc),
 					core.NewConfiguration(),
@@ -354,7 +354,7 @@ func TestFluent_Add_ForObjectFields_ShouldEncodeCorrectly(t *testing.T) {
 			g := NewWithT(t)
 
 			enc := zapcore.NewMapObjectEncoder()
-			fluent := zapfluent.AsFluent(
+			fluent := core.AsFluent(
 				core.NewFluentEncoder(
 					testutil.NewDoNotEncodeEncoderForTest(enc),
 					core.NewConfiguration(),

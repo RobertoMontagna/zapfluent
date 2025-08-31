@@ -1,18 +1,14 @@
-// Package zapfluent provides a fluent interface for structured logging with Zap.
-// It allows for a more intuitive and chainable way to add fields to a log entry.
-package zapfluent
+package core
 
 import (
 	"go.uber.org/zap/zapcore"
-
-	"go.robertomontagna.dev/zapfluent/pkg/core"
 )
 
 // Fluent provides a fluent interface for adding structured logging fields to a
 // Zap ObjectEncoder. It is designed to be used in a chainable manner.
 type Fluent struct {
 	enc          zapcore.ObjectEncoder
-	errorHandler *core.ErrorHandler
+	errorHandler *ErrorHandler
 }
 
 // NewFluent creates and returns a new Fluent instance.
@@ -20,11 +16,11 @@ type Fluent struct {
 // object to configure its behavior, such as error handling.
 func NewFluent(
 	enc zapcore.ObjectEncoder,
-	config core.Configuration,
+	config Configuration,
 ) *Fluent {
 	return &Fluent{
 		enc:          enc,
-		errorHandler: core.NewErrorHandler(config.ErrorHandling(), enc),
+		errorHandler: NewErrorHandler(config.ErrorHandling(), enc),
 	}
 }
 
@@ -32,7 +28,7 @@ func NewFluent(
 // It takes a core.Field, which is an interface that allows for custom
 // field types and encoding logic.
 // The method returns the Fluent pointer, allowing for chained calls.
-func (z *Fluent) Add(field core.Field) *Fluent {
+func (z *Fluent) Add(field Field) *Fluent {
 	if z.errorHandler.ShouldSkip() {
 		return z
 	}
@@ -56,8 +52,8 @@ func (z *Fluent) Done() error {
 // default configuration. This is useful for integrating with libraries like
 // Zap that provide an encoder.
 func AsFluent(encoder zapcore.ObjectEncoder) *Fluent {
-	if fEnc, ok := encoder.(*core.FluentEncoder); ok {
+	if fEnc, ok := encoder.(*FluentEncoder); ok {
 		return NewFluent(fEnc, fEnc.Config)
 	}
-	return NewFluent(encoder, core.NewConfiguration())
+	return NewFluent(encoder, NewConfiguration())
 }

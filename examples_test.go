@@ -7,7 +7,6 @@ import (
 	"go.uber.org/zap/zapcore"
 
 	"go.robertomontagna.dev/zapfluent"
-	"go.robertomontagna.dev/zapfluent/pkg/core"
 )
 
 // Address represents a street address.
@@ -19,10 +18,11 @@ type Address struct {
 
 // MarshalLogObject makes Address implement zapcore.ObjectMarshaler.
 func (a Address) MarshalLogObject(enc zapcore.ObjectEncoder) error {
-	enc.AddString("street", a.Street)
-	enc.AddString("city", a.City)
-	enc.AddString("zip", a.Zip)
-	return nil
+	return zapfluent.AsFluent(enc).
+		Add(zapfluent.String("street", a.Street)).
+		Add(zapfluent.String("city", a.City)).
+		Add(zapfluent.String("zip", a.Zip)).
+		Done()
 }
 
 // User represents a user with personal information.
@@ -37,11 +37,11 @@ type User struct {
 // MarshalLogObject makes User implement zapcore.ObjectMarshaler.
 func (u User) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 	return zapfluent.AsFluent(enc).
-		Add(core.Int("id", u.ID)).
-		Add(core.String("name", u.Name)).
-		Add(core.Bool("isActive", u.IsActive)).
-		Add(core.Object("address", u.Address, func(a Address) bool { return a != Address{} })).
-		Add(core.String("tags", strings.Join(u.Tags, ","))).
+		Add(zapfluent.Int("id", u.ID)).
+		Add(zapfluent.String("name", u.Name)).
+		Add(zapfluent.Bool("isActive", u.IsActive)).
+		Add(zapfluent.Object("address", u.Address, func(a Address) bool { return a != Address{} })).
+		Add(zapfluent.String("tags", strings.Join(u.Tags, ","))).
 		Done()
 }
 

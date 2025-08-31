@@ -15,23 +15,27 @@ type PointerInfo[T any] struct {
 	// PtrValue is the pointer to the value of type T.
 	PtrValue *T
 	// encodeVal is the function used to encode the value of type T.
-	encodeVal encodeFunc[T]
+	functions typeFieldFunctions[T]
 }
 
 // MarshalLogObject implements the zapcore.ObjectMarshaler interface for
 // PointerInfo. It encodes the pointer's value and its memory address.
 func (p PointerInfo[T]) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 	if p.PtrValue == nil {
-		enc.AddString("value", "<nil>")
-		enc.AddString("address", "0x0")
-		return nil
+		return AsFluent(enc).
+			Add(String("address", "0x0")).
+			Add(String("value", "<nil>")).
+			Done()
 	}
 
-	if err := p.encodeVal(enc, "value", *p.PtrValue); err != nil {
-		return err
-	}
-	enc.AddString("address", fmt.Sprintf("%p", p.PtrValue))
-	return nil
+	return AsFluent(enc).
+		Add(String("address", fmt.Sprintf("%p", p.PtrValue))).
+		Add(p.functions.toField("value", *p.PtrValue)).
+		Done()
+}
+
+func (p PointerInfo[T]) IsNonZero() bool {
+	return p.PtrValue != nil && p.functions.isNonZero(*p.PtrValue)
 }
 
 // Field is the interface that all concrete field types must implement. It
@@ -80,6 +84,29 @@ type encodeFunc[T any] func(zapcore.ObjectEncoder, string, T) error
 type typeFieldFunctions[T any] struct {
 	encodeFunc encodeFunc[T]
 	isNonZero  func(T) bool
+}
+
+func (tff typeFieldFunctions[T]) toField(name string, value T) Field {
+	return minimalField[T]{
+		name:      name,
+		value:     value,
+		functions: tff,
+	}
+}
+
+type minimalField[T any] struct {
+	name  string
+	value T
+
+	functions typeFieldFunctions[T]
+}
+
+func (mf minimalField[T]) Name() string {
+	return mf.name
+}
+
+func (mf minimalField[T]) Encode(encoder zapcore.ObjectEncoder) error {
+	return mf.functions.encodeFunc(encoder, mf.name, mf.value)
 }
 
 type lazyTypedField[T any] struct {
@@ -166,14 +193,12 @@ func (p *pointerField[T]) NonNil() TypedField[T] {
 }
 
 func (p *pointerField[T]) WithAddress() TypedField[PointerInfo[T]] {
-	return newTypedField(
-		objectTypeFns(func(pi PointerInfo[T]) bool {
-			return pi.PtrValue != nil
-		}),
+	return Object(
 		p.name,
 		PointerInfo[T]{
 			PtrValue:  p.value,
-			encodeVal: p.functions.encodeFunc,
+			functions: p.functions,
 		},
+		PointerInfo[T].IsNonZero,
 	)
 }
