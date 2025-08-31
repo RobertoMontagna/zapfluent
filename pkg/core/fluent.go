@@ -14,8 +14,8 @@ type Fluent struct {
 // NewFluent creates and returns a new Fluent instance.
 // It requires a Zap ObjectEncoder to write the fields to, and a Configuration
 // NewFluent creates a Fluent that writes structured fields to the provided zapcore.ObjectEncoder.
-// The returned Fluent holds the encoder and initializes its error handler from the given Configuration's
-// error-handling settings.
+// The returned Fluent holds the encoder and initializes its error handler from the
+// given Configuration's error-handling settings.
 func NewFluent(
 	enc zapcore.ObjectEncoder,
 	config Configuration,
