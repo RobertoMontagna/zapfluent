@@ -8,20 +8,17 @@ import (
 	"go.robertomontagna.dev/zapfluent/internal/functional/lazyoptional"
 )
 
-// PointerInfo is a struct that holds a pointer to a value and the necessary
-// functions to encode it. It is used to provide detailed information about a
-// pointer, including its value and memory address, when logging.
-type PointerInfo[T any] struct {
-	// PtrValue is the pointer to the value of type T.
-	PtrValue *T
+type pointerInfo[T any] struct {
+	// ptrValue is the pointer to the value of type T.
+	ptrValue *T
 	// encodeVal is the function used to encode the value of type T.
 	functions typeFieldFunctions[T]
 }
 
 // MarshalLogObject implements the zapcore.ObjectMarshaler interface for
-// PointerInfo. It encodes the pointer's value and its memory address.
-func (p PointerInfo[T]) MarshalLogObject(enc zapcore.ObjectEncoder) error {
-	if p.PtrValue == nil {
+// pointerInfo. It encodes the pointer's value and its memory address.
+func (p pointerInfo[T]) MarshalLogObject(enc zapcore.ObjectEncoder) error {
+	if p.ptrValue == nil {
 		return AsFluent(enc).
 			Add(String("address", "0x0")).
 			Add(String("value", "<nil>")).
@@ -29,13 +26,13 @@ func (p PointerInfo[T]) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 	}
 
 	return AsFluent(enc).
-		Add(String("address", fmt.Sprintf("%p", p.PtrValue))).
-		Add(p.functions.toField("value", *p.PtrValue)).
+		Add(String("address", fmt.Sprintf("%p", p.ptrValue))).
+		Add(p.functions.toField("value", *p.ptrValue)).
 		Done()
 }
 
-func (p PointerInfo[T]) IsNonZero() bool {
-	return p.PtrValue != nil && p.functions.isNonZero(*p.PtrValue)
+func (p pointerInfo[T]) isNonZero() bool {
+	return p.ptrValue != nil && p.functions.isNonZero(*p.ptrValue)
 }
 
 // Field is the interface that all concrete field types must implement. It
@@ -76,7 +73,7 @@ type TypedPointerField[T any] interface {
 	// WithAddress returns a new field that, when encoded, produces an object
 	// containing both the pointer's value and its memory address. This is
 	// useful for debugging and understanding pointer references in logs.
-	WithAddress() TypedField[PointerInfo[T]]
+	WithAddress() TypedField[pointerInfo[T]]
 }
 
 type encodeFunc[T any] func(zapcore.ObjectEncoder, string, T) error
@@ -192,13 +189,13 @@ func (p *pointerField[T]) NonNil() TypedField[T] {
 	}
 }
 
-func (p *pointerField[T]) WithAddress() TypedField[PointerInfo[T]] {
+func (p *pointerField[T]) WithAddress() TypedField[pointerInfo[T]] {
 	return Object(
 		p.name,
-		PointerInfo[T]{
-			PtrValue:  p.value,
+		pointerInfo[T]{
+			ptrValue:  p.value,
 			functions: p.functions,
 		},
-		PointerInfo[T].IsNonZero,
+		pointerInfo[T].isNonZero,
 	)
 }
