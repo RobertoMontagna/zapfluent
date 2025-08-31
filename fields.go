@@ -8,6 +8,8 @@ import (
 
 type Fluent = core.Fluent
 
+// AsFluent returns a Fluent wrapper for the provided zapcore.ObjectEncoder,
+// enabling the fluent field-construction helpers in this package.
 func AsFluent(encoder zapcore.ObjectEncoder) *Fluent {
 	return core.AsFluent(encoder)
 }

@@ -9,6 +9,9 @@ import (
 	"go.robertomontagna.dev/zapfluent/pkg/core"
 )
 
+// StdOutLoggerForTest creates and returns a sugared zap logger configured for tests that writes JSON to stdout.
+// The encoder uses "msg" for messages, "level" for levels and "logger" for logger name, encodes levels lowercase,
+// times in ISO8601 and durations as strings. It replaces the global logger via zap.ReplaceGlobals before returning the sugared logger.
 func StdOutLoggerForTest() *zap.SugaredLogger {
 	encoderCfg := zapcore.EncoderConfig{
 		MessageKey:     "msg",
