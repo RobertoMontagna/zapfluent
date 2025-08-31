@@ -62,7 +62,7 @@ func Example_withComplexObject() {
 		Tags: []string{"go", "logging", "zap"},
 	}
 
-	logger.Infow("Logging a complex, nested object", zap.Object("user", user))
+	logger.Infow("Logging a complex, nested object", "user", user)
 
 	// Output:
 	//{"level":"info","msg":"Logging a complex, nested object","user":{"id":123,"name":"John Doe","isActive":true,"address":{"street":"123 Main St","city":"Anytown","zip":"12345"},"tags":"go,logging,zap"}}
