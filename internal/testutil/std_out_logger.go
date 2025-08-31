@@ -14,24 +14,26 @@ import (
 // The encoder uses "msg" for messages, "level" for levels and "logger" for logger name, encodes
 // levels lowercase, times in ISO8601 and durations as strings. It replaces the global logger via
 // zap.ReplaceGlobals before returning the sugared logger.
-func StdOutLoggerForTest() *zap.SugaredLogger {
+func StdOutLoggerForTest(options ...zap.Option) *zap.SugaredLogger {
 	encoderCfg := zapcore.EncoderConfig{
 		MessageKey:     "msg",
 		LevelKey:       "level",
 		NameKey:        "logger",
+		TimeKey:        "time",
 		EncodeLevel:    zapcore.LowercaseLevelEncoder,
 		EncodeTime:     zapcore.ISO8601TimeEncoder,
 		EncodeDuration: zapcore.StringDurationEncoder,
 	}
+
 	coreEncoder := zapcore.NewCore(
 		core.NewFluentEncoder(
 			zapcore.NewJSONEncoder(encoderCfg),
 			core.NewConfiguration(),
 		),
-		os.Stdout,
+		zapcore.AddSync(os.Stdout),
 		zap.DebugLevel,
 	)
-	logger := zap.New(coreEncoder)
+	logger := zap.New(coreEncoder, options...)
 	zap.ReplaceGlobals(logger)
 	return zap.S()
 }

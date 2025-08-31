@@ -2,11 +2,14 @@ package zapfluent_test
 
 import (
 	"strings"
+	"time"
 
+	"go.robertomontagna.dev/zapfluent/internal/testutil"
+	"go.robertomontagna.dev/zapfluent/internal/testutil/zaptestutil"
+	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
 	"go.robertomontagna.dev/zapfluent"
-	"go.robertomontagna.dev/zapfluent/testutil"
 )
 
 // Address represents a street address.
@@ -47,7 +50,13 @@ func (u User) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 
 //revive:disable:line-length-limit
 func Example_withComplexObject() {
-	logger := testutil.StdOutLoggerForTest()
+	logger := testutil.StdOutLoggerForTest(
+		zap.WithClock(
+			zaptestutil.ConstantClockForTest(
+				time.Date(1977, time.March, 31, 12, 42, 42, 42, time.UTC),
+			),
+		),
+	)
 
 	user := User{
 		ID:       123,
@@ -64,7 +73,7 @@ func Example_withComplexObject() {
 	logger.Infow("Logging a complex, nested object", "user", user)
 
 	// Output:
-	//{"level":"info","msg":"Logging a complex, nested object","user":{"id":123,"name":"John Doe","isActive":true,"address":{"street":"123 Main St","city":"Anytown","zip":"12345"},"tags":"go,logging,zap"}}
+	//{"level":"info","time":"1977-03-31T12:42:42.000Z","msg":"Logging a complex, nested object","user":{"id":123,"name":"John Doe","isActive":true,"address":{"street":"123 Main St","city":"Anytown","zip":"12345"},"tags":"go,logging,zap"}}
 }
 
 //revive:enable:line-length-limit

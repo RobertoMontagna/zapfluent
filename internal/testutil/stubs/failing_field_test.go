@@ -4,9 +4,8 @@ import (
 	"errors"
 	"testing"
 
+	"go.robertomontagna.dev/zapfluent/internal/testutil/stubs"
 	"go.uber.org/zap/zapcore"
-
-	"go.robertomontagna.dev/zapfluent/testutil/stubs"
 
 	. "github.com/onsi/gomega"
 )

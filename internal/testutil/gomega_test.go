@@ -4,9 +4,8 @@ import (
 	"reflect"
 	"testing"
 
-	"go.robertomontagna.dev/zapfluent/testutil"
-
 	. "github.com/onsi/gomega"
+	"go.robertomontagna.dev/zapfluent/internal/testutil"
 )
 
 func TestInterceptGomegaFailures(t *testing.T) {

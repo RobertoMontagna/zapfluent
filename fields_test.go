@@ -4,13 +4,12 @@ import (
 	"fmt"
 	"testing"
 
+	"go.robertomontagna.dev/zapfluent/internal/testutil"
 	"go.uber.org/zap/zapcore"
 
+	. "github.com/onsi/gomega"
 	"go.robertomontagna.dev/zapfluent"
 	"go.robertomontagna.dev/zapfluent/pkg/core"
-	"go.robertomontagna.dev/zapfluent/testutil"
-
-	. "github.com/onsi/gomega"
 )
 
 // testObject is a simple struct that implements zapcore.ObjectMarshaler.

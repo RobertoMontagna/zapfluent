@@ -27,7 +27,7 @@ func NewFluent(
 }
 
 // Add adds a field to the log entry.
-// It takes a core.Field, which is an interface that allows for custom
+// It takes a Field, which is an interface that allows for custom
 // field types and encoding logic.
 // The method returns the Fluent pointer, allowing for chained calls.
 func (z *Fluent) Add(field Field) *Fluent {
