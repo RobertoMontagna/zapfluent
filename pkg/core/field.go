@@ -9,9 +9,7 @@ import (
 )
 
 type pointerInfo[T any] struct {
-	// ptrValue is the pointer to the value of type T.
-	ptrValue *T
-	// encodeVal is the function used to encode the value of type T.
+	ptrValue  *T
 	functions typeFieldFunctions[T]
 }
 

@@ -13,9 +13,8 @@ type Fluent struct {
 
 // NewFluent creates and returns a new Fluent instance.
 // It requires a Zap ObjectEncoder to write the fields to, and a Configuration
-// NewFluent creates a Fluent that writes structured fields to the provided zapcore.ObjectEncoder.
-// The returned Fluent holds the encoder and initializes its error handler from the
-// given Configuration's error-handling settings.
+// NewFluent creates a Fluent that writes structured fields to enc and
+// initializes its error handler from config's error-handling settings.
 func NewFluent(
 	enc zapcore.ObjectEncoder,
 	config Configuration,
@@ -27,16 +26,14 @@ func NewFluent(
 }
 
 // Add adds a field to the log entry.
-// It takes a Field, which is an interface that allows for custom
-// field types and encoding logic.
+// It takes a Field, an interface that allows for custom field types and encoding logic.
 // The method returns the Fluent pointer, allowing for chained calls.
 func (z *Fluent) Add(field Field) *Fluent {
 	if z.errorHandler.ShouldSkip() {
 		return z
 	}
 
-	encodingErrorManager := z.errorHandler.EncodeField(field)
-	encodingErrorManager()
+	z.errorHandler.EncodeField(field)()
 
 	return z
 }
@@ -44,6 +41,9 @@ func (z *Fluent) Add(field Field) *Fluent {
 // Done completes the fluent chain and returns any aggregated errors that
 // occurred during the process. This should be the final call in the chain.
 func (z *Fluent) Done() error {
+	if z == nil || z.errorHandler == nil {
+		return nil
+	}
 	return z.errorHandler.AggregatedError()
 }
 

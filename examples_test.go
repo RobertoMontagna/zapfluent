@@ -50,7 +50,7 @@ func (u User) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 
 //revive:disable:line-length-limit
 func Example_withComplexObject() {
-	logger := testutil.StdOutLoggerForTest(
+	logger := testutil.StdoutLoggerForTest(
 		zap.WithClock(
 			zaptestutil.ConstantClockForTest(
 				time.Date(1977, time.March, 31, 12, 42, 42, 42, time.UTC),

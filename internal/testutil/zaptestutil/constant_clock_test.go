@@ -9,5 +9,6 @@ import (
 )
 
 func TestConstantClockForTestCompatibility(t *testing.T) {
+	// Compile-time assertion: ConstantClockForTest implements zapcore.Clock.
 	var _ zapcore.Clock = zaptestutil.ConstantClockForTest{}
 }

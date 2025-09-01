@@ -88,6 +88,13 @@ func TestMatchers(t *testing.T) {
 			shouldFail: false,
 		},
 		{
+			name:        "HaveValue fails for optional with a different value",
+			input:       optional.Some("hello"),
+			matcher:     matchers.HaveValue("world"),
+			shouldFail:  true,
+			expectedMsg: matchers.HaveValueFailureMessage,
+		},
+		{
 			name:        "HaveValue fails for an empty optional",
 			input:       optional.Empty[string](),
 			matcher:     matchers.HaveValue("hello"),
@@ -100,6 +107,13 @@ func TestMatchers(t *testing.T) {
 			input:      lazyoptional.Some("hello"),
 			matcher:    matchers.HaveValue("hello"),
 			shouldFail: false,
+		},
+		{
+			name:        "HaveValue fails for lazy optional with a different value",
+			input:       lazyoptional.Some("hello"),
+			matcher:     matchers.HaveValue("world"),
+			shouldFail:  true,
+			expectedMsg: matchers.HaveValueFailureMessage,
 		},
 		{
 			name:        "HaveValue fails for an empty lazy optional",
@@ -126,7 +140,9 @@ func TestMatchers(t *testing.T) {
 			}
 		})
 	}
+}
 
+func TestMatchersInError(t *testing.T) {
 	// Error handling tests
 	errorTestCases := []struct {
 		name        string
