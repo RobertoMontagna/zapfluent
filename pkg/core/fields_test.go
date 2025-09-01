@@ -478,11 +478,13 @@ func TestObjectPtr_NonNil(t *testing.T) {
 		name          string
 		field         core.Field
 		shouldBeEmpty bool
+		expectedValue map[string]interface{}
 	}{
 		{
 			name:          "when pointer is not nil, it returns a valid field",
 			field:         core.ObjectPtr("my-key", nonNilValue, isNonZero).NonNil(),
 			shouldBeEmpty: false,
+			expectedValue: map[string]interface{}{"value": "test"},
 		},
 		{
 			name:          "when pointer is nil, it returns an empty field",
@@ -504,7 +506,7 @@ func TestObjectPtr_NonNil(t *testing.T) {
 			} else {
 				g.Expect(enc.Fields).To(HaveKeyWithValue(
 					"my-key",
-					map[string]interface{}{"value": "test"},
+					tc.expectedValue,
 				))
 			}
 		})
@@ -595,48 +597,6 @@ func TestComparableObjectPtr_Encode(t *testing.T) {
 
 			g.Expect(err).ToNot(HaveOccurred())
 			g.Expect(enc.Fields).To(HaveKeyWithValue("my-key", tc.expectedValue))
-		})
-	}
-}
-
-func TestComparableObjectPtr_NonNil(t *testing.T) {
-	nonNilValue := &testComparableObject{value: "test"}
-	testCases := []struct {
-		name          string
-		field         core.Field
-		shouldBeEmpty bool
-	}{
-		{
-			name:          "when pointer is not nil, it returns a valid field",
-			field:         core.ComparableObjectPtr("my-key", nonNilValue).NonNil(),
-			shouldBeEmpty: false,
-		},
-		{
-			name: "when pointer is nil, it returns an empty field",
-			field: core.ComparableObjectPtr(
-				"my-key",
-				(*testComparableObject)(nil),
-			).NonNil(),
-			shouldBeEmpty: true,
-		},
-	}
-
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			g := NewWithT(t)
-
-			enc := zapcore.NewMapObjectEncoder()
-			err := tc.field.Encode(enc)
-
-			g.Expect(err).ToNot(HaveOccurred())
-			if tc.shouldBeEmpty {
-				g.Expect(enc.Fields).To(BeEmpty())
-			} else {
-				g.Expect(enc.Fields).To(HaveKeyWithValue(
-					"my-key",
-					map[string]interface{}{"value": "test"},
-				))
-			}
 		})
 	}
 }

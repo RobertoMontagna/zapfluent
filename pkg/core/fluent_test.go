@@ -192,3 +192,12 @@ func TestAsFluent(t *testing.T) {
 		})
 	}
 }
+
+func TestFluent_Done_OnNilReceiver(t *testing.T) {
+	g := NewWithT(t)
+
+	var fluent *core.Fluent
+	err := fluent.Done()
+
+	g.Expect(err).ToNot(HaveOccurred())
+}
