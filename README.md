@@ -89,7 +89,7 @@ This is a non-exhaustive list of planned features and improvements, in no partic
 - [ ] Implement an error handling configuration to control the placement of field-specific error messages (e.g., in-place or at the end of the field list).
 - [ ] Add a global configuration setting to automatically omit all zero-value or nil-value fields from the log output.
 - [ ] Expand field support to include all remaining primitive types (non-pointer, non-slice, non-array, non-map).
-- [x] Add support for logging pointer fields, with handling `nil` values.
+- [x] Add support for logging pointer fields, handling `nil` values.
 - [ ] Implement support for logging slice fields.
 - [ ] [Optional] Implement support for logging map fields.
 - [x] Introduce Snyk or a similar service for dependency scanning.
