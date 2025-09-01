@@ -142,6 +142,85 @@ func TestMatchers(t *testing.T) {
 	}
 }
 
+func TestMatchers_Negated(t *testing.T) {
+	// This test table is designed to test the generic matchers with both
+	// optional.Optional and lazyoptional.LazyOptional to ensure the
+	// OptionalLike[T] interface is correctly handled.
+	negatedMatchTestCases := []struct {
+		name        string
+		input       any
+		matcher     types.GomegaMatcher
+		shouldFail  bool
+		expectedMsg string
+	}{
+		// BePresent (negated)
+		{
+			name:       "BePresent negated succeeds for empty optional",
+			input:      optional.Empty[string](),
+			matcher:    matchers.BePresent[string](),
+			shouldFail: false,
+		},
+		{
+			name:        "BePresent negated fails for present optional",
+			input:       optional.Some("hello"),
+			matcher:     matchers.BePresent[string](),
+			shouldFail:  true,
+			expectedMsg: matchers.NotBePresentFailureMessage,
+		},
+		// BeEmpty (negated)
+		{
+			name:       "BeEmpty negated succeeds for present optional",
+			input:      optional.Some("hello"),
+			matcher:    matchers.BeEmpty[string](),
+			shouldFail: false,
+		},
+		{
+			name:        "BeEmpty negated fails for empty optional",
+			input:       optional.Empty[string](),
+			matcher:     matchers.BeEmpty[string](),
+			shouldFail:  true,
+			expectedMsg: matchers.NotBeEmptyFailureMessage,
+		},
+		// HaveValue (negated)
+		{
+			name:       "HaveValue negated succeeds for optional with different value",
+			input:      optional.Some("world"),
+			matcher:    matchers.HaveValue("hello"),
+			shouldFail: false,
+		},
+		{
+			name:       "HaveValue negated succeeds for empty optional",
+			input:      optional.Empty[string](),
+			matcher:    matchers.HaveValue("hello"),
+			shouldFail: false,
+		},
+		{
+			name:        "HaveValue negated fails for optional with same value",
+			input:       optional.Some("hello"),
+			matcher:     matchers.HaveValue("hello"),
+			shouldFail:  true,
+			expectedMsg: matchers.NotHaveValueFailureMessage,
+		},
+	}
+
+	for _, tc := range negatedMatchTestCases {
+		t.Run(tc.name, func(t *testing.T) {
+			g := NewGomegaWithT(t)
+
+			if tc.shouldFail {
+				failures := testutil.InterceptGomegaFailuresForTest(g, func() {
+					g.Expect(tc.input).ToNot(tc.matcher)
+				})
+
+				g.Expect(failures).To(HaveLen(1))
+				g.Expect(failures[0]).To(ContainSubstring(tc.expectedMsg))
+			} else {
+				g.Expect(tc.input).ToNot(tc.matcher)
+			}
+		})
+	}
+}
+
 func TestMatchersInError(t *testing.T) {
 	// Error handling tests
 	errorTestCases := []struct {

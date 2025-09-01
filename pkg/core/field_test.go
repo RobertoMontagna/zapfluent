@@ -92,6 +92,72 @@ func TestTypedField_Filtering(t *testing.T) {
 	}
 }
 
+func TestTypedPointerField_WithAddress(t *testing.T) {
+	nonNilValue := "test-value"
+	zeroValue := ""
+
+	testCases := []struct {
+		name      string
+		field     core.Field
+		assertion func(g *GomegaWithT, fields map[string]any)
+	}{
+		{
+			name:  "with a non-nil pointer",
+			field: core.StringPtr("my-ptr", &nonNilValue).WithAddress(),
+			assertion: func(g *GomegaWithT, fields map[string]any) {
+				g.Expect(fields).To(HaveKey("my-ptr"))
+				obj, ok := fields["my-ptr"].(map[string]any)
+				g.Expect(ok).To(BeTrue())
+				g.Expect(obj).To(HaveKeyWithValue("value", "test-value"))
+				g.Expect(obj).To(HaveKey("address"))
+				g.Expect(obj["address"]).To(Not(Equal("0x0")))
+			},
+		},
+		{
+			name:  "with a nil pointer",
+			field: core.StringPtr("my-ptr", nil).WithAddress(),
+			assertion: func(g *GomegaWithT, fields map[string]any) {
+				g.Expect(fields).To(HaveKey("my-ptr"))
+				obj, ok := fields["my-ptr"].(map[string]any)
+				g.Expect(ok).To(BeTrue())
+				g.Expect(obj).To(HaveKeyWithValue("value", "<nil>"))
+				g.Expect(obj).To(HaveKeyWithValue("address", "0x0"))
+			},
+		},
+		{
+			name:  "with NonZero on a non-nil, non-zero value",
+			field: core.StringPtr("my-ptr", &nonNilValue).WithAddress().NonZero(),
+			assertion: func(g *GomegaWithT, fields map[string]any) {
+				g.Expect(fields).ToNot(BeEmpty())
+			},
+		},
+		{
+			name:  "with NonZero on a non-nil, zero value",
+			field: core.StringPtr("my-ptr", &zeroValue).WithAddress().NonZero(),
+			assertion: func(g *GomegaWithT, fields map[string]any) {
+				g.Expect(fields).To(BeEmpty())
+			},
+		},
+		{
+			name:  "with NonZero on a nil value",
+			field: core.StringPtr("my-ptr", nil).WithAddress().NonZero(),
+			assertion: func(g *GomegaWithT, fields map[string]any) {
+				g.Expect(fields).To(BeEmpty())
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			g := NewWithT(t)
+			enc := zapcore.NewMapObjectEncoder()
+			err := tc.field.Encode(enc)
+			g.Expect(err).ToNot(HaveOccurred())
+			tc.assertion(g, enc.Fields)
+		})
+	}
+}
+
 func TestTypedField_Format(t *testing.T) {
 	g := NewWithT(t)
 
