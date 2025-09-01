@@ -6,7 +6,7 @@ import (
 
 	"go.uber.org/zap/zapcore"
 
-	"go.robertomontagna.dev/zapfluent/testutil/stubs"
+	"go.robertomontagna.dev/zapfluent/internal/testutil/stubs"
 
 	. "github.com/onsi/gomega"
 )

@@ -7,8 +7,8 @@ import (
 	"go.uber.org/zap/zapcore"
 
 	"go.robertomontagna.dev/zapfluent"
+	"go.robertomontagna.dev/zapfluent/internal/testutil"
 	"go.robertomontagna.dev/zapfluent/pkg/core"
-	"go.robertomontagna.dev/zapfluent/testutil"
 
 	. "github.com/onsi/gomega"
 )
@@ -20,8 +20,9 @@ type testObject struct {
 
 // MarshalLogObject implements the zapcore.ObjectMarshaler interface.
 func (t testObject) MarshalLogObject(enc zapcore.ObjectEncoder) error {
-	enc.AddString("value", t.Value)
-	return nil
+	return zapfluent.AsFluent(enc).
+		Add(zapfluent.String("value", t.Value)).
+		Done()
 }
 
 func TestTypedPointerField_WithAddress_ShouldEncodeValueAndAddress(t *testing.T) {
@@ -68,12 +69,7 @@ func TestTypedPointerField_WithAddress_ShouldEncodeValueAndAddress(t *testing.T)
 			g := NewWithT(t)
 
 			enc := zapcore.NewMapObjectEncoder()
-			fluent := zapfluent.AsFluent(
-				core.NewFluentEncoder(
-					testutil.NewDoNotEncodeEncoderForTest(enc),
-					core.NewConfiguration(),
-				),
-			)
+			fluent := newMapFluent(enc)
 
 			err := fluent.Add(tc.field).Done()
 
@@ -81,6 +77,15 @@ func TestTypedPointerField_WithAddress_ShouldEncodeValueAndAddress(t *testing.T)
 			g.Expect(enc.Fields).To(HaveKeyWithValue(tc.expectedKey, tc.expectedValue))
 		})
 	}
+}
+
+func newMapFluent(enc *zapcore.MapObjectEncoder) *core.Fluent {
+	return core.AsFluent(
+		core.NewFluentEncoder(
+			testutil.NewDoNotEncodeEncoderForTest(enc),
+			core.NewConfiguration(),
+		),
+	)
 }
 
 func TestFluent_Add_ForDifferentFieldTypes_ShouldEncodeCorrectly(t *testing.T) {
@@ -180,12 +185,7 @@ func TestFluent_Add_ForDifferentFieldTypes_ShouldEncodeCorrectly(t *testing.T) {
 			g := NewWithT(t)
 
 			enc := zapcore.NewMapObjectEncoder()
-			fluent := zapfluent.AsFluent(
-				core.NewFluentEncoder(
-					testutil.NewDoNotEncodeEncoderForTest(enc),
-					core.NewConfiguration(),
-				),
-			)
+			fluent := newMapFluent(enc)
 
 			err := fluent.Add(tc.field).Done()
 
@@ -260,12 +260,7 @@ func TestFluent_Add_ForComparableObjectFields_ShouldEncodeCorrectly(t *testing.T
 			g := NewWithT(t)
 
 			enc := zapcore.NewMapObjectEncoder()
-			fluent := zapfluent.AsFluent(
-				core.NewFluentEncoder(
-					testutil.NewDoNotEncodeEncoderForTest(enc),
-					core.NewConfiguration(),
-				),
-			)
+			fluent := newMapFluent(enc)
 
 			err := fluent.Add(tc.field).Done()
 
@@ -354,12 +349,7 @@ func TestFluent_Add_ForObjectFields_ShouldEncodeCorrectly(t *testing.T) {
 			g := NewWithT(t)
 
 			enc := zapcore.NewMapObjectEncoder()
-			fluent := zapfluent.AsFluent(
-				core.NewFluentEncoder(
-					testutil.NewDoNotEncodeEncoderForTest(enc),
-					core.NewConfiguration(),
-				),
-			)
+			fluent := newMapFluent(enc)
 
 			err := fluent.Add(tc.field).Done()
 

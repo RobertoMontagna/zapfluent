@@ -6,31 +6,31 @@ import (
 
 	"go.uber.org/zap/zapcore"
 
+	"go.robertomontagna.dev/zapfluent/internal/testutil/stubs"
 	"go.robertomontagna.dev/zapfluent/pkg/core"
-	"go.robertomontagna.dev/zapfluent/testutil/stubs"
 
 	. "github.com/onsi/gomega"
 )
 
 var (
-	errTest1     = errors.New("error 1")
-	errEncode    = errors.New("encode error")
-	errInitial   = errors.New("initial encode error")
+	ehErrTest1   = errors.New("error 1")
+	ehErrEncode  = errors.New("encode error")
+	ehErrInitial = errors.New("initial encode error")
 	failingField = stubs.NewFailingFieldForTest(
 		stubs.WithName("test"),
-		stubs.WithError(errTest1),
+		stubs.WithError(ehErrTest1),
 	)
 	anotherFailingField = stubs.NewFailingFieldForTest(
 		stubs.WithName("first"),
-		stubs.WithError(errTest1),
+		stubs.WithError(ehErrTest1),
 	)
 	failingFieldWithEncodeError = stubs.NewFailingFieldForTest(
 		stubs.WithName("test"),
-		stubs.WithError(errEncode),
+		stubs.WithError(ehErrEncode),
 	)
 	failingFieldWithInitialError = stubs.NewFailingFieldForTest(
 		stubs.WithName("test"),
-		stubs.WithError(errInitial),
+		stubs.WithError(ehErrInitial),
 	)
 )
 
@@ -90,7 +90,7 @@ func TestErrorHandler_EncodeField_WithSuccessfulFallback(t *testing.T) {
 
 	handler.EncodeField(failingFieldWithEncodeError)()
 
-	g.Expect(handler.AggregatedError()).To(MatchError(errEncode))
+	g.Expect(handler.AggregatedError()).To(MatchError(ehErrEncode))
 	g.Expect(enc.Fields).To(HaveKeyWithValue("test", "fallback"))
 }
 
@@ -110,7 +110,7 @@ func TestErrorHandler_EncodeField_WithFailingFallback(t *testing.T) {
 
 	handler.EncodeField(failingFieldWithInitialError)()
 
-	g.Expect(handler.AggregatedError()).To(MatchError(errInitial))
+	g.Expect(handler.AggregatedError()).To(MatchError(ehErrInitial))
 	g.Expect(handler.AggregatedError()).To(MatchError(errFallback))
 	g.Expect(enc.Fields).To(HaveKeyWithValue("test", "failed to encode fallback field"))
 }
@@ -125,6 +125,6 @@ func TestErrorHandler_EncodeField_WithEarlyFailing(t *testing.T) {
 	handler.EncodeField(anotherFailingField)()
 	handler.EncodeField(core.String("second", "value"))()
 
-	g.Expect(handler.AggregatedError()).To(MatchError(errTest1))
+	g.Expect(handler.AggregatedError()).To(MatchError(ehErrTest1))
 	g.Expect(enc.Fields).To(BeEmpty())
 }

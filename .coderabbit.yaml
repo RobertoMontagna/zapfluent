@@ -1,4 +1,9 @@
+knowledge_base:
+  code_guidelines:
+    enabled: true
+    filePatterns:
+      - "assets/development/*.md"
+
 reviews:
   ignored_bot_users: false
-  ignored_authors:
-    - "google-labs-jules"
+  ignored_authors: []

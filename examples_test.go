@@ -2,12 +2,14 @@ package zapfluent_test
 
 import (
 	"strings"
+	"time"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
 	"go.robertomontagna.dev/zapfluent"
-	"go.robertomontagna.dev/zapfluent/pkg/core"
+	"go.robertomontagna.dev/zapfluent/internal/testutil"
+	"go.robertomontagna.dev/zapfluent/internal/testutil/zaptestutil"
 )
 
 // Address represents a street address.
@@ -19,10 +21,11 @@ type Address struct {
 
 // MarshalLogObject makes Address implement zapcore.ObjectMarshaler.
 func (a Address) MarshalLogObject(enc zapcore.ObjectEncoder) error {
-	enc.AddString("street", a.Street)
-	enc.AddString("city", a.City)
-	enc.AddString("zip", a.Zip)
-	return nil
+	return zapfluent.AsFluent(enc).
+		Add(zapfluent.String("street", a.Street)).
+		Add(zapfluent.String("city", a.City)).
+		Add(zapfluent.String("zip", a.Zip)).
+		Done()
 }
 
 // User represents a user with personal information.
@@ -37,17 +40,23 @@ type User struct {
 // MarshalLogObject makes User implement zapcore.ObjectMarshaler.
 func (u User) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 	return zapfluent.AsFluent(enc).
-		Add(core.Int("id", u.ID)).
-		Add(core.String("name", u.Name)).
-		Add(core.Bool("isActive", u.IsActive)).
-		Add(core.Object("address", u.Address, func(a Address) bool { return a != Address{} })).
-		Add(core.String("tags", strings.Join(u.Tags, ","))).
+		Add(zapfluent.Int("id", u.ID)).
+		Add(zapfluent.String("name", u.Name)).
+		Add(zapfluent.Bool("isActive", u.IsActive)).
+		Add(zapfluent.Object("address", u.Address, func(a Address) bool { return a != Address{} })).
+		Add(zapfluent.String("tags", strings.Join(u.Tags, ","))).
 		Done()
 }
 
+//revive:disable:line-length-limit
 func Example_withComplexObject() {
-	logger, _ := zap.NewProduction()
-	_ = logger.Sync()
+	logger := testutil.StdoutLoggerForTest(
+		zap.WithClock(
+			zaptestutil.ConstantClockForTest(
+				time.Date(1977, time.March, 31, 12, 42, 42, 42, time.UTC),
+			),
+		),
+	)
 
 	user := User{
 		ID:       123,
@@ -61,9 +70,10 @@ func Example_withComplexObject() {
 		Tags: []string{"go", "logging", "zap"},
 	}
 
-	logger.Info("Logging a complex, nested object", zap.Object("user", user))
+	logger.Infow("Logging a complex, nested object", "user", user)
 
-	// In a real application, the output would be a JSON log line.
-	// For this example, we just demonstrate the usage.
 	// Output:
+	//{"level":"info","time":"1977-03-31T12:42:42.000Z","msg":"Logging a complex, nested object","user":{"id":123,"name":"John Doe","isActive":true,"address":{"street":"123 Main St","city":"Anytown","zip":"12345"},"tags":"go,logging,zap"}}
 }
+
+//revive:enable:line-length-limit

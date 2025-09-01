@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"go.robertomontagna.dev/zapfluent/testutil"
+	"go.robertomontagna.dev/zapfluent/internal/testutil"
 
 	. "github.com/onsi/gomega"
 )

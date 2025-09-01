@@ -6,6 +6,14 @@ import (
 	"go.robertomontagna.dev/zapfluent/pkg/core"
 )
 
+type Fluent = core.Fluent
+
+// AsFluent returns a Fluent wrapper for the provided zapcore.ObjectEncoder,
+// enabling the fluent field-construction helpers in this package.
+func AsFluent(encoder zapcore.ObjectEncoder) *Fluent {
+	return core.AsFluent(encoder)
+}
+
 // Field is the interface that all concrete field types must implement. It
 // represents a single key-value pair to be encoded.
 type Field = core.Field
