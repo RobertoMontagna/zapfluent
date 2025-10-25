@@ -135,7 +135,7 @@ func (p *pointerField[T]) Encode(encoder zapcore.ObjectEncoder) error {
 	if p.value != nil {
 		return p.functions.encodeFunc(encoder, p.name, *p.value)
 	}
-	encoder.AddString(p.name, "<nil>")
+	encoder.AddString(p.name, NilSentinel)
 	return nil
 }
 

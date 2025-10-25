@@ -13,12 +13,7 @@ var (
 			return b
 		},
 	}
-	boolTypePointerFns = typePointerFieldFunctions[bool]{
-		typeFieldFunctions: boolTypeFns,
-		toField: func(name string, value bool) TypedField[bool] {
-			return Bool(name, value)
-		},
-	}
+	boolTypePointerFns = primitiveTypePointerFns(boolTypeFns, Bool)
 
 	// intTypeFns holds the cached typeFieldFunctions for int fields.
 	intTypeFns = typeFieldFunctions[int]{
@@ -30,12 +25,7 @@ var (
 			return i != 0
 		},
 	}
-	intTypePointerFns = typePointerFieldFunctions[int]{
-		typeFieldFunctions: intTypeFns,
-		toField: func(name string, value int) TypedField[int] {
-			return Int(name, value)
-		},
-	}
+	intTypePointerFns = primitiveTypePointerFns(intTypeFns, Int)
 
 	// int8TypeFns holds the cached typeFieldFunctions for int8 fields.
 	int8TypeFns = typeFieldFunctions[int8]{
@@ -47,12 +37,7 @@ var (
 			return i != 0
 		},
 	}
-	int8TypePointerFns = typePointerFieldFunctions[int8]{
-		typeFieldFunctions: int8TypeFns,
-		toField: func(name string, value int8) TypedField[int8] {
-			return Int8(name, value)
-		},
-	}
+	int8TypePointerFns = primitiveTypePointerFns(int8TypeFns, Int8)
 
 	// stringTypeFns holds the cached typeFieldFunctions for string fields.
 	stringTypeFns = typeFieldFunctions[string]{
@@ -64,12 +49,7 @@ var (
 			return s != ""
 		},
 	}
-	stringTypePointerFns = typePointerFieldFunctions[string]{
-		typeFieldFunctions: stringTypeFns,
-		toField: func(name string, value string) TypedField[string] {
-			return String(name, value)
-		},
-	}
+	stringTypePointerFns = primitiveTypePointerFns(stringTypeFns, String)
 )
 
 // Bool returns a new field with a bool value.
@@ -82,6 +62,7 @@ func Bool(name string, value bool) TypedField[bool] {
 }
 
 // BoolPtr returns a new field with a *bool value.
+// When value is nil, it encodes as the string sentinel (e.g., "<nil>") to make nil explicit.
 func BoolPtr(name string, value *bool) TypedPointerField[bool] {
 	return newPointerField(
 		boolTypePointerFns,
@@ -100,6 +81,7 @@ func Int(name string, value int) TypedField[int] {
 }
 
 // IntPtr returns a new field with an *int value.
+// When value is nil, it encodes as the string sentinel (e.g., "<nil>") to make nil explicit.
 func IntPtr(name string, value *int) TypedPointerField[int] {
 	return newPointerField(
 		intTypePointerFns,
@@ -118,6 +100,7 @@ func Int8(name string, value int8) TypedField[int8] {
 }
 
 // Int8Ptr returns a new field with an *int8 value.
+// When value is nil, it encodes as the string sentinel (e.g., "<nil>") to make nil explicit.
 func Int8Ptr(name string, value *int8) TypedPointerField[int8] {
 	return newPointerField(
 		int8TypePointerFns,
@@ -136,6 +119,7 @@ func String(name string, value string) TypedField[string] {
 }
 
 // StringPtr returns a new field with a *string value.
+// When value is nil, it encodes as the string sentinel (e.g., "<nil>") to make nil explicit.
 func StringPtr(name string, value *string) TypedPointerField[string] {
 	return newPointerField(
 		stringTypePointerFns,
@@ -156,8 +140,8 @@ func Object[T zapcore.ObjectMarshaler](name string, value T, isNonZero func(T) b
 	)
 }
 
-// ObjectPtr returns a new field with a value that is a pointer to a
-// zapcore.ObjectMarshaler.
+// ObjectPtr returns a new field with a value that is a pointer to a zapcore.ObjectMarshaler.
+// When value is nil, it encodes as the string sentinel (e.g., "<nil>") to make nil explicit.
 func ObjectPtr[T zapcore.ObjectMarshaler](
 	name string,
 	value *T,
@@ -189,11 +173,22 @@ func ComparableObject[T Comparable](name string, value T) TypedField[T] {
 
 // ComparableObjectPtr returns a new field with a value that is a pointer to a
 // type that implements both zapcore.ObjectMarshaler and the comparable constraint.
+// When value is nil, it encodes as the string sentinel (e.g., "<nil>") to make nil explicit.
 func ComparableObjectPtr[T Comparable](name string, value *T) TypedPointerField[T] {
 	var zero T
 	return ObjectPtr(name, value, func(v T) bool {
 		return v != zero
 	})
+}
+
+func primitiveTypePointerFns[T any](
+	base typeFieldFunctions[T],
+	toField func(string, T) TypedField[T],
+) typePointerFieldFunctions[T] {
+	return typePointerFieldFunctions[T]{
+		typeFieldFunctions: base,
+		toField:            toField,
+	}
 }
 
 func objectTypeFns[T zapcore.ObjectMarshaler](isNonZero func(T) bool) typeFieldFunctions[T] {

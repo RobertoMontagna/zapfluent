@@ -19,7 +19,7 @@ func (p PointerInfo[T]) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 	if p.PtrValue == nil {
 		return AsFluent(enc).
 			Add(String("address", "0x0")).
-			Add(String("value", "<nil>")).
+			Add(String("value", NilSentinel)).
 			Done()
 	}
 

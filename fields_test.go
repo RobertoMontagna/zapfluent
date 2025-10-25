@@ -49,7 +49,7 @@ func TestTypedPointerField_WithAddress_ShouldEncodeValueAndAddress(t *testing.T)
 			field:       zapfluent.StringPtr("my_string_ptr", nil).WithAddress(),
 			expectedKey: "my_string_ptr",
 			expectedValue: map[string]interface{}{
-				"value":   "<nil>",
+				"value":   core.NilSentinel,
 				"address": "0x0",
 			},
 		},
@@ -116,7 +116,7 @@ func TestFluent_Add_ForDifferentFieldTypes_ShouldEncodeCorrectly(t *testing.T) {
 			name:          "with string pointer (nil)",
 			field:         zapfluent.StringPtr("my_string_ptr", nil),
 			expectedKey:   "my_string_ptr",
-			expectedValue: "<nil>",
+			expectedValue: core.NilSentinel,
 		},
 		{
 			name:          "with int",
@@ -134,7 +134,7 @@ func TestFluent_Add_ForDifferentFieldTypes_ShouldEncodeCorrectly(t *testing.T) {
 			name:          "with int pointer (nil)",
 			field:         zapfluent.IntPtr("my_int_ptr", nil),
 			expectedKey:   "my_int_ptr",
-			expectedValue: "<nil>",
+			expectedValue: core.NilSentinel,
 		},
 		{
 			name:          "with int8",
@@ -152,7 +152,7 @@ func TestFluent_Add_ForDifferentFieldTypes_ShouldEncodeCorrectly(t *testing.T) {
 			name:          "with int8 pointer (nil)",
 			field:         zapfluent.Int8Ptr("my_int8_ptr", nil),
 			expectedKey:   "my_int8_ptr",
-			expectedValue: "<nil>",
+			expectedValue: core.NilSentinel,
 		},
 		{
 			name:          "with bool (true)",
@@ -170,7 +170,7 @@ func TestFluent_Add_ForDifferentFieldTypes_ShouldEncodeCorrectly(t *testing.T) {
 			name:          "with bool pointer (nil)",
 			field:         zapfluent.BoolPtr("my_bool_ptr", nil),
 			expectedKey:   "my_bool_ptr",
-			expectedValue: "<nil>",
+			expectedValue: core.NilSentinel,
 		},
 		{
 			name:          "with bool (false)",
@@ -235,7 +235,7 @@ func TestFluent_Add_ForComparableObjectFields_ShouldEncodeCorrectly(t *testing.T
 				(*comparableTestObject)(nil),
 			),
 			expectedKey:   "my_object_ptr",
-			expectedValue: "<nil>",
+			expectedValue: core.NilSentinel,
 		},
 		{
 			name: "with object (zero value)",
@@ -322,7 +322,7 @@ func TestFluent_Add_ForObjectFields_ShouldEncodeCorrectly(t *testing.T) {
 				isNonZero,
 			),
 			expectedKey:   "my_object_ptr",
-			expectedValue: "<nil>",
+			expectedValue: core.NilSentinel,
 		},
 		{
 			name: "with object (zero value)",

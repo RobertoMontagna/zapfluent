@@ -101,7 +101,7 @@ func TestStringPtr_Encode(t *testing.T) {
 		{
 			name:          "when pointer is nil, it encodes <nil>",
 			field:         core.StringPtr("my-key", nil),
-			expectedValue: "<nil>",
+			expectedValue: core.NilSentinel,
 		},
 	}
 
@@ -196,7 +196,7 @@ func TestIntPtr_Encode(t *testing.T) {
 		{
 			name:          "when pointer is nil, it encodes <nil>",
 			field:         core.IntPtr("my-key", nil),
-			expectedValue: "<nil>",
+			expectedValue: core.NilSentinel,
 		},
 	}
 
@@ -291,7 +291,7 @@ func TestInt8Ptr_Encode(t *testing.T) {
 		{
 			name:          "when pointer is nil, it encodes <nil>",
 			field:         core.Int8Ptr("my-key", nil),
-			expectedValue: "<nil>",
+			expectedValue: core.NilSentinel,
 		},
 	}
 
@@ -419,7 +419,7 @@ func TestObjectPtr_Encode(t *testing.T) {
 		{
 			name:          "when pointer is nil, it encodes <nil>",
 			field:         core.ObjectPtr("my-key", (*testObject)(nil), isNonZero),
-			expectedValue: "<nil>",
+			expectedValue: core.NilSentinel,
 		},
 	}
 
@@ -549,7 +549,7 @@ func TestComparableObjectPtr_Encode(t *testing.T) {
 		{
 			name:          "when pointer is nil, it encodes <nil>",
 			field:         core.ComparableObjectPtr("my-key", (*testComparableObject)(nil)),
-			expectedValue: "<nil>",
+			expectedValue: core.NilSentinel,
 		},
 	}
 
@@ -608,7 +608,7 @@ func TestBoolPtr_Encode(t *testing.T) {
 		{
 			name:          "when pointer is nil, it encodes <nil>",
 			field:         core.BoolPtr("my-key", nil),
-			expectedValue: "<nil>",
+			expectedValue: core.NilSentinel,
 		},
 	}
 

@@ -120,7 +120,7 @@ func TestTypedPointerField_WithAddress(t *testing.T) {
 				g.Expect(fields).To(HaveKey("my-ptr"))
 				obj, ok := fields["my-ptr"].(map[string]any)
 				g.Expect(ok).To(BeTrue())
-				g.Expect(obj).To(HaveKeyWithValue("value", "<nil>"))
+				g.Expect(obj).To(HaveKeyWithValue("value", core.NilSentinel))
 				g.Expect(obj).To(HaveKeyWithValue("address", "0x0"))
 			},
 		},
@@ -203,7 +203,7 @@ func TestTypedPointerField_Encode(t *testing.T) {
 			name:  "when pointer is nil, it encodes '<nil>'",
 			field: core.StringPtr(fieldTestFieldName, nil),
 			assertion: func(g *GomegaWithT, fields map[string]any) {
-				g.Expect(fields).To(HaveKeyWithValue(fieldTestFieldName, "<nil>"))
+				g.Expect(fields).To(HaveKeyWithValue(fieldTestFieldName, core.NilSentinel))
 			},
 		},
 	}
