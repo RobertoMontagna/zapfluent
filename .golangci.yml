@@ -1,11 +1,7 @@
 version: "2"
 
 linters:
-  default: all
-
-  disable:
-    - depguard
-    - wsl
+  default: standard
 
   settings:
     gocyclo:
@@ -16,11 +12,7 @@ linters:
           severity: warning
           arguments: [ 100 ]
     staticcheck:
-      checks: [ "all" ]
-    wsl_v5:
-      allow-first-in-block: false
-      allow-whole-block: false
-      branch-max-lines: 2
+      checks: [ "all", "-ST1000" ]
 
 formatters:
   enable:

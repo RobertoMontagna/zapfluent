@@ -42,5 +42,7 @@ func (t *DoNotEncodeEncoderForTest) Clone() zapcore.Encoder {
 func (t *DoNotEncodeEncoderForTest) EncodeEntry(
 	_ zapcore.Entry, _ []zapcore.Field,
 ) (*buffer.Buffer, error) {
-	return nil, nil
+	return nil, errNoError
 }
+
+var errNoError error = nil

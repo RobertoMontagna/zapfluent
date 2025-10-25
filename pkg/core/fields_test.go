@@ -66,20 +66,21 @@ func TestString(t *testing.T) {
 func fieldsTestCaseValidation[T any](t *testing.T, testCases []fieldsTestCase[T]) {
 	t.Helper()
 
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
 			g := NewWithT(t)
 
 			enc := zapcore.NewMapObjectEncoder()
 
-			err := tc.field.Encode(enc)
+			err := testCase.field.Encode(enc)
 
 			g.Expect(err).ToNot(HaveOccurred())
-			if tc.shouldBeEmpty {
-				g.Expect(enc.Fields).ToNot(HaveKey(tc.expectedKey))
+			if testCase.shouldBeEmpty {
+				g.Expect(enc.Fields).ToNot(HaveKey(testCase.expectedKey))
 			} else {
-				g.Expect(enc.Fields).To(HaveKeyWithValue(tc.expectedKey, tc.expectedValue))
-				g.Expect(tc.field.Name()).To(Equal(tc.expectedKey))
+				g.Expect(enc.Fields).
+					To(HaveKeyWithValue(testCase.expectedKey, testCase.expectedValue))
+				g.Expect(testCase.field.Name()).To(Equal(testCase.expectedKey))
 			}
 		})
 	}
