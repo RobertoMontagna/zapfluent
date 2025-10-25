@@ -56,16 +56,22 @@ func TestStdoutLoggerForTest(t *testing.T) {
 			g := NewWithT(t)
 
 			originalStdout := os.Stdout
-			r, w, _ := os.Pipe()
+			r, w, err := os.Pipe()
+			if err != nil {
+				t.Fatal(err)
+			}
 			os.Stdout = w
+			defer func() {
+				os.Stdout = originalStdout
+				_ = r.Close()
+			}()
 
 			logger := testutil.StdoutLoggerForTest(tc.options...)
 			logger.Info(tc.logMessage)
-			w.Close()
+			_ = w.Close()
 
-			os.Stdout = originalStdout
 			var buf bytes.Buffer
-			_, err := io.Copy(&buf, r)
+			_, err = io.Copy(&buf, r)
 			g.Expect(err).ToNot(HaveOccurred())
 
 			var logOutput map[string]interface{}

@@ -56,7 +56,7 @@ func TestNewErrorHandlingConfiguration(t *testing.T) {
 			cfg := core.NewErrorHandlingConfiguration(tc.options...)
 
 			g.Expect(cfg.Mode()).To(Equal(tc.expectedMode))
-			g.Expect(cfg.FallbackErrorMessage).To(Equal(tc.expectedFallbackErrMsg))
+			g.Expect(cfg.FallbackErrorMessage()).To(Equal(tc.expectedFallbackErrMsg))
 		})
 	}
 }
