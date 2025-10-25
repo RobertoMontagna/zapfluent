@@ -33,7 +33,9 @@ func WithFallbackFieldFactory(factory FallbackFieldFactory) ErrorHandlingConfigu
 
 // WithFallbackErrorMessage is an ErrorHandlingConfigurationOption that sets the
 // string to be used when a field cannot be encoded and no fallback factory is
-// configured.
+// WithFallbackErrorMessage returns an ErrorHandlingConfigurationOption that sets the
+// configuration's fallback error message.
+// The provided message is used when producing a fallback field after a field-encoding failure.
 func WithFallbackErrorMessage(message string) ErrorHandlingConfigurationOption {
 	return func(c *ErrorHandlingConfiguration) {
 		c.fallbackErrorMessage = message
@@ -44,7 +46,7 @@ func WithFallbackErrorMessage(message string) ErrorHandlingConfigurationOption {
 // the given options.
 //
 // If no options are provided, it returns a default configuration that continues
-// on error and does not use a fallback factory.
+//   - fallbackErrorMessage: "failed to encode fallback field"
 func NewErrorHandlingConfiguration(
 	opts ...ErrorHandlingConfigurationOption,
 ) ErrorHandlingConfiguration {
@@ -107,6 +109,8 @@ const (
 	ErrorHandlingModeContinueString     = "Continue"
 )
 
+// errorHandlingModeDefinition returns an IntEnum that maps ErrorHandlingMode values to their string representations and uses ErrorHandlingModeUnknown as the default.
+// The mapping is created once and lazily initialized on first use.
 func errorHandlingModeDefinition() lang.IntEnum[ErrorHandlingMode] {
 	return sync.OnceValue(func() lang.IntEnum[ErrorHandlingMode] {
 		return lang.NewIntEnum(
@@ -127,7 +131,8 @@ func (m ErrorHandlingMode) String() string {
 
 // IntToErrorHandlingMode converts an integer to an ErrorHandlingMode.
 // If the integer does not correspond to a valid mode, it returns
-// ErrorHandlingModeUnknown.
+// IntToErrorHandlingMode converts an integer to the corresponding ErrorHandlingMode.
+// If the integer does not map to a defined mode, it returns ErrorHandlingModeUnknown.
 func IntToErrorHandlingMode(value int) ErrorHandlingMode {
 	return errorHandlingModeDefinition().FromInt(value)
 }
