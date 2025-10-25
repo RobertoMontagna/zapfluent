@@ -5,7 +5,7 @@ package core
 type ConfigurationOption func(*Configuration)
 
 // WithErrorHandling is a ConfigurationOption that sets the error handling
-// error handling configuration to the provided ErrorHandlingConfiguration.
+// configuration to the provided ErrorHandlingConfiguration.
 func WithErrorHandling(errorHandling ErrorHandlingConfiguration) ConfigurationOption {
 	return func(c *Configuration) {
 		c.errorHandling = errorHandling

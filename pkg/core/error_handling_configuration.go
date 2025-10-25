@@ -109,20 +109,17 @@ const (
 	ErrorHandlingModeContinueString     = "Continue"
 )
 
-// errorHandlingModeDefinition returns an IntEnum that maps ErrorHandlingMode values to their string representations and uses ErrorHandlingModeUnknown as the default.
-// The mapping is created once and lazily initialized on first use.
-func errorHandlingModeDefinition() lang.IntEnum[ErrorHandlingMode] {
-	return sync.OnceValue(func() lang.IntEnum[ErrorHandlingMode] {
-		return lang.NewIntEnum(
-			map[ErrorHandlingMode]string{
-				ErrorHandlingModeUnknown:      ErrorHandlingModeUnknownString,
-				ErrorHandlingModeEarlyFailing: ErrorHandlingModeEarlyFailingString,
-				ErrorHandlingModeContinue:     ErrorHandlingModeContinueString,
-			},
-			ErrorHandlingModeUnknown,
-		)
-	})()
-}
+// errorHandlingModeDefinition lazily initializes and caches the IntEnum mapping for ErrorHandlingMode.
+var errorHandlingModeDefinition = sync.OnceValue(func() lang.IntEnum[ErrorHandlingMode] {
+	return lang.NewIntEnum(
+		map[ErrorHandlingMode]string{
+			ErrorHandlingModeUnknown:      ErrorHandlingModeUnknownString,
+			ErrorHandlingModeEarlyFailing: ErrorHandlingModeEarlyFailingString,
+			ErrorHandlingModeContinue:     ErrorHandlingModeContinueString,
+		},
+		ErrorHandlingModeUnknown,
+	)
+})
 
 // String returns the string representation of the ErrorHandlingMode.
 func (m ErrorHandlingMode) String() string {

@@ -38,7 +38,6 @@ func OfPtr[T any](ptr *T) LazyOptional[T] {
 	return Some(*ptr)
 }
 
-// OfError returns a LazyOptional containing the provided error if it is non-nil,
 // OfError creates a LazyOptional[error] that is empty when err is nil and contains err otherwise.
 func OfError(err error) LazyOptional[error] {
 	if err == nil {
