@@ -63,8 +63,8 @@ func TestStdoutLoggerForTest(t *testing.T) {
 			os.Stdout = w
 			defer func() {
 				os.Stdout = originalStdout
+				_ = r.Close()
 			}()
-			defer r.Close()
 
 			logger := testutil.StdoutLoggerForTest(tc.options...)
 			logger.Info(tc.logMessage)
