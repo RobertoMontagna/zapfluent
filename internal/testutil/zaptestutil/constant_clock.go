@@ -7,7 +7,8 @@ import "time"
 // (non-ticking, nil channel) to avoid goroutines and ensure determinism.
 type ConstantClockForTest time.Time
 
-// NewConstantClockForTest constructs a ConstantClockForTest from t.
+// NewConstantClockForTest constructs a ConstantClockForTest that always reports the provided time as the current time.
+// The returned clock's Now method will always return t, and its NewTicker method produces a zero-value ticker with a nil C channel (no goroutines are started).
 func NewConstantClockForTest(t time.Time) ConstantClockForTest {
 	return ConstantClockForTest(t)
 }
