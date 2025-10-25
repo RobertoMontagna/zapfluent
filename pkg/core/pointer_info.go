@@ -10,7 +10,7 @@ import (
 // generic type T and associated utility functions.
 type PointerInfo[T any] struct {
 	PtrValue  *T
-	functions typeFieldFunctions[T]
+	functions typePointerFieldFunctions[T]
 }
 
 // MarshalLogObject implements the zapcore.ObjectMarshaler interface for

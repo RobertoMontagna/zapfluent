@@ -54,27 +54,9 @@ type typeFieldFunctions[T any] struct {
 	isNonZero  func(T) bool
 }
 
-func (tff typeFieldFunctions[T]) toField(name string, value T) Field {
-	return minimalField[T]{
-		name:      name,
-		value:     value,
-		functions: tff,
-	}
-}
-
-type minimalField[T any] struct {
-	name  string
-	value T
-
-	functions typeFieldFunctions[T]
-}
-
-func (mf minimalField[T]) Name() string {
-	return mf.name
-}
-
-func (mf minimalField[T]) Encode(encoder zapcore.ObjectEncoder) error {
-	return mf.functions.encodeFunc(encoder, mf.name, mf.value)
+type typePointerFieldFunctions[T any] struct {
+	typeFieldFunctions[T]
+	toField func(name string, value T) TypedField[T]
 }
 
 type lazyTypedField[T any] struct {
@@ -128,9 +110,21 @@ func (f *lazyTypedField[T]) Format(formatter func(T) string) TypedField[string] 
 }
 
 type pointerField[T any] struct {
-	functions typeFieldFunctions[T]
+	functions typePointerFieldFunctions[T]
 	value     *T
 	name      string
+}
+
+func newPointerField[T any](
+	functions typePointerFieldFunctions[T],
+	name string,
+	value *T,
+) TypedPointerField[T] {
+	return &pointerField[T]{
+		functions: functions,
+		name:      name,
+		value:     value,
+	}
 }
 
 func (p *pointerField[T]) Name() string {
@@ -147,7 +141,7 @@ func (p *pointerField[T]) Encode(encoder zapcore.ObjectEncoder) error {
 
 func (p *pointerField[T]) NonNil() TypedField[T] {
 	return &lazyTypedField[T]{
-		functions: p.functions,
+		functions: p.functions.typeFieldFunctions,
 		name:      p.name,
 		value:     lazyoptional.OfPtr(p.value),
 	}
