@@ -59,6 +59,10 @@ func (h *ErrorHandler) EncodeField(field Field) FieldEncodingErrorManager {
 	}
 }
 
+func (h *ErrorHandler) AggregatedError() error {
+	return h.totalError
+}
+
 func (h *ErrorHandler) doNothing() {
 	// This function is intentionally left empty.
 }
@@ -71,8 +75,4 @@ func (h *ErrorHandler) encodeAndLift(field Field) optional.Optional[error] {
 
 func (h *ErrorHandler) aggregateError(newErr error) {
 	h.totalError = multierr.Append(h.totalError, newErr)
-}
-
-func (h *ErrorHandler) AggregatedError() error {
-	return h.totalError
 }
