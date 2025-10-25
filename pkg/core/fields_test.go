@@ -28,14 +28,16 @@ func (t testComparableObject) MarshalLogObject(enc zapcore.ObjectEncoder) error 
 	return nil
 }
 
+type fieldsTestCase[T any] struct {
+	name          string
+	field         core.TypedField[T]
+	expectedKey   string
+	expectedValue T
+	shouldBeEmpty bool
+}
+
 func TestString(t *testing.T) {
-	testCases := []struct {
-		name          string
-		field         core.TypedField[string]
-		expectedKey   string
-		expectedValue string
-		shouldBeEmpty bool
-	}{
+	testCases := []fieldsTestCase[string]{
 		{
 			name:          "it creates a string field correctly",
 			field:         core.String("my-key", "my-value"),
@@ -58,20 +60,27 @@ func TestString(t *testing.T) {
 		},
 	}
 
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
+	fieldsTestCaseValidation(t, testCases)
+}
+
+func fieldsTestCaseValidation[T any](t *testing.T, testCases []fieldsTestCase[T]) {
+	t.Helper()
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
 			g := NewWithT(t)
 
 			enc := zapcore.NewMapObjectEncoder()
 
-			err := tc.field.Encode(enc)
+			err := testCase.field.Encode(enc)
 
 			g.Expect(err).ToNot(HaveOccurred())
-			if tc.shouldBeEmpty {
-				g.Expect(enc.Fields).ToNot(HaveKey(tc.expectedKey))
+			if testCase.shouldBeEmpty {
+				g.Expect(enc.Fields).ToNot(HaveKey(testCase.expectedKey))
 			} else {
-				g.Expect(enc.Fields).To(HaveKeyWithValue(tc.expectedKey, tc.expectedValue))
-				g.Expect(tc.field.Name()).To(Equal(tc.expectedKey))
+				g.Expect(enc.Fields).
+					To(HaveKeyWithValue(testCase.expectedKey, testCase.expectedValue))
+				g.Expect(testCase.field.Name()).To(Equal(testCase.expectedKey))
 			}
 		})
 	}
@@ -146,13 +155,7 @@ func TestStringPtr_NonNil(t *testing.T) {
 }
 
 func TestInt(t *testing.T) {
-	testCases := []struct {
-		name          string
-		field         core.TypedField[int]
-		expectedKey   string
-		expectedValue int
-		shouldBeEmpty bool
-	}{
+	testCases := []fieldsTestCase[int]{
 		{
 			name:          "it creates an int field correctly",
 			field:         core.Int("my-key", 123),
@@ -175,23 +178,7 @@ func TestInt(t *testing.T) {
 		},
 	}
 
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			g := NewWithT(t)
-
-			enc := zapcore.NewMapObjectEncoder()
-
-			err := tc.field.Encode(enc)
-
-			g.Expect(err).ToNot(HaveOccurred())
-			if tc.shouldBeEmpty {
-				g.Expect(enc.Fields).ToNot(HaveKey(tc.expectedKey))
-			} else {
-				g.Expect(enc.Fields).To(HaveKeyWithValue(tc.expectedKey, tc.expectedValue))
-				g.Expect(tc.field.Name()).To(Equal(tc.expectedKey))
-			}
-		})
-	}
+	fieldsTestCaseValidation(t, testCases)
 }
 
 func TestIntPtr_Encode(t *testing.T) {
@@ -263,13 +250,7 @@ func TestIntPtr_NonNil(t *testing.T) {
 }
 
 func TestInt8(t *testing.T) {
-	testCases := []struct {
-		name          string
-		field         core.TypedField[int8]
-		expectedKey   string
-		expectedValue int8
-		shouldBeEmpty bool
-	}{
+	testCases := []fieldsTestCase[int8]{
 		{
 			name:          "it creates an int8 field correctly",
 			field:         core.Int8("my-key", 12),
@@ -292,23 +273,7 @@ func TestInt8(t *testing.T) {
 		},
 	}
 
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			g := NewWithT(t)
-
-			enc := zapcore.NewMapObjectEncoder()
-
-			err := tc.field.Encode(enc)
-
-			g.Expect(err).ToNot(HaveOccurred())
-			if tc.shouldBeEmpty {
-				g.Expect(enc.Fields).ToNot(HaveKey(tc.expectedKey))
-			} else {
-				g.Expect(enc.Fields).To(HaveKeyWithValue(tc.expectedKey, tc.expectedValue))
-				g.Expect(tc.field.Name()).To(Equal(tc.expectedKey))
-			}
-		})
-	}
+	fieldsTestCaseValidation(t, testCases)
 }
 
 func TestInt8Ptr_Encode(t *testing.T) {
@@ -602,13 +567,7 @@ func TestComparableObjectPtr_Encode(t *testing.T) {
 }
 
 func TestBool(t *testing.T) {
-	testCases := []struct {
-		name          string
-		field         core.TypedField[bool]
-		expectedKey   string
-		expectedValue bool
-		shouldBeEmpty bool
-	}{
+	testCases := []fieldsTestCase[bool]{
 		{
 			name:          "it creates a bool field correctly",
 			field:         core.Bool("my-key", true),
@@ -631,23 +590,7 @@ func TestBool(t *testing.T) {
 		},
 	}
 
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			g := NewWithT(t)
-
-			enc := zapcore.NewMapObjectEncoder()
-
-			err := tc.field.Encode(enc)
-
-			g.Expect(err).ToNot(HaveOccurred())
-			if tc.shouldBeEmpty {
-				g.Expect(enc.Fields).ToNot(HaveKey(tc.expectedKey))
-			} else {
-				g.Expect(enc.Fields).To(HaveKeyWithValue(tc.expectedKey, tc.expectedValue))
-				g.Expect(tc.field.Name()).To(Equal(tc.expectedKey))
-			}
-		})
-	}
+	fieldsTestCaseValidation(t, testCases)
 }
 
 func TestBoolPtr_Encode(t *testing.T) {

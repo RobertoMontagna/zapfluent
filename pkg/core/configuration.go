@@ -5,16 +5,22 @@ package core
 type ConfigurationOption func(*Configuration)
 
 // WithErrorHandling is a ConfigurationOption that sets the error handling
-// strategy for the Fluent instance.
+// configuration to the provided ErrorHandlingConfiguration.
 func WithErrorHandling(errorHandling ErrorHandlingConfiguration) ConfigurationOption {
 	return func(c *Configuration) {
 		c.errorHandling = errorHandling
 	}
 }
 
+// Configuration holds the settings for a Fluent instance.
+type Configuration struct {
+	errorHandling ErrorHandlingConfiguration
+}
+
 // NewConfiguration creates a new Configuration with the given options.
 //
-// If no options are provided, it returns a default configuration.
+// NewConfiguration creates a Configuration initialized with a default error handling configuration.
+// It applies each provided ConfigurationOption in order to the configuration; if no options are provided the default configuration is returned.
 func NewConfiguration(opts ...ConfigurationOption) Configuration {
 	config := Configuration{
 		errorHandling: NewErrorHandlingConfiguration(),
@@ -23,11 +29,6 @@ func NewConfiguration(opts ...ConfigurationOption) Configuration {
 		opt(&config)
 	}
 	return config
-}
-
-// Configuration holds the settings for a Fluent instance.
-type Configuration struct {
-	errorHandling ErrorHandlingConfiguration
 }
 
 // ErrorHandling returns the error handling configuration.

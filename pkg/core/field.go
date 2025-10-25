@@ -1,37 +1,10 @@
 package core
 
 import (
-	"fmt"
-
 	"go.uber.org/zap/zapcore"
 
 	"go.robertomontagna.dev/zapfluent/internal/functional/lazyoptional"
 )
-
-type PointerInfo[T any] struct {
-	PtrValue  *T
-	functions typeFieldFunctions[T]
-}
-
-// MarshalLogObject implements the zapcore.ObjectMarshaler interface for
-// PointerInfo. It encodes the pointer's value and its memory address.
-func (p PointerInfo[T]) MarshalLogObject(enc zapcore.ObjectEncoder) error {
-	if p.PtrValue == nil {
-		return AsFluent(enc).
-			Add(String("address", "0x0")).
-			Add(String("value", "<nil>")).
-			Done()
-	}
-
-	return AsFluent(enc).
-		Add(String("address", fmt.Sprintf("%p", p.PtrValue))).
-		Add(p.functions.toField("value", *p.PtrValue)).
-		Done()
-}
-
-func (p PointerInfo[T]) isNonZero() bool {
-	return p.PtrValue != nil && p.functions.isNonZero(*p.PtrValue)
-}
 
 // Field is the interface that all concrete field types must implement. It
 // represents a single key-value pair to be encoded.
@@ -173,17 +146,10 @@ func (p *pointerField[T]) Encode(encoder zapcore.ObjectEncoder) error {
 }
 
 func (p *pointerField[T]) NonNil() TypedField[T] {
-	var value lazyoptional.LazyOptional[T]
-	if p.value != nil {
-		value = lazyoptional.Some(*p.value)
-	} else {
-		value = lazyoptional.Empty[T]()
-	}
-
 	return &lazyTypedField[T]{
 		functions: p.functions,
 		name:      p.name,
-		value:     value,
+		value:     lazyoptional.OfPtr(p.value),
 	}
 }
 

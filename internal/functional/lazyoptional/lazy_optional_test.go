@@ -1,11 +1,13 @@
 package lazyoptional_test
 
 import (
+	"errors"
 	"strconv"
 	"testing"
 
 	"go.robertomontagna.dev/zapfluent/internal/functional/contracts/matchers"
 	"go.robertomontagna.dev/zapfluent/internal/functional/lazyoptional"
+	"go.robertomontagna.dev/zapfluent/internal/lang"
 
 	. "github.com/onsi/gomega"
 )
@@ -27,6 +29,77 @@ func TestLazyOptional_Empty(t *testing.T) {
 	opt := lazyoptional.Empty[int]()
 
 	g.Expect(opt).To(matchers.BeEmpty[int]())
+}
+
+func TestLazyOptional_OfPtr(t *testing.T) {
+	g := NewWithT(t)
+
+	testCases := []struct {
+		name          string
+		sourceValue   *int
+		shouldBeEmpty bool
+		internalValue int
+	}{
+		{
+			"nil",
+			nil,
+			true,
+			0,
+		},
+		{
+			"with value",
+			lang.ToPtr(42),
+			false,
+			42,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			opt := lazyoptional.OfPtr(tc.sourceValue)
+
+			if tc.shouldBeEmpty {
+				g.Expect(opt).To(matchers.BeEmpty[int]())
+			} else {
+				g.Expect(opt).To(matchers.BePresent[int]())
+				g.Expect(opt).To(matchers.HaveValue(tc.internalValue))
+			}
+		})
+	}
+}
+
+func TestLazyOptional_OfError(t *testing.T) {
+	g := NewWithT(t)
+
+	testCases := []struct {
+		name          string
+		err           error
+		shouldBeEmpty bool
+	}{
+		{
+			"nil",
+			nil,
+			true,
+		},
+		{
+			"with value",
+			errors.New("test error"),
+			false,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			opt := lazyoptional.OfError(tc.err)
+
+			if tc.shouldBeEmpty {
+				g.Expect(opt).To(matchers.BeEmpty[error]())
+			} else {
+				g.Expect(opt).To(matchers.BePresent[error]())
+				g.Expect(opt).To(matchers.HaveValue(tc.err))
+			}
+		})
+	}
 }
 
 func TestLazyOptional_Filter(t *testing.T) {

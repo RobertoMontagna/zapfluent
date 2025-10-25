@@ -15,10 +15,10 @@ import (
 )
 
 var (
-	fErrTest1         = errors.New("error 1")
-	fErrTest2         = errors.New("error 2")
-	fErrOriginal      = errors.New("original error")
-	fErrFallback      = errors.New("fallback failed")
+	errFluentTest1    = errors.New("error 1")
+	errFluentTest2    = errors.New("error 2")
+	errFluentOriginal = errors.New("original error")
+	errFluentFallback = errors.New("fallback failed")
 	testFieldName1    = "field1"
 	testFieldName2    = "field2"
 	testFailingField  = "failing_field"
@@ -26,19 +26,20 @@ var (
 
 	failingField1 = stubs.NewFailingFieldForTest(
 		stubs.WithName(testFieldName1),
-		stubs.WithError(fErrTest1),
+		stubs.WithError(errFluentTest1),
 	)
 	failingField2 = stubs.NewFailingFieldForTest(
 		stubs.WithName(testFieldName2),
-		stubs.WithError(fErrTest2),
+		stubs.WithError(errFluentTest2),
 	)
 	originalFailingField = stubs.NewFailingFieldForTest(
 		stubs.WithName(testFailingField),
-		stubs.WithError(fErrOriginal),
+		stubs.WithError(errFluentOriginal),
 	)
 )
 
 func TestFluent_Done_WhenFieldsFail_ShouldAggregateErrors(t *testing.T) {
+	t.Parallel()
 	g := NewWithT(t)
 
 	fluent := core.AsFluent(core.NewFluentEncoder(
@@ -51,11 +52,12 @@ func TestFluent_Done_WhenFieldsFail_ShouldAggregateErrors(t *testing.T) {
 		Add(failingField2).
 		Done()
 
-	g.Expect(err).To(MatchError(fErrTest1))
-	g.Expect(err).To(MatchError(fErrTest2))
+	g.Expect(err).To(MatchError(errFluentTest1))
+	g.Expect(err).To(MatchError(errFluentTest2))
 }
 
 func TestFluent_Done_WhenEarlyFailingIsEnabled_ShouldStopAfterFirstError(t *testing.T) {
+	t.Parallel()
 	g := NewWithT(t)
 
 	cfg := core.NewConfiguration(
@@ -75,11 +77,12 @@ func TestFluent_Done_WhenEarlyFailingIsEnabled_ShouldStopAfterFirstError(t *test
 		Add(failingField2).
 		Done()
 
-	g.Expect(err).To(MatchError(fErrTest1))
-	g.Expect(err).ToNot(MatchError(fErrTest2))
+	g.Expect(err).To(MatchError(errFluentTest1))
+	g.Expect(err).ToNot(MatchError(errFluentTest2))
 }
 
 func TestFluent_Done_WhenFallbackIsConfigured_ShouldReplaceFieldAndReturnError(t *testing.T) {
+	t.Parallel()
 	g := NewWithT(t)
 
 	cfg := core.NewConfiguration(
@@ -99,11 +102,12 @@ func TestFluent_Done_WhenFallbackIsConfigured_ShouldReplaceFieldAndReturnError(t
 		Add(originalFailingField).
 		Done()
 
-	g.Expect(err).To(MatchError(fErrOriginal))
+	g.Expect(err).To(MatchError(errFluentOriginal))
 	g.Expect(enc.Fields).To(HaveKeyWithValue(testFailingField, testFallbackValue))
 }
 
 func TestFluent_Done_WhenFallbackAlsoFails_ShouldLogPredefinedError(t *testing.T) {
+	t.Parallel()
 	g := NewWithT(t)
 
 	cfg := core.NewConfiguration(
@@ -112,7 +116,7 @@ func TestFluent_Done_WhenFallbackAlsoFails_ShouldLogPredefinedError(t *testing.T
 				core.WithFallbackFieldFactory(func(name string, err error) core.Field {
 					return stubs.NewFailingFieldForTest(
 						stubs.WithName(name),
-						stubs.WithError(fErrFallback),
+						stubs.WithError(errFluentFallback),
 					)
 				}),
 			),
@@ -128,12 +132,13 @@ func TestFluent_Done_WhenFallbackAlsoFails_ShouldLogPredefinedError(t *testing.T
 		Add(originalFailingField).
 		Done()
 
-	g.Expect(err).To(MatchError(fErrOriginal))
-	g.Expect(err).To(MatchError(fErrFallback))
+	g.Expect(err).To(MatchError(errFluentOriginal))
+	g.Expect(err).To(MatchError(errFluentFallback))
 	g.Expect(enc.Fields).To(HaveKeyWithValue(testFailingField, "failed to encode fallback field"))
 }
 
 func TestFluent_Done_WhenFailingFallbackHasCustomMessage_ShouldLogCustomMessage(t *testing.T) {
+	t.Parallel()
 	g := NewWithT(t)
 
 	cfg := core.NewConfiguration(
@@ -142,7 +147,7 @@ func TestFluent_Done_WhenFailingFallbackHasCustomMessage_ShouldLogCustomMessage(
 				core.WithFallbackFieldFactory(func(name string, err error) core.Field {
 					return stubs.NewFailingFieldForTest(
 						stubs.WithName(name),
-						stubs.WithError(fErrFallback),
+						stubs.WithError(errFluentFallback),
 					)
 				}),
 				core.WithFallbackErrorMessage("custom message"),
@@ -159,12 +164,13 @@ func TestFluent_Done_WhenFailingFallbackHasCustomMessage_ShouldLogCustomMessage(
 		Add(originalFailingField).
 		Done()
 
-	g.Expect(err).To(MatchError(fErrOriginal))
-	g.Expect(err).To(MatchError(fErrFallback))
+	g.Expect(err).To(MatchError(errFluentOriginal))
+	g.Expect(err).To(MatchError(errFluentFallback))
 	g.Expect(enc.Fields).To(HaveKeyWithValue(testFailingField, "custom message"))
 }
 
 func TestAsFluent(t *testing.T) {
+	t.Parallel()
 	testCases := []struct {
 		name    string
 		encoder zapcore.Encoder
@@ -184,6 +190,7 @@ func TestAsFluent(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 			g := NewWithT(t)
 
 			fluent := core.AsFluent(tc.encoder)
@@ -194,6 +201,7 @@ func TestAsFluent(t *testing.T) {
 }
 
 func TestFluent_Done_OnNilReceiver(t *testing.T) {
+	t.Parallel()
 	g := NewWithT(t)
 
 	var fluent *core.Fluent
