@@ -8,8 +8,8 @@ import (
 // configuration. It wraps a standard zapcore.Encoder and is used to pass
 // configuration details implicitly.
 type FluentEncoder struct {
-	zapcore.Encoder
 	Config Configuration
+	zapcore.Encoder
 }
 
 // NewFluentEncoder creates a new FluentEncoder that wraps the given
