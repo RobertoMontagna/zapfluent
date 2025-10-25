@@ -48,6 +48,7 @@ func (h *ErrorHandler) EncodeField(field Field) FieldEncodingErrorManager {
 	if h.ShouldSkip() {
 		return h.doNothing
 	}
+
 	maybeFallbackField := h.handleError(field, field.Encode(h.enc))
 
 	return func() {
