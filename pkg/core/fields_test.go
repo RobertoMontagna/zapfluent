@@ -273,23 +273,7 @@ func TestInt8(t *testing.T) {
 		},
 	}
 
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			g := NewWithT(t)
-
-			enc := zapcore.NewMapObjectEncoder()
-
-			err := tc.field.Encode(enc)
-
-			g.Expect(err).ToNot(HaveOccurred())
-			if tc.shouldBeEmpty {
-				g.Expect(enc.Fields).ToNot(HaveKey(tc.expectedKey))
-			} else {
-				g.Expect(enc.Fields).To(HaveKeyWithValue(tc.expectedKey, tc.expectedValue))
-				g.Expect(tc.field.Name()).To(Equal(tc.expectedKey))
-			}
-		})
-	}
+	fieldsTestCaseValidation(t, testCases)
 }
 
 func TestInt8Ptr_Encode(t *testing.T) {
