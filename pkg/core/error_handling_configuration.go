@@ -1,6 +1,8 @@
 package core
 
 import (
+	"sync"
+
 	"go.robertomontagna.dev/zapfluent/internal/functional/optional"
 	"go.robertomontagna.dev/zapfluent/internal/lang"
 )
@@ -34,7 +36,7 @@ func WithFallbackFieldFactory(factory FallbackFieldFactory) ErrorHandlingConfigu
 // configured.
 func WithFallbackErrorMessage(message string) ErrorHandlingConfigurationOption {
 	return func(c *ErrorHandlingConfiguration) {
-		c.FallbackErrorMessage = message
+		c.fallbackErrorMessage = message
 	}
 }
 
@@ -49,7 +51,7 @@ func NewErrorHandlingConfiguration(
 	config := ErrorHandlingConfiguration{
 		mode:                 ErrorHandlingModeContinue,
 		fallbackFactory:      optional.Empty[FallbackFieldFactory](),
-		FallbackErrorMessage: "failed to encode fallback field",
+		fallbackErrorMessage: "failed to encode fallback field",
 	}
 	for _, opt := range opts {
 		opt(&config)
@@ -62,7 +64,7 @@ func NewErrorHandlingConfiguration(
 type ErrorHandlingConfiguration struct {
 	mode                 ErrorHandlingMode
 	fallbackFactory      optional.Optional[FallbackFieldFactory]
-	FallbackErrorMessage string
+	fallbackErrorMessage string
 }
 
 // Mode returns the configured error handling mode.
@@ -74,6 +76,12 @@ func (c *ErrorHandlingConfiguration) Mode() ErrorHandlingMode {
 // fields. The optional will be empty if no factory is configured.
 func (c *ErrorHandlingConfiguration) FallbackFactory() optional.Optional[FallbackFieldFactory] {
 	return c.fallbackFactory
+}
+
+// FallbackErrorMessage returns the configured fallback error message used
+// when field encoding fails without a fallback factory.
+func (c *ErrorHandlingConfiguration) FallbackErrorMessage() string {
+	return c.fallbackErrorMessage
 }
 
 // ErrorHandlingMode defines the strategy for handling errors that occur during
@@ -99,25 +107,29 @@ const (
 	ErrorHandlingModeContinueString     = "Continue"
 )
 
-var errorHandlingModeEnum = lang.NewIntEnum(
-	map[ErrorHandlingMode]string{
-		ErrorHandlingModeUnknown:      ErrorHandlingModeUnknownString,
-		ErrorHandlingModeEarlyFailing: ErrorHandlingModeEarlyFailingString,
-		ErrorHandlingModeContinue:     ErrorHandlingModeContinueString,
-	},
-	ErrorHandlingModeUnknown,
-)
+func errorHandlingModeDefinition() lang.IntEnum[ErrorHandlingMode] {
+	return sync.OnceValue(func() lang.IntEnum[ErrorHandlingMode] {
+		return lang.NewIntEnum(
+			map[ErrorHandlingMode]string{
+				ErrorHandlingModeUnknown:      ErrorHandlingModeUnknownString,
+				ErrorHandlingModeEarlyFailing: ErrorHandlingModeEarlyFailingString,
+				ErrorHandlingModeContinue:     ErrorHandlingModeContinueString,
+			},
+			ErrorHandlingModeUnknown,
+		)
+	})()
+}
 
 // String returns the string representation of the ErrorHandlingMode.
 func (m ErrorHandlingMode) String() string {
-	return errorHandlingModeEnum.String(m)
+	return errorHandlingModeDefinition().String(m)
 }
 
 // IntToErrorHandlingMode converts an integer to an ErrorHandlingMode.
 // If the integer does not correspond to a valid mode, it returns
 // ErrorHandlingModeUnknown.
 func IntToErrorHandlingMode(value int) ErrorHandlingMode {
-	return errorHandlingModeEnum.FromInt(value)
+	return errorHandlingModeDefinition().FromInt(value)
 }
 
 // FixedStringFallback returns a FallbackFieldFactory that creates a field with a

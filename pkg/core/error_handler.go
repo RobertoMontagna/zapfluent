@@ -46,22 +46,21 @@ type FieldEncodingErrorManager func()
 
 func (h *ErrorHandler) EncodeField(field Field) FieldEncodingErrorManager {
 	if h.ShouldSkip() {
-		return func() {
-			// This function is intentionally left empty.
-			// When the ErrorHandler is in EarlyFailing mode and an error has already occurred,
-			// subsequent field encoding operations should be skipped entirely.
-			// Returning a no-op function is the most efficient way to achieve this.
-		}
+		return h.doNothing
 	}
 	maybeFallbackField := h.handleError(field, field.Encode(h.enc))
 
 	return func() {
 		maybeEncodingError := optional.FlatMap(maybeFallbackField, h.encodeAndLift)
 		maybeFallbackFailed := optional.Map(maybeEncodingError, func(_ error) Field {
-			return String(field.Name(), h.cfg.FallbackErrorMessage)
+			return String(field.Name(), h.cfg.FallbackErrorMessage())
 		})
 		optional.FlatMap(maybeFallbackFailed, h.encodeAndLift)
 	}
+}
+
+func (h *ErrorHandler) doNothing() {
+	// This function is intentionally left empty.
 }
 
 func (h *ErrorHandler) encodeAndLift(field Field) optional.Optional[error] {

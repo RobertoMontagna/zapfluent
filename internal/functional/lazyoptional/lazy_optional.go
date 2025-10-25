@@ -27,6 +27,24 @@ func Empty[T any]() LazyOptional[T] {
 	}
 }
 
+// OfPtr creates a LazyOptional from a pointer.
+// Returns Empty if the pointer is nil, otherwise contains the dereferenced value.
+func OfPtr[T any](ptr *T) LazyOptional[T] {
+	if ptr == nil {
+		return Empty[T]()
+	}
+	return Some[T](*ptr)
+}
+
+// OfError returns a LazyOptional containing the provided error if it is non-nil,
+// or an empty LazyOptional otherwise.
+func OfError(err error) LazyOptional[error] {
+	if err == nil {
+		return Empty[error]()
+	}
+	return Some(err)
+}
+
 // Get retrieves the value from the LazyOptional.
 //
 // It returns the value and `true` if a value is present, or the zero value of

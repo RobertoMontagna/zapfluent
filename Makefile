@@ -1,13 +1,14 @@
 # Makefile for zapfluent
 #
 # This Makefile provides a set of common commands to build, test, and lint the project.
-
-# Ensure that go-installed binaries are available in the PATH
 export PATH := $(shell go env GOPATH)/bin:$(PATH)
 
 # Define binary names
 GOLANGCI_LINT := golangci-lint
 GO_JUNIT_REPORT := go-junit-report
+
+# Externalize the OS name check into a variable
+OS_NAME := $(shell uname -s)
 
 # ==============================================================================
 # Help Target
@@ -85,9 +86,18 @@ tools: $(GOLANGCI_LINT) $(GO_JUNIT_REPORT) ## 🛠️ Install development tools
 
 $(GOLANGCI_LINT):
 	@echo ">> checking for $(GOLANGCI_LINT)..."
-	@command -v $(GOLANGCI_LINT) >/dev/null 2>&1 || \
-		(echo "   -> $(GOLANGCI_LINT) not found, installing..." && \
-		go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest)
+	@command -v $(GOLANGCI_LINT) >/dev/null 2>&1 || ( \
+		if [ "$(OS_NAME)" = "Darwin" ]; then \
+			echo "   -> $(GOLANGCI_LINT) not found, installing with Homebrew..." && \
+			brew install golangci/tap/golangci-lint; \
+		elif [ "$(OS_NAME)" = "Linux" ]; then \
+			echo "   -> $(GOLANGCI_LINT) not found, installing with official script..." && \
+			curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(shell go env GOPATH)/bin; \
+		else \
+			echo "   -> Unsupported operating system for automatic installation." && \
+			exit 1; \
+		fi \
+	)
 
 $(GO_JUNIT_REPORT):
 	@echo ">> checking for $(GO_JUNIT_REPORT)..."

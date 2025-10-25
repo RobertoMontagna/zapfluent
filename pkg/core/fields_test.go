@@ -28,14 +28,16 @@ func (t testComparableObject) MarshalLogObject(enc zapcore.ObjectEncoder) error 
 	return nil
 }
 
+type fieldsTestCase[T any] struct {
+	name          string
+	field         core.TypedField[T]
+	expectedKey   string
+	expectedValue T
+	shouldBeEmpty bool
+}
+
 func TestString(t *testing.T) {
-	testCases := []struct {
-		name          string
-		field         core.TypedField[string]
-		expectedKey   string
-		expectedValue string
-		shouldBeEmpty bool
-	}{
+	testCases := []fieldsTestCase[string]{
 		{
 			name:          "it creates a string field correctly",
 			field:         core.String("my-key", "my-value"),
@@ -57,6 +59,12 @@ func TestString(t *testing.T) {
 			shouldBeEmpty: true,
 		},
 	}
+
+	fieldsTestCaseValidation(t, testCases)
+}
+
+func fieldsTestCaseValidation[T any](t *testing.T, testCases []fieldsTestCase[T]) {
+	t.Helper()
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
@@ -146,13 +154,7 @@ func TestStringPtr_NonNil(t *testing.T) {
 }
 
 func TestInt(t *testing.T) {
-	testCases := []struct {
-		name          string
-		field         core.TypedField[int]
-		expectedKey   string
-		expectedValue int
-		shouldBeEmpty bool
-	}{
+	testCases := []fieldsTestCase[int]{
 		{
 			name:          "it creates an int field correctly",
 			field:         core.Int("my-key", 123),
@@ -175,23 +177,7 @@ func TestInt(t *testing.T) {
 		},
 	}
 
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			g := NewWithT(t)
-
-			enc := zapcore.NewMapObjectEncoder()
-
-			err := tc.field.Encode(enc)
-
-			g.Expect(err).ToNot(HaveOccurred())
-			if tc.shouldBeEmpty {
-				g.Expect(enc.Fields).ToNot(HaveKey(tc.expectedKey))
-			} else {
-				g.Expect(enc.Fields).To(HaveKeyWithValue(tc.expectedKey, tc.expectedValue))
-				g.Expect(tc.field.Name()).To(Equal(tc.expectedKey))
-			}
-		})
-	}
+	fieldsTestCaseValidation(t, testCases)
 }
 
 func TestIntPtr_Encode(t *testing.T) {
@@ -263,13 +249,7 @@ func TestIntPtr_NonNil(t *testing.T) {
 }
 
 func TestInt8(t *testing.T) {
-	testCases := []struct {
-		name          string
-		field         core.TypedField[int8]
-		expectedKey   string
-		expectedValue int8
-		shouldBeEmpty bool
-	}{
+	testCases := []fieldsTestCase[int8]{
 		{
 			name:          "it creates an int8 field correctly",
 			field:         core.Int8("my-key", 12),

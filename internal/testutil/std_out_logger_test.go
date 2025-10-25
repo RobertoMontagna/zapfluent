@@ -61,7 +61,7 @@ func TestStdoutLoggerForTest(t *testing.T) {
 
 			logger := testutil.StdoutLoggerForTest(tc.options...)
 			logger.Info(tc.logMessage)
-			w.Close()
+			_ = w.Close()
 
 			os.Stdout = originalStdout
 			var buf bytes.Buffer
