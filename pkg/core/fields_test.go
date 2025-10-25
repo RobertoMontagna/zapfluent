@@ -567,13 +567,7 @@ func TestComparableObjectPtr_Encode(t *testing.T) {
 }
 
 func TestBool(t *testing.T) {
-	testCases := []struct {
-		name          string
-		field         core.TypedField[bool]
-		expectedKey   string
-		expectedValue bool
-		shouldBeEmpty bool
-	}{
+	testCases := []fieldsTestCase[bool]{
 		{
 			name:          "it creates a bool field correctly",
 			field:         core.Bool("my-key", true),
@@ -596,23 +590,7 @@ func TestBool(t *testing.T) {
 		},
 	}
 
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			g := NewWithT(t)
-
-			enc := zapcore.NewMapObjectEncoder()
-
-			err := tc.field.Encode(enc)
-
-			g.Expect(err).ToNot(HaveOccurred())
-			if tc.shouldBeEmpty {
-				g.Expect(enc.Fields).ToNot(HaveKey(tc.expectedKey))
-			} else {
-				g.Expect(enc.Fields).To(HaveKeyWithValue(tc.expectedKey, tc.expectedValue))
-				g.Expect(tc.field.Name()).To(Equal(tc.expectedKey))
-			}
-		})
-	}
+	fieldsTestCaseValidation(t, testCases)
 }
 
 func TestBoolPtr_Encode(t *testing.T) {
