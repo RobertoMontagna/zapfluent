@@ -93,15 +93,6 @@ func TestTypedField_Filtering(t *testing.T) {
 	}
 }
 
-//type testComparableObject struct {
-//	value string
-//}
-//
-//func (t testComparableObject) MarshalLogObject(enc zapcore.ObjectEncoder) error {
-//	enc.AddString("value", t.value)
-//	return nil
-//}
-
 func TestTypedPointerField_WithAddress(t *testing.T) {
 	nonNilValue := "test-value"
 	zeroValue := ""
