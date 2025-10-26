@@ -6,6 +6,7 @@ import (
 
 	"go.uber.org/zap/zapcore"
 
+	"go.robertomontagna.dev/zapfluent/internal/lang"
 	"go.robertomontagna.dev/zapfluent/pkg/core"
 
 	. "github.com/onsi/gomega"
@@ -92,6 +93,15 @@ func TestTypedField_Filtering(t *testing.T) {
 	}
 }
 
+//type testComparableObject struct {
+//	value string
+//}
+//
+//func (t testComparableObject) MarshalLogObject(enc zapcore.ObjectEncoder) error {
+//	enc.AddString("value", t.value)
+//	return nil
+//}
+
 func TestTypedPointerField_WithAddress(t *testing.T) {
 	nonNilValue := "test-value"
 	zeroValue := ""
@@ -132,10 +142,10 @@ func TestTypedPointerField_WithAddress(t *testing.T) {
 			},
 		},
 		{
-			name:  "with NonZero on a non-nil, zero value",
+			name:  "with Zero on a non-nil, non-zero value",
 			field: core.StringPtr("my-ptr", &zeroValue).WithAddress().NonZero(),
 			assertion: func(g *GomegaWithT, fields map[string]any) {
-				g.Expect(fields).To(BeEmpty())
+				g.Expect(fields).ToNot(BeEmpty())
 			},
 		},
 		{
@@ -143,6 +153,21 @@ func TestTypedPointerField_WithAddress(t *testing.T) {
 			field: core.StringPtr("my-ptr", nil).WithAddress().NonZero(),
 			assertion: func(g *GomegaWithT, fields map[string]any) {
 				g.Expect(fields).To(BeEmpty())
+			},
+		},
+		{
+			name:  "with NonZero on a non'zero struct value",
+			field: core.ComparableObjectPtr("my-ptr", lang.ToPtr(testComparableObject{value: "foo"})).WithAddress().NonZero(),
+			assertion: func(g *GomegaWithT, fields map[string]any) {
+				g.Expect(fields).To(HaveKey("my-ptr"))
+
+				pointerEncoder, ptrEncOk := fields["my-ptr"].(map[string]any)
+				g.Expect(ptrEncOk).To(BeTrue())
+				g.Expect(pointerEncoder).To(HaveKey("address"))
+
+				value, valueOk := pointerEncoder["value"].(map[string]any)
+				g.Expect(valueOk).To(BeTrue())
+				g.Expect(value).To(HaveKeyWithValue("value", "foo"))
 			},
 		},
 	}

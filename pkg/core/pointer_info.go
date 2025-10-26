@@ -30,5 +30,5 @@ func (p PointerInfo[T]) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 }
 
 func (p PointerInfo[T]) isNonZero() bool {
-	return p.PtrValue != nil && p.functions.isNonZero(*p.PtrValue)
+	return p.PtrValue != nil
 }
