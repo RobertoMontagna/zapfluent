@@ -72,7 +72,6 @@ func fieldsTestCaseValidation(t *testing.T, testCases []fieldTestCase) {
 			g := NewWithT(t)
 
 			enc := zapcore.NewMapObjectEncoder()
-
 			err := testCase.field.Encode(enc)
 
 			g.Expect(err).ToNot(HaveOccurred())
@@ -93,48 +92,32 @@ func TestStringPtr(t *testing.T) {
 			name:          "when pointer is not nil, it encodes the value",
 			field:         core.StringPtr("my-key", lang.ToPtr("my-value")),
 			shouldBeEmpty: false,
+			expectedKey:   "my-key",
 			expectedValue: "my-value",
 		},
 		{
 			name:          "when pointer is nil, it encodes NilSentinel",
 			field:         core.StringPtr("my-key", nil),
 			shouldBeEmpty: false,
+			expectedKey:   "my-key",
 			expectedValue: core.NilSentinel,
 		},
 		{
 			name:          "when pointer is not nil, it returns a valid field",
 			field:         core.StringPtr("my-key", lang.ToPtr("my-value")).NonNil(),
 			shouldBeEmpty: false,
+			expectedKey:   "my-key",
 			expectedValue: "my-value",
 		},
 		{
 			name:          "when pointer is nil, it returns an empty field",
 			field:         core.StringPtr("my-key", nil).NonNil(),
+			expectedKey:   "my-key",
 			shouldBeEmpty: true,
 		},
 	}
 
-	fieldPoiternsTestCaseValidation(t, testCases)
-}
-
-func fieldPoiternsTestCaseValidation(t *testing.T, testCases []fieldTestCase) {
-	t.Helper()
-
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			g := NewWithT(t)
-
-			enc := zapcore.NewMapObjectEncoder()
-			err := tc.field.Encode(enc)
-
-			g.Expect(err).ToNot(HaveOccurred())
-			if tc.shouldBeEmpty {
-				g.Expect(enc.Fields).To(BeEmpty())
-			} else {
-				g.Expect(enc.Fields).To(HaveKeyWithValue("my-key", tc.expectedValue))
-			}
-		})
-	}
+	fieldsTestCaseValidation(t, testCases)
 }
 
 func TestInt(t *testing.T) {
@@ -170,28 +153,32 @@ func TestIntPtr(t *testing.T) {
 			name:          "when pointer is not nil, it encodes the value",
 			field:         core.IntPtr("my-key", lang.ToPtr(123)),
 			shouldBeEmpty: false,
+			expectedKey:   "my-key",
 			expectedValue: 123,
 		},
 		{
 			name:          "when pointer is nil, it encodes NilSentinel",
 			field:         core.IntPtr("my-key", nil),
 			shouldBeEmpty: false,
+			expectedKey:   "my-key",
 			expectedValue: core.NilSentinel,
 		},
 		{
 			name:          "when pointer is not nil, it returns a valid field",
 			field:         core.IntPtr("my-key", lang.ToPtr(123)),
 			shouldBeEmpty: false,
+			expectedKey:   "my-key",
 			expectedValue: 123,
 		},
 		{
 			name:          "when pointer is nil, it returns an empty field",
 			field:         core.IntPtr("my-key", nil).NonNil(),
 			shouldBeEmpty: true,
+			expectedKey:   "my-key",
 		},
 	}
 
-	fieldPoiternsTestCaseValidation(t, testCases)
+	fieldsTestCaseValidation(t, testCases)
 }
 
 func TestInt8(t *testing.T) {

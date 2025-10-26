@@ -147,7 +147,7 @@ func TestTypedPointerField_WithAddress(t *testing.T) {
 			},
 		},
 		{
-			name:  "with NonZero on a non-zero struct value",
+			name:  "with NonZero on a non-zero struct pointer value",
 			field: core.ComparableObjectPtr("my-ptr", lang.ToPtr(testComparableObject{value: "foo"})).WithAddress().NonZero(),
 			assertion: func(g *GomegaWithT, fields map[string]any) {
 				g.Expect(fields).To(HaveKey("my-ptr"))
