@@ -6,6 +6,7 @@ import (
 
 	"go.uber.org/zap/zapcore"
 
+	"go.robertomontagna.dev/zapfluent/internal/lang"
 	"go.robertomontagna.dev/zapfluent/pkg/core"
 
 	. "github.com/onsi/gomega"
@@ -120,7 +121,7 @@ func TestTypedPointerField_WithAddress(t *testing.T) {
 				g.Expect(fields).To(HaveKey("my-ptr"))
 				obj, ok := fields["my-ptr"].(map[string]any)
 				g.Expect(ok).To(BeTrue())
-				g.Expect(obj).To(HaveKeyWithValue("value", "<nil>"))
+				g.Expect(obj).To(HaveKeyWithValue("value", core.NilSentinel))
 				g.Expect(obj).To(HaveKeyWithValue("address", "0x0"))
 			},
 		},
@@ -132,10 +133,10 @@ func TestTypedPointerField_WithAddress(t *testing.T) {
 			},
 		},
 		{
-			name:  "with NonZero on a non-nil, zero value",
+			name:  "with NonZero on a non-nil, zero underlying value",
 			field: core.StringPtr("my-ptr", &zeroValue).WithAddress().NonZero(),
 			assertion: func(g *GomegaWithT, fields map[string]any) {
-				g.Expect(fields).To(BeEmpty())
+				g.Expect(fields).ToNot(BeEmpty())
 			},
 		},
 		{
@@ -143,6 +144,21 @@ func TestTypedPointerField_WithAddress(t *testing.T) {
 			field: core.StringPtr("my-ptr", nil).WithAddress().NonZero(),
 			assertion: func(g *GomegaWithT, fields map[string]any) {
 				g.Expect(fields).To(BeEmpty())
+			},
+		},
+		{
+			name:  "with NonZero on a non-zero struct pointer value",
+			field: core.ComparableObjectPtr("my-ptr", lang.ToPtr(testComparableObject{value: "foo"})).WithAddress().NonZero(),
+			assertion: func(g *GomegaWithT, fields map[string]any) {
+				g.Expect(fields).To(HaveKey("my-ptr"))
+
+				pointerEncoder, ptrEncOk := fields["my-ptr"].(map[string]any)
+				g.Expect(ptrEncOk).To(BeTrue())
+				g.Expect(pointerEncoder).To(HaveKey("address"))
+
+				value, valueOk := pointerEncoder["value"].(map[string]any)
+				g.Expect(valueOk).To(BeTrue())
+				g.Expect(value).To(HaveKeyWithValue("value", "foo"))
 			},
 		},
 	}
@@ -200,10 +216,10 @@ func TestTypedPointerField_Encode(t *testing.T) {
 			},
 		},
 		{
-			name:  "when pointer is nil, it encodes '<nil>'",
+			name:  "when pointer is nil, it encodes NilSentinel",
 			field: core.StringPtr(fieldTestFieldName, nil),
 			assertion: func(g *GomegaWithT, fields map[string]any) {
-				g.Expect(fields).To(HaveKeyWithValue(fieldTestFieldName, "<nil>"))
+				g.Expect(fields).To(HaveKeyWithValue(fieldTestFieldName, core.NilSentinel))
 			},
 		},
 	}
