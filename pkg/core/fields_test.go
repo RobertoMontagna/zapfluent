@@ -96,7 +96,7 @@ func TestStringPtr(t *testing.T) {
 			expectedValue: "my-value",
 		},
 		{
-			name:          "when pointer is nil, it encodes <nil>",
+			name:          "when pointer is nil, it encodes NilSentinel",
 			field:         core.StringPtr("my-key", nil),
 			shouldBeEmpty: false,
 			expectedValue: core.NilSentinel,
@@ -173,7 +173,7 @@ func TestIntPtr(t *testing.T) {
 			expectedValue: 123,
 		},
 		{
-			name:          "when pointer is nil, it encodes <nil>",
+			name:          "when pointer is nil, it encodes NilSentinel",
 			field:         core.IntPtr("my-key", nil),
 			shouldBeEmpty: false,
 			expectedValue: core.NilSentinel,
@@ -230,7 +230,7 @@ func TestInt8Ptr(t *testing.T) {
 			expectedValue: int8(12),
 		},
 		{
-			name:          "when pointer is nil, it encodes <nil>",
+			name:          "when pointer is nil, it encodes NilSentinel",
 			field:         core.Int8Ptr("my-key", nil),
 			expectedKey:   "my-key",
 			expectedValue: core.NilSentinel,
@@ -298,7 +298,7 @@ func TestObjectPtr(t *testing.T) {
 			expectedValue: map[string]interface{}{"value": "test"},
 		},
 		{
-			name:          "when pointer is nil, it encodes <nil>",
+			name:          "when pointer is nil, it encodes NilSentinel",
 			field:         core.ObjectPtr("my-key", nil, isNonZero),
 			expectedKey:   "my-key",
 			expectedValue: core.NilSentinel,
@@ -364,7 +364,7 @@ func TestComparableObjectPtr(t *testing.T) {
 			expectedValue: map[string]interface{}{"value": "test"},
 		},
 		{
-			name:          "when pointer is nil, it encodes <nil>",
+			name:          "when pointer is nil, it encodes NilSentinel",
 			field:         core.ComparableObjectPtr("my-key", (*testComparableObject)(nil)),
 			expectedKey:   "my-key",
 			expectedValue: core.NilSentinel,
@@ -410,7 +410,7 @@ func TestBoolPtr(t *testing.T) {
 			expectedValue: true,
 		},
 		{
-			name:          "when pointer is nil, it encodes <nil>",
+			name:          "when pointer is nil, it encodes NilSentinel",
 			field:         core.BoolPtr("my-key", nil),
 			expectedKey:   "my-key",
 			expectedValue: core.NilSentinel,

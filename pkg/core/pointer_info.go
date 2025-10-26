@@ -18,7 +18,7 @@ type PointerInfo[T any] struct {
 func (p PointerInfo[T]) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 	if p.PtrValue == nil {
 		return AsFluent(enc).
-			Add(String("address", "0x0")).
+			Add(String("address", NilPtrAddress)).
 			Add(String("value", NilSentinel)).
 			Done()
 	}
@@ -30,5 +30,7 @@ func (p PointerInfo[T]) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 }
 
 func (p PointerInfo[T]) isNonZero() bool {
+	// isNonZero reports whether the pointer is non-nil.
+	// Note: underlying zero values are considered non-zero if the pointer itself is set.
 	return p.PtrValue != nil
 }

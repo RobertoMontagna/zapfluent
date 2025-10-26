@@ -133,7 +133,7 @@ func TestTypedPointerField_WithAddress(t *testing.T) {
 			},
 		},
 		{
-			name:  "with Zero on a non-nil, non-zero value",
+			name:  "with NonZero on a non-nil, zero underlying value",
 			field: core.StringPtr("my-ptr", &zeroValue).WithAddress().NonZero(),
 			assertion: func(g *GomegaWithT, fields map[string]any) {
 				g.Expect(fields).ToNot(BeEmpty())
@@ -147,7 +147,7 @@ func TestTypedPointerField_WithAddress(t *testing.T) {
 			},
 		},
 		{
-			name:  "with NonZero on a non'zero struct value",
+			name:  "with NonZero on a non-zero struct value",
 			field: core.ComparableObjectPtr("my-ptr", lang.ToPtr(testComparableObject{value: "foo"})).WithAddress().NonZero(),
 			assertion: func(g *GomegaWithT, fields map[string]any) {
 				g.Expect(fields).To(HaveKey("my-ptr"))
@@ -216,7 +216,7 @@ func TestTypedPointerField_Encode(t *testing.T) {
 			},
 		},
 		{
-			name:  "when pointer is nil, it encodes '<nil>'",
+			name:  "when pointer is nil, it encodes NilSentinel",
 			field: core.StringPtr(fieldTestFieldName, nil),
 			assertion: func(g *GomegaWithT, fields map[string]any) {
 				g.Expect(fields).To(HaveKeyWithValue(fieldTestFieldName, core.NilSentinel))
