@@ -93,6 +93,7 @@ func TestFluent_Add_ForDifferentFieldTypes_ShouldEncodeCorrectly(t *testing.T) {
 	intVal := 42
 	int8Val := int8(8)
 	int16Val := int16(16)
+	int32Val := int32(32)
 	boolTrue := true
 
 	testCases := []struct {
@@ -171,6 +172,24 @@ func TestFluent_Add_ForDifferentFieldTypes_ShouldEncodeCorrectly(t *testing.T) {
 			name:          "with int16 pointer (nil)",
 			field:         zapfluent.Int16Ptr("my_int16_ptr", nil),
 			expectedKey:   "my_int16_ptr",
+			expectedValue: core.NilSentinel,
+		},
+		{
+			name:          "with int32",
+			field:         zapfluent.Int32("my_int32", 12),
+			expectedKey:   "my_int32",
+			expectedValue: int32(12),
+		},
+		{
+			name:          "with int32 pointer (non-nil)",
+			field:         zapfluent.Int32Ptr("my_int32_ptr", &int32Val),
+			expectedKey:   "my_int32_ptr",
+			expectedValue: int32(32),
+		},
+		{
+			name:          "with int32 pointer (nil)",
+			field:         zapfluent.Int32Ptr("my_int32_ptr", nil),
+			expectedKey:   "my_int32_ptr",
 			expectedValue: core.NilSentinel,
 		},
 		{

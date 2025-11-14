@@ -68,6 +68,16 @@ func Int16Ptr(name string, value *int16) TypedPointerField[int16] {
 	return core.Int16Ptr(name, value)
 }
 
+// Int32 returns a new field with an int32 value.
+func Int32(name string, value int32) TypedField[int32] {
+	return core.Int32(name, value)
+}
+
+// Int32Ptr returns a new field with an *int32 value.
+func Int32Ptr(name string, value *int32) TypedPointerField[int32] {
+	return core.Int32Ptr(name, value)
+}
+
 // Object returns a new field with a value that implements zapcore.ObjectMarshaler.
 //
 // It requires an `isNonZero` function to determine if the object should be
