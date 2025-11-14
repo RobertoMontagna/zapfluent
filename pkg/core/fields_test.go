@@ -64,6 +64,63 @@ func TestBool(t *testing.T) {
 	fieldsTestCaseValidation(t, testCases)
 }
 
+func TestInt16(t *testing.T) {
+	testCases := []fieldTestCase{
+		{
+			name:          "it creates an int16 field correctly",
+			field:         core.Int16("my-key", 12),
+			expectedKey:   "my-key",
+			expectedValue: int16(12),
+			shouldBeEmpty: false,
+		},
+		{
+			name:          "NonZero filter works correctly with non-zero value",
+			field:         core.Int16("non-zero-key", 4).NonZero(),
+			expectedKey:   "non-zero-key",
+			expectedValue: int16(4),
+			shouldBeEmpty: false,
+		},
+		{
+			name:          "NonZero filter works correctly with zero value",
+			field:         core.Int16("zero-key", 0).NonZero(),
+			expectedKey:   "zero-key",
+			shouldBeEmpty: true,
+		},
+	}
+
+	fieldsTestCaseValidation(t, testCases)
+}
+
+func TestInt16Ptr(t *testing.T) {
+	testCases := []fieldTestCase{
+		{
+			name:          "when pointer is not nil, it encodes the value",
+			field:         core.Int16Ptr("my-key", lang.ToPtr(int16(12))),
+			expectedKey:   "my-key",
+			expectedValue: int16(12),
+		},
+		{
+			name:          "when pointer is nil, it encodes NilSentinel",
+			field:         core.Int16Ptr("my-key", nil),
+			expectedKey:   "my-key",
+			expectedValue: core.NilSentinel,
+		},
+		{
+			name:          "when pointer is not nil, it returns a valid field",
+			field:         core.Int16Ptr("my-key", lang.ToPtr(int16(12))).NonNil(),
+			expectedKey:   "my-key",
+			expectedValue: int16(12),
+		},
+		{
+			name:          "when pointer is nil, it returns an empty field",
+			field:         core.Int16Ptr("my-key", nil).NonNil(),
+			shouldBeEmpty: true,
+		},
+	}
+
+	fieldsTestCaseValidation(t, testCases)
+}
+
 func TestBoolPtr(t *testing.T) {
 	testCases := []fieldTestCase{
 		{
