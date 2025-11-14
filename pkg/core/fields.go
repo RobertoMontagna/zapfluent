@@ -39,6 +39,30 @@ var (
 	}
 	int8TypePointerFns = primitiveTypePointerFns(int8TypeFns, Int8)
 
+	// int16TypeFns holds the cached typeFieldFunctions for int16 fields.
+	int16TypeFns = typeFieldFunctions[int16]{
+		encodeFunc: func(encoder zapcore.ObjectEncoder, name string, value int16) error {
+			encoder.AddInt16(name, value)
+			return nil
+		},
+		isNonZero: func(i int16) bool {
+			return i != 0
+		},
+	}
+	int16TypePointerFns = primitiveTypePointerFns(int16TypeFns, Int16)
+
+	// int32TypeFns holds the cached typeFieldFunctions for int32 fields.
+	int32TypeFns = typeFieldFunctions[int32]{
+		encodeFunc: func(encoder zapcore.ObjectEncoder, name string, value int32) error {
+			encoder.AddInt32(name, value)
+			return nil
+		},
+		isNonZero: func(i int32) bool {
+			return i != 0
+		},
+	}
+	int32TypePointerFns = primitiveTypePointerFns(int32TypeFns, Int32)
+
 	// stringTypeFns holds the cached typeFieldFunctions for string fields.
 	stringTypeFns = typeFieldFunctions[string]{
 		encodeFunc: func(encoder zapcore.ObjectEncoder, name string, value string) error {
@@ -104,6 +128,44 @@ func Int8(name string, value int8) TypedField[int8] {
 func Int8Ptr(name string, value *int8) TypedPointerField[int8] {
 	return newPointerField(
 		int8TypePointerFns,
+		name,
+		value,
+	)
+}
+
+// Int16 returns a new field with an int16 value.
+func Int16(name string, value int16) TypedField[int16] {
+	return newTypedField(
+		int16TypeFns,
+		name,
+		value,
+	)
+}
+
+// Int16Ptr returns a new field with an *int16 value.
+// When value is nil, it encodes as NilSentinel to make nil explicit.
+func Int16Ptr(name string, value *int16) TypedPointerField[int16] {
+	return newPointerField(
+		int16TypePointerFns,
+		name,
+		value,
+	)
+}
+
+// Int32 returns a new field with an int32 value.
+func Int32(name string, value int32) TypedField[int32] {
+	return newTypedField(
+		int32TypeFns,
+		name,
+		value,
+	)
+}
+
+// Int32Ptr returns a new field with an *int32 value.
+// When value is nil, it encodes as NilSentinel to make nil explicit.
+func Int32Ptr(name string, value *int32) TypedPointerField[int32] {
+	return newPointerField(
+		int32TypePointerFns,
 		name,
 		value,
 	)
